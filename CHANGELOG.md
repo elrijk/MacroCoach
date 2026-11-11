@@ -4,6 +4,7 @@
 
 - "To chat" button on every macro: a chat link that other MacroCoach users open with a click. Your own macros can be shared this way and are added only after a confirmation.
 - Changed the game language? Ready-made macros already on your bars switch to the new language by themselves, both ways. `/coach lang` does it on demand.
+- The same now covers your own macros and ready-made ones you edited. The Check tab has a "Macro language" card: it lists MacroCoach macros still in another language, says why, and translates them with one button.
 - Smart consumables: potion, bandage and food macros show the item you actually have in your bags.
 - The window opens beside the game's macro window by itself and closes with it. `/coach beside` turns this off.
 - "Send to the author" on the My macros tab and "Suggest a macro" in the window header: pick a macro, describe it, and the addon builds a link to a pre-filled GitHub issue.

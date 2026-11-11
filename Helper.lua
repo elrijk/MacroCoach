@@ -1843,11 +1843,14 @@ local function SameTemplate(body, m)
 end
 
 -- Один готовый макрос: найти его в игре под любым из названий и перевести.
--- Возвращает "done", "wait" (названия заклинаний ещё не загружены) или nil;
--- вторым - почему не тронут (для /coach lang).
-local function ResyncOne(db, class, m)
-  if db.edits[UI.Key(class, m)] then return nil end
+-- Изменённый игроком готовый макрос сверяется со своим изменённым текстом.
+-- dry - ничего не менять, только сказать, что будет.
+-- Возвращает: "done", "todo" (dry: надо перевести), "wait" (названия
+-- заклинаний ещё не загружены) или nil; почему не тронут; номер макроса в
+-- игре и его название там.
+local function ResyncOne(db, class, m, dry)
   local em = UI.Effective(class, m)
+  local edited = db.edits[UI.Key(class, m)] ~= nil
   for _, old in ipairs(OldNames(class, m, em)) do
     local index = GetMacroIndexByName(old)
     if index and index > 0 then
@@ -1855,10 +1858,20 @@ local function ResyncOne(db, class, m)
       if name ~= old or type(now) ~= "string" then return nil end
       -- игра может хранить текст с пробелами и переводом строки в конце
       local body = now:gsub("%s+$", "")
-      local best = m.best
-      if not (db.own[old] == now or SameTemplate(body, m)) then
-        -- макрос другого класса с тем же названием или текст меняли руками
-        return nil, "other"
+      local best = em.best
+      local ours = db.own[old] == now
+      if not ours then
+        if edited then
+          local ok, hit = pcall(SameShape, body, em.body)
+          ours = ok and hit
+        else
+          ours = SameTemplate(body, m)
+        end
+      end
+      if not ours then
+        -- макрос другого класса с тем же названием или текст меняли руками;
+        -- "changed" - название наше, но на другом языке
+        return nil, old ~= em.name and "changed" or "other", index, old
       end
       -- еда и вода: в тексте только id предметов, меняется одно название
       local want, missing = now, nil
@@ -1869,60 +1882,134 @@ local function ResyncOne(db, class, m)
         for id in em.body:gmatch("{[sr]:(%d+)}") do
           if not C_Spell.GetSpellName(tonumber(id)) then ids[#ids + 1] = id end
         end
-        return "wait", "spell " .. table.concat(ids, ", ")
+        return "wait", "spell " .. table.concat(ids, ", "), index, old
       end
-      if old == em.name and want == now then return nil end -- уже на нужном языке
-      if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name end
-      if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long" end
+      if old == em.name and (want == now or want == body) then return nil, nil, index, old end -- уже на нужном языке
+      if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name, index, old end
+      if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, old end
+      if dry then return "todo", nil, index, old end
       EditMacro(index, em.name, icon, want)
       db.own[old] = nil
       db.own[em.name] = want
-      return "done"
+      return "done", nil, index, em.name
     end
   end
 end
 
--- force - не смотреть, менялся ли язык, и написать в чат, что не тронуто и
--- почему (/coach lang).
-function H.ResyncLanguage(retry, force)
-  local db = UI.DB()
-  local h = db.helper
-  db.own = db.own or {}
-  -- «3»: третья версия проверки (по виду текста, каждый макрос отдельно)
-  local sig = "3/" .. (GetLocale() or "") .. "/" .. (ns.lang or "")
-  if h.langSig == sig and not force then return end
-  if InCombatLockdown() then
-    UI.AfterCombat("resyncLang", function() H.ResyncLanguage(retry, force) end)
-    return
+-- Свой макрос (вкладка «Свои макросы»): название от языка не зависит,
+-- меняются только названия заклинаний в тексте. Возвращает то же, что ResyncOne.
+local function ResyncCustom(db, entry, dry)
+  local index = GetMacroIndexByName(entry.name)
+  if not index or index == 0 then return nil end
+  local name, icon, now = GetMacroInfo(index)
+  if name ~= entry.name or type(now) ~= "string" then return nil end
+  local stored = B.Build(entry)
+  local body = now:gsub("%s+$", "")
+  local ours = db.own[name] == now
+  if not ours then
+    local ok, hit = pcall(SameShape, body, stored)
+    ours = ok and hit
   end
-  local done, waiting, notes = 0, false, {}
+  if not ours then return nil, "other", index, name end
+  local want, missing = UI.Render(stored)
+  if missing then
+    UI.RequestSpells(stored)
+    return "wait", "spell", index, name
+  end
+  if want == now or want == body then return nil, nil, index, name end
+  if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, name end
+  if dry then return "todo", nil, index, name end
+  EditMacro(index, name, icon, want)
+  if db.own[name] then db.own[name] = want end
+  return "done", nil, index, name
+end
+
+-- Пройти все макросы аддона, что могут стоять в игре: готовые и свои.
+-- fn(подпись, ok, итог, почему, номер, название в игре).
+local function LangEach(db, dry, fn)
   for class, groups in pairs(ns.MACROS) do
     for _, g in ipairs(groups) do
       for _, m in ipairs(g.list or {}) do
         -- ошибка на одном макросе не мешает остальным
-        local ok, res, why = pcall(ResyncOne, db, class, m)
-        if not ok then
-          notes[#notes + 1] = class .. "/" .. m.name .. ": error " .. tostring(res)
-        elseif res == "done" then
-          done = done + 1
-        elseif res == "wait" then
-          waiting = true
-          notes[#notes + 1] = class .. "/" .. m.name .. ": " .. tostring(why)
-        elseif why and why ~= "other" then
-          notes[#notes + 1] = class .. "/" .. m.name .. ": " .. why
-        end
+        fn(class .. "/" .. m.name, pcall(ResyncOne, db, class, m, dry))
       end
     end
   end
+  for _, entry in ipairs(UI.CustomList()) do
+    fn("CUSTOM/" .. tostring(entry.name), pcall(ResyncCustom, db, entry, dry))
+  end
+end
+
+-- Для вкладки «Проверка»: какие макросы аддона в игре не на языке игры.
+-- { { index, name, icon, state = "todo" | "wait" | "blocked" | "changed", why } }
+local LANG_RANK = { ok = 5, todo = 4, wait = 3, blocked = 2, changed = 1 }
+function H.LanguageScan()
+  local db = UI.DB()
+  db.own = db.own or {}
+  local byIndex = {}
+  LangEach(db, true, function(_, ok, res, why, index, name)
+    if not ok or not index then return end
+    local state
+    if res == "todo" or res == "wait" then state = res
+    elseif why == "other" then return
+    elseif why == "changed" then state = "changed"
+    elseif why then state = "blocked"
+    else state = "ok" end
+    -- одно название бывает у макросов разных классов: верим тому, чей текст совпал
+    local cur = byIndex[index]
+    if not cur or LANG_RANK[state] > LANG_RANK[cur.state] then
+      byIndex[index] = { index = index, name = name, state = state, why = why }
+    end
+  end)
+  local list = {}
+  for _, e in pairs(byIndex) do
+    if e.state ~= "ok" then
+      local _, icon = GetMacroInfo(e.index)
+      e.icon = icon
+      list[#list + 1] = e
+    end
+  end
+  table.sort(list, function(a, b) return a.index < b.index end)
+  return list
+end
+
+-- force - не смотреть, менялся ли язык, и написать в чат, что не тронуто и
+-- почему (/coach lang); "ui" - кнопка во вкладке «Проверка»: без этих строк.
+-- after - что сделать, когда закончили (обновить страницу).
+function H.ResyncLanguage(retry, force, after)
+  local db = UI.DB()
+  local h = db.helper
+  db.own = db.own or {}
+  -- «4»: четвёртая версия проверки (ещё свои макросы и изменённые готовые)
+  local sig = "4/" .. (GetLocale() or "") .. "/" .. (ns.lang or "")
+  if h.langSig == sig and not force then return end
+  if InCombatLockdown() then
+    UI.AfterCombat("resyncLang", function() H.ResyncLanguage(retry, force, after) end)
+    return
+  end
+  local done, waiting, notes = 0, false, {}
+  LangEach(db, false, function(label, ok, res, why)
+    if not ok then
+      notes[#notes + 1] = label .. ": error " .. tostring(res)
+    elseif res == "done" then
+      done = done + 1
+    elseif res == "wait" then
+      waiting = true
+      notes[#notes + 1] = label .. ": " .. tostring(why)
+    elseif why and why ~= "other" then
+      notes[#notes + 1] = label .. ": " .. why
+    end
+  end)
   if done > 0 then Print((T("язык сменился: макросов переведено на новый язык - %d. На панелях они остались на своих местах.")):format(done)) end
-  if force then
+  if after then pcall(after, done) end
+  if force and force ~= "ui" then
     Print("lang: done " .. done .. ", notes " .. #notes)
     for i = 1, math.min(#notes, 20) do Print("  " .. notes[i]) end
   end
   retry = tonumber(retry) or 0
   if waiting and retry < 3 then
     -- названия заклинаний ещё грузятся: до трёх повторных попыток
-    C_Timer.After(3, function() pcall(H.ResyncLanguage, retry + 1, force) end)
+    C_Timer.After(3, function() pcall(H.ResyncLanguage, retry + 1, force, after) end)
     return
   end
   -- что-то так и не загрузилось - попробуем снова при следующем входе
@@ -2834,6 +2921,39 @@ local function BuildCheckPage(key)
     return r
   end
 
+  -- Язык макросов: готовые и свои макросы аддона, оставшиеся на другом языке
+  local lang = CheckCard(T("Язык макросов"),
+    T("Макросы MacroCoach в игре должны быть на языке игры: иначе на кнопке квадратики, а макрос не работает. После смены языка аддон переводит их сам; здесь видно, что осталось."),
+    { T("Другой язык"), T("Язык игры") })
+  local lRows = {}
+  local lFix = Button(lang, "", 220, function()
+    H.ResyncLanguage(nil, "ui", function() Refresh() end)
+  end, T("Переведёт название и текст на язык игры. На панелях макросы останутся на своих местах."))
+  local LANG_WHY = {
+    todo = T("На другом языке: переведётся кнопкой ниже."),
+    wait = T("Названия заклинаний ещё загружаются: нажми «Проверить снова»."),
+    changed = T("Название готового макроса на другом языке, а текст меняли руками: аддон его не трогает."),
+    long = T("Не переведён: на языке игры текст длиннее 255 знаков."),
+    taken = T("Не переведён: название «%s» уже занято другим макросом."),
+  }
+  local function LangRow(i)
+    if lRows[i] then return lRows[i] end
+    local r = CreateFrame("Frame", nil, lang)
+    r:SetWidth(inner)
+    r.icon = IconSlot(r, ROW_ICON)
+    r.icon:SetPoint("TOPLEFT", rowPad, -rowPad + 2)
+    local tx = ROW_ICON + rowPad * 2 + 8
+    r.name = UI.Text(r, "SystemFont_Med2", "GameFontHighlight", GOLD)
+    r.name:SetPoint("TOPLEFT", tx, 0)
+    r.name:SetWidth(inner - tx)
+    r.name:SetWordWrap(false)
+    r.why = Small(r, LIGHT)
+    r.why:SetWidth(inner - tx)
+    r.why:SetPoint("TOPLEFT", tx, -18)
+    lRows[i] = r
+    return r
+  end
+
   function page:Layout()
     local y = -header:Layout(16)
     -- Ранги
@@ -2874,6 +2994,44 @@ local function BuildCheckPage(key)
     ry = ButtonRow(ranks, { rFix, rKeepAll, rUndo, rKept }, ry)
     ranks:SetHeight(ry + 4)
     y = y - ry - 4 - 10
+
+    -- Язык макросов
+    page.lang = H.LanguageScan()
+    lang:ClearAllPoints()
+    lang:SetPoint("TOPLEFT", 10, y)
+    local todo = 0
+    for _, e in ipairs(page.lang) do if e.state == "todo" then todo = todo + 1 end end
+    if #page.lang == 0 then
+      lang.status:SetText(StatusText(true, T("Все макросы MacroCoach - на языке игры.")))
+    else
+      lang.status:SetText(StatusText(false, (T("На другом языке: %d.")):format(#page.lang)))
+    end
+    local l1 = page.lang[1]
+    local lIcon = (l1 and l1.icon) or UI.SpellIcon(ExampleSpell("mo")) or "Interface\\Icons\\INV_Misc_Note_01"
+    local ly = TopLayout(lang, { { tex = lIcon, note = T("Макрос на другом языке: игра не узнаёт названия заклинаний.") } }, lIcon, "ok")
+    for _, r in ipairs(lRows) do r:Hide() end
+    for i, e in ipairs(page.lang) do
+      local r = LangRow(i)
+      r.icon.tex:SetTexture(e.icon or 134400)
+      r.name:SetText(e.name or "")
+      local why = LANG_WHY[e.state]
+      if e.state == "blocked" then
+        local taken = tostring(e.why or ""):match("^name taken: (.+)$")
+        why = taken and LANG_WHY.taken:format(taken) or LANG_WHY.long
+      end
+      r.why:SetText((e.state == "todo" and YELLOW or RED) .. "- " .. (why or "") .. "|r")
+      local h = math.max(18 + r.why:GetStringHeight() + 4, ROW_ICON + rowPad * 2)
+      r:SetHeight(h)
+      r:ClearAllPoints()
+      r:SetPoint("TOPLEFT", 16, -ly)
+      r:Show()
+      ly = ly + h + 10
+    end
+    lFix:SetText((T("Перевести все (%d)")):format(todo))
+    lFix:SetShown(todo > 0)
+    ly = ButtonRow(lang, { lFix }, ly)
+    lang:SetHeight(ly + 4)
+    y = y - ly - 4 - 10
 
     -- Макросы: проверяются при каждом открытии и по «Проверить снова»
     page.macros, page.total = H.CheckGameMacros()
