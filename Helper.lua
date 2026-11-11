@@ -1823,14 +1823,33 @@ local function OldNames(class, m, em)
     return names
 end
 
+-- Текст макроса в игре - наш готовый макрос на другом языке: тот же текст,
+-- что в данных, только на месте каждого {s:ID} и {r:ID} стоит какое-то
+-- название. Сверяем со всеми вариантами настроек безопасного лечения.
+-- Так находятся и макросы, созданные до того, как аддон начал их записывать.
+local function Skeleton(tpl)
+    local pat = tpl:gsub("{[sr]:%d+}", "\0")
+    pat = pat:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
+    return "^" .. pat:gsub("%z", "(.-)") .. "$"
+end
+local function SameTemplate(body, m)
+    if m.best or type(body) ~= "string" then return false end
+    for _, heal in ipairs({ false, true }) do
+        for _, alt in ipairs({ false, true }) do
+            local ok, hit = pcall(string.find, body, Skeleton(H.SafeBody(m.body, heal, alt)))
+            if ok and hit then return true end
+        end
+    end
+    return false
+end
+
 function H.ResyncLanguage(retry)
     local db = UI.DB()
     local h = db.helper
-    local sig = (GetLocale() or "") .. "/" .. (ns.lang or "")
-    if h.langSig == sig or not db.own or not next(db.own) then
-        h.langSig = sig
-        return
-    end
+    db.own = db.own or {}
+    -- «2»: вторая версия проверки (по виду текста, а не только по записи)
+    local sig = "2/" .. (GetLocale() or "") .. "/" .. (ns.lang or "")
+    if h.langSig == sig then return end
     if InCombatLockdown() then
         UI.AfterCombat("resyncLang", H.ResyncLanguage)
         return
@@ -1843,10 +1862,10 @@ function H.ResyncLanguage(retry)
                     local em = UI.Effective(class, m)
                     for _, old in ipairs(OldNames(class, m, em)) do
                         local index = GetMacroIndexByName(old)
-                        local body = db.own[old]
-                        if index and index > 0 and body then
+                        if index and index > 0 then
                             local name, icon, now = GetMacroInfo(index)
-                            if name == old and now == body then
+                            local body = now
+                            if name == old and (db.own[old] == now or SameTemplate(now, m)) then
                                 -- еда и вода: в тексте только id предметов, меняется одно название
                                 local want, missing = body, nil
                                 if not m.best then want, missing = UI.Render(em.body) end
