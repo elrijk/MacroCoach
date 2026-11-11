@@ -11,13 +11,26 @@ read in plain words what it does, press Add, and drop it on your action bar.
 - **Explain**: any macro broken down line by line in plain words.
 - **Builder**: make your own macro from drop-down lists instead of an empty text box. Text mode can translate English spell names to your client's language.
 - **Check**: finds old spell ranks on your bars and replaces them, flags typos, unknown spells and things removed in WoW Forever.
-- **Share**: export your macros as a text code and import someone else's.
+- **Share**: a chat link other MacroCoach users open with a click; export your macros as a text code and import someone else's.
+- **Language change**: switch the game language and the ready-made macros on your bars translate themselves.
+- **Smart consumables**: potion, bandage and food buttons show the item you actually carry.
+- **Backup**: every macro of the game saved and restored with one button.
 - **Safe**: never overwrites your own macro with the same name without asking; anything that cannot be done in combat waits until combat ends.
 
 ## Commands
 
-`/coach` opens the window. `/coach commands` lists the rest. There is also a
-"Ready-made macros" tab on the side of the game's `/macro` window.
+`/coach` opens the window. `/coach commands` lists the rest. The window also
+opens by itself beside the game's `/macro` window (`/coach beside` turns this
+off).
+
+## Suggest a macro
+
+Have a macro others would use? The "Suggest a macro" button in the window
+header gives a code: paste it into an issue.
+
+## License
+
+MIT, see `LICENSE`. Sources: `THIRD-PARTY.md`.
 
 ## Languages
 
@@ -37,6 +50,9 @@ please open an issue with the correct text.
 - **Объяснение** любого макроса по строкам простыми словами.
 - **Конструктор** своих макросов из списков; перевод английских названий заклинаний.
 - **Проверка**: старые ранги на панелях, опечатки, невыученное, убранное в Forever.
-- **Импорт и экспорт** своих макросов кодом.
+- **Импорт и экспорт** своих макросов кодом; ссылка на макрос в чат.
+- **Смена языка игры**: готовые макросы на панелях переводятся сами.
+- **Умные расходники**: кнопка показывает то зелье и те бинты, что есть в сумках.
+- **Резервная копия** всех макросов игры с восстановлением.
 
-Команда: `/coach` или `/макросы`.
+Команда: `/coach` или `/макросы`. Лицензия MIT.

@@ -3,7 +3,14 @@
 ## 1.2.0
 
 - "To chat" button on every macro: a chat link that other MacroCoach users open with a click. Your own macros can be shared this way and are added only after a confirmation.
-- New strings are in English and Russian only; other languages show them in English.
+- Changed the game language? Ready-made macros already on your bars switch to the new language by themselves, both ways. `/coach lang` does it on demand.
+- Smart consumables: potion, bandage and food macros show the item you actually have in your bags.
+- The window opens beside the game's macro window by itself and closes with it. `/coach beside` turns this off.
+- "Suggest a macro" button in the window header: send your own macro to the author.
+- One-screen introduction on first open; "?" in the header shows it again.
+- On an English client, macro names on the bars are English.
+- All new strings are translated into the 8 other languages (machine translation).
+- Internal: the main file is split into five; fallbacks for clients other than WoW Forever are removed.
 
 ## 1.1.0
 
