@@ -803,7 +803,7 @@ local function BuildSettings()
     sf:SetScript("OnSizeChanged", function(_, w) if w and w > 0 then body:SetWidth(w) end end)
   end
 
-  local title = body:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+  local title = body:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
   title:SetPoint("TOPLEFT", 16, -16)
   title:SetText("|cff33ff99Macro|rCoach")
 
@@ -811,7 +811,7 @@ local function BuildSettings()
   local lang = LanguageDropdown(body)
   lang:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -14)
 
-  local sub = body:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+  local sub = body:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   sub:SetPoint("TOPLEFT", lang, "BOTTOMLEFT", 0, -6)
   sub:SetWidth(560)
   sub:SetJustifyH("LEFT")
@@ -825,7 +825,7 @@ local function BuildSettings()
     P.frame:Raise()
   end
   local open = CreateFrame("Button", nil, body, "UIPanelButtonTemplate")
-  open:SetSize(200, 26)
+  open:SetSize(200, 28)
   open:SetPoint("TOPLEFT", sub, "BOTTOMLEFT", 0, -14)
   open:SetText(T("Открыть окно"))
   open:SetScript("OnClick", function()
@@ -834,7 +834,7 @@ local function BuildSettings()
     P.frame:Raise()
   end)
   local intro = CreateFrame("Button", nil, body, "UIPanelButtonTemplate")
-  intro:SetSize(200, 26)
+  intro:SetSize(200, 28)
   intro:SetPoint("LEFT", open, "RIGHT", 10, 0)
   intro:SetText(T("Как пользоваться"))
   intro:SetScript("OnClick", function()
@@ -843,39 +843,37 @@ local function BuildSettings()
     P.frame:Raise()
   end)
 
-  -- Настройки - простым списком, как у EasyCraft: галочки (что это - в
-  -- подсказке при наведении), ползунок размера подписей и кнопки.
-  local CHECKS = {
-    { label = "Показывать кнопку у миникарты",
-      get = function() return not DB().minimap.hide end,
-      set = function(v) P.SetMinimapHidden(not v) end },
-    { label = "Скрыть названия макросов",
-      note = "Подпись под значком макроса на всех панелях. Работает и с Bartender, ElvUI и похожими панелями.",
-      get = function() return DB().barNames.hide and true or false end,
-      set = function(v)
-        DB().barNames.hide = v or nil
-        ns.ApplyBarNames()
-      end },
-  }
-  for _, o in ipairs(P.HELP_OPTS or {}) do
-    CHECKS[#CHECKS + 1] = { label = o.label, note = o.note, learn = o.key == "learn",
-      get = function() return ns.Helper and ns.Helper.Opt(o.key) and true or false end,
-      set = function(v)
-        if not ns.Helper then return end
-        ns.Helper.SetOpt(o.key, v)
-        if o.resync then ns.Helper.ResyncReady() end
-      end }
+  -- Всё ниже кнопок - одним столбцом сверху вниз: разделы с линией под
+  -- заголовком, галочки, кнопки, ползунки. y - где встанет следующий элемент.
+  local list = CreateFrame("Frame", nil, body)
+  list:SetSize(600, 10)
+  local LABEL_FONT = _G.GameFontHighlightMedium or GameFontHighlight
+  local function NewHeader(text)
+    local h = CreateFrame("Frame", nil, list)
+    h:SetSize(580, 28)
+    local fs = h:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    fs:SetPoint("TOPLEFT", 0, 0)
+    fs:SetText(text)
+    local line = h:CreateTexture(nil, "ARTWORK")
+    line:SetColorTexture(1, 1, 1, 0.25)
+    line:SetHeight(1)
+    line:SetPoint("BOTTOMLEFT", 0, 0)
+    line:SetPoint("BOTTOMRIGHT", 0, 0)
+    return h
   end
-  local checks, prev = {}, open
-  for i, o in ipairs(CHECKS) do
-    local c = CreateFrame("CheckButton", nil, body, "UICheckButtonTemplate")
-    c:SetSize(26, 26)
-    c:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", i == 1 and -2 or 0, i == 1 and -14 or -4)
-    c.label = c:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+  list:SetPoint("TOPLEFT", open, "BOTTOMLEFT", -16, -6)
+
+  -- галочка: что это - в подсказке при наведении
+  local checks = {}
+  local function NewCheck(o)
+    local c = CreateFrame("CheckButton", nil, list, "UICheckButtonTemplate")
+    c:SetSize(30, 30)
+    c.label = c:CreateFontString(nil, "ARTWORK")
+    c.label:SetFontObject(LABEL_FONT)
     c.label:SetPoint("LEFT", c, "RIGHT", 4, 0)
     c.label:SetText(T(o.label))
     -- наведение и щелчок - и по подписи тоже
-    c:SetHitRectInsets(0, -math.min(420, math.ceil(c.label:GetStringWidth() or 0) + 6), 0, 0)
+    c:SetHitRectInsets(0, -math.min(460, math.ceil(c.label:GetStringWidth() or 0) + 6), 0, 0)
     c:SetScript("OnClick", function(self) o.set(self:GetChecked() and true or false) end)
     if o.note then
       c:SetScript("OnEnter", function(self)
@@ -887,35 +885,13 @@ local function BuildSettings()
       c:SetScript("OnLeave", function() GameTooltip:Hide() end)
     end
     c.opt = o
-    checks[i] = c
-    prev = c
+    checks[#checks + 1] = c
+    return c
   end
-
   local Refresh
-  -- размер подписей макросов на панелях
-  local okS, sl = pcall(CreateFrame, "Slider", "MacroCoachNameSizeSlider", body, "OptionsSliderTemplate")
-  if not okS then sl = nil end
-  local slText, slSetting
-  if sl then
-    sl:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 6, -28)
-    sl:SetWidth(220)
-    sl:SetMinMaxValues(6, 20)
-    sl:SetValueStep(1)
-    if sl.SetObeyStepOnDrag then sl:SetObeyStepOnDrag(true) end
-    slText = sl.Text or _G[sl:GetName() .. "Text"]
-    local low, high = sl.Low or _G[sl:GetName() .. "Low"], sl.High or _G[sl:GetName() .. "High"]
-    if type(low) == "table" and low.SetText then low:SetText("6") end
-    if type(high) == "table" and high.SetText then high:SetText("20") end
-    sl:SetScript("OnValueChanged", function(_, v)
-      if slSetting then return end -- значение ставит сама страница
-      DB().barNames.size = math.floor(v + 0.5)
-      ns.ApplyBarNames()
-      Refresh()
-    end)
-  end
   local function PlainButton(text, width, onClick, tip)
-    local b = CreateFrame("Button", nil, body, "UIPanelButtonTemplate")
-    b:SetSize(width, 22)
+    local b = CreateFrame("Button", nil, list, "UIPanelButtonTemplate")
+    b:SetSize(width, 26)
     b:SetText(text)
     b:SetScript("OnClick", onClick)
     if b.SetMotionScriptsWhileDisabled then b:SetMotionScriptsWhileDisabled(true) end
@@ -930,49 +906,164 @@ local function BuildSettings()
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
     return b
   end
-  local sizeReset = PlainButton(T("Как в игре"), 120, function()
+
+  ---------------------------------------------------------------- Общее
+  local hGeneral = NewHeader(T("Общее"))
+  local cMinimap = NewCheck({ label = "Показывать кнопку у миникарты",
+    get = function() return not DB().minimap.hide end,
+    set = function(v) P.SetMinimapHidden(not v) end })
+
+  ------------------------------------------- Названия макросов на панелях
+  local hNames = NewHeader(T("Названия макросов на панелях"))
+  local cHide = NewCheck({ label = "Скрыть названия макросов",
+    note = "Подпись под значком макроса на всех панелях. Работает и с Bartender, ElvUI и похожими панелями.",
+    get = function() return DB().barNames.hide and true or false end,
+    set = function(v)
+      DB().barNames.hide = v or nil
+      ns.ApplyBarNames()
+    end })
+  local okS, sl = pcall(CreateFrame, "Slider", "MacroCoachNameSizeSlider", list, "OptionsSliderTemplate")
+  if not okS then sl = nil end
+  local slText, slSetting
+  if sl then
+    sl:SetWidth(260)
+    sl:SetMinMaxValues(6, 20)
+    sl:SetValueStep(1)
+    if sl.SetObeyStepOnDrag then sl:SetObeyStepOnDrag(true) end
+    local n = sl:GetName()
+    local function part(key)
+      local p = sl[key] or (n and _G[n .. key])
+      return type(p) == "table" and p.SetText and p or nil
+    end
+    slText = part("Text")
+    local low, high = part("Low"), part("High")
+    if low then low:SetText("6") end
+    if high then high:SetText("20") end
+    sl:SetScript("OnValueChanged", function(_, v)
+      if slSetting then return end -- значение ставит сама страница
+      DB().barNames.size = math.floor(v + 0.5)
+      ns.ApplyBarNames()
+      Refresh()
+    end)
+  end
+  local sizeReset = PlainButton(T("Как в игре"), 140, function()
     DB().barNames.size = nil
     ns.ApplyBarNames()
     Refresh()
   end)
-  if sl then sizeReset:SetPoint("LEFT", sl, "RIGHT", 18, 0) else sizeReset:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 2, -14) end
 
-  -- резервная копия и очистка макросов игры
+  ----------------------------------------------- Безопасность и подсказки
+  local hHelp = NewHeader(T("Безопасность и подсказки"))
+  local helpChecks = {}
+  for _, o in ipairs(P.HELP_OPTS or {}) do
+    helpChecks[#helpChecks + 1] = NewCheck({ label = o.label, note = o.note, learn = o.key == "learn",
+      get = function() return ns.Helper and ns.Helper.Opt(o.key) and true or false end,
+      set = function(v)
+        if not ns.Helper then return end
+        ns.Helper.SetOpt(o.key, v)
+        if o.resync then ns.Helper.ResyncReady() end
+      end })
+  end
+
+  ----------------------------------------------- Резервная копия макросов
+  local hBackup = NewHeader(T("Резервная копия макросов"))
   local function BackupTip()
     local when, saved = ns.Backup.Info()
     return T("Сохраняет все макросы из окна /macro: общие и этого персонажа. Из копии можно вернуть текст изменённых макросов и удалённые макросы.")
       .. "\n" .. (when and (T("Копия от %s: макросов %d.")):format(date("%d.%m.%Y %H:%M", when), saved) or T("Копии пока нет."))
   end
-  local WIPE_TIP = T("Удаляет макросы из окна /macro: общие (видны всем персонажам) или только этого персонажа. Готовые и свои макросы в аддоне останутся, их можно добавить снова.")
-  local bSave = PlainButton(T("Сохранить копию"), 240, function()
+  local bSave = PlainButton(T("Сохранить копию"), 260, function()
     ns.Backup.Save()
     Refresh()
   end, BackupTip)
-  if sl then bSave:SetPoint("TOPLEFT", sl, "BOTTOMLEFT", -4, -30) else bSave:SetPoint("TOPLEFT", sizeReset, "BOTTOMLEFT", 0, -14) end
-  local bRestore = PlainButton(T("Вернуть из копии"), 240, function() ns.Backup.Restore() end, BackupTip)
-  bRestore:SetPoint("LEFT", bSave, "RIGHT", 10, 0)
-  local wipeShared = PlainButton("", 240, function() ns.AskWipe(false) end, WIPE_TIP)
-  wipeShared:SetPoint("TOPLEFT", bSave, "BOTTOMLEFT", 0, -8)
-  local wipeChar = PlainButton("", 240, function() ns.AskWipe(true) end, WIPE_TIP)
-  wipeChar:SetPoint("LEFT", wipeShared, "RIGHT", 10, 0)
-  local restoreShared = PlainButton("", 240, function()
+  local bRestore = PlainButton(T("Вернуть из копии"), 260, function() ns.Backup.Restore() end, BackupTip)
+
+  ------------------------------------------------ Очистить макросы в игре
+  local hWipe = NewHeader(T("Очистить макросы в игре"))
+  local WIPE_TIP = T("Удаляет макросы из окна /macro: общие (видны всем персонажам) или только этого персонажа. Готовые и свои макросы в аддоне останутся, их можно добавить снова.")
+  local wipeShared = PlainButton("", 260, function() ns.AskWipe(false) end, WIPE_TIP)
+  local wipeChar = PlainButton("", 260, function() ns.AskWipe(true) end, WIPE_TIP)
+  local restoreShared = PlainButton("", 260, function()
     ns.RestoreWiped(false)
     Refresh()
   end)
-  restoreShared:SetPoint("TOPLEFT", wipeShared, "BOTTOMLEFT", 0, -8)
-  local restoreChar = PlainButton("", 240, function()
+  local restoreChar = PlainButton("", 260, function()
     ns.RestoreWiped(true)
     Refresh()
   end)
-  restoreChar:SetPoint("TOPLEFT", wipeChar, "BOTTOMLEFT", 0, -8)
 
-  -- Импорт и экспорт - простым блоком в два столбца (Helper.lua,
-  -- BuildShareCompact). Строится при первом показе: к этому времени
-  -- загружены все файлы и известна ширина страницы.
-  local hostB = CreateFrame("Frame", nil, body)
+  ------------------------------------------------------- Импорт и экспорт
+  -- блок в два столбца (Helper.lua, BuildShareCompact) строится при первом
+  -- показе: к этому времени загружены все файлы и известна ширина страницы
+  local hShare = NewHeader(T("Импорт и экспорт"))
+  local hostB = CreateFrame("Frame", nil, list)
   hostB:SetSize(600, 10)
   local sharePage
-  local restoreRows = false
+
+  -------------------------------------------------------- Команды в чате
+  local hCmd = NewHeader(T("Команды в чате"))
+  local cmds = list:CreateFontString(nil, "ARTWORK")
+  cmds:SetFontObject(LABEL_FONT)
+  cmds:SetWidth(560)
+  cmds:SetJustifyH("LEFT")
+  if cmds.SetSpacing then cmds:SetSpacing(5) end
+  cmds:SetText(table.concat(CommandLines(), "\n"))
+
+  -- расставить всё сверху вниз (ряд «Вернуть удалённые» бывает скрыт)
+  local function Arrange(restoreRows)
+    local y = 0
+    local function Head(h)
+      y = y + 18
+      h:ClearAllPoints()
+      h:SetPoint("TOPLEFT", list, "TOPLEFT", 16, -y)
+      y = y + 28 + 8
+    end
+    local function Check(c)
+      c:ClearAllPoints()
+      c:SetPoint("TOPLEFT", list, "TOPLEFT", 14, -y)
+      y = y + 32
+    end
+    local function Row(a, b)
+      a:ClearAllPoints()
+      a:SetPoint("TOPLEFT", list, "TOPLEFT", 16, -(y + 6))
+      if b then
+        b:ClearAllPoints()
+        b:SetPoint("LEFT", a, "RIGHT", 10, 0)
+      end
+      y = y + 6 + 26 + 8
+    end
+    Head(hGeneral)
+    Check(cMinimap)
+    Head(hNames)
+    Check(cHide)
+    sizeReset:ClearAllPoints()
+    if sl then
+      sl:ClearAllPoints()
+      sl:SetPoint("TOPLEFT", list, "TOPLEFT", 22, -(y + 24))
+      sizeReset:SetPoint("LEFT", sl, "RIGHT", 20, 0)
+      y = y + 24 + 17 + 26
+    else
+      Row(sizeReset)
+    end
+    Head(hHelp)
+    for _, c in ipairs(helpChecks) do Check(c) end
+    Head(hBackup)
+    Row(bSave, bRestore)
+    Head(hWipe)
+    Row(wipeShared, wipeChar)
+    if restoreRows then Row(restoreShared, restoreChar) end
+    Head(hShare)
+    hostB:ClearAllPoints()
+    hostB:SetPoint("TOPLEFT", list, "TOPLEFT", 0, -y)
+    y = y + (sharePage and sharePage:Refresh() or 10) + 6
+    Head(hCmd)
+    cmds:ClearAllPoints()
+    cmds:SetPoint("TOPLEFT", list, "TOPLEFT", 16, -y)
+    y = y + (cmds:GetStringHeight() or 200) + 20
+    list:SetHeight(y)
+    -- сверху над списком: название, язык, описание и ряд кнопок
+    body:SetHeight(210 + y)
+  end
 
   Refresh = function()
     for _, c in ipairs(checks) do c:SetChecked(c.opt.get() and true or false) end
@@ -995,40 +1086,19 @@ local function BuildSettings()
     restoreChar:SetText((T("Вернуть удалённые (%d)")):format(backChar))
     restoreShared:SetShown(backShared > 0)
     restoreChar:SetShown(backChar > 0)
-    restoreRows = backShared > 0 or backChar > 0
     bRestore:SetEnabled(ns.Backup.Info() ~= nil)
-    hostB:ClearAllPoints()
-    hostB:SetPoint("TOPLEFT", restoreRows and restoreShared or wipeShared, "BOTTOMLEFT", -16, -24)
+    Arrange(backShared > 0 or backChar > 0)
   end
 
-  -- команды чата
-  local cmdHead = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-  cmdHead:SetPoint("TOPLEFT", hostB, "BOTTOMLEFT", 16, -20)
-  cmdHead:SetText(T("Команды в чате"))
-  local cmds = body:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-  cmds:SetPoint("TOPLEFT", cmdHead, "BOTTOMLEFT", 0, -8)
-  cmds:SetWidth(560)
-  cmds:SetJustifyH("LEFT")
-  if cmds.SetSpacing then cmds:SetSpacing(4) end
-  cmds:SetText(table.concat(CommandLines(), "\n"))
-
-  local function LayoutHosted()
-    Refresh()
-    local h2 = sharePage and sharePage:Refresh() or 10
-    hostB:SetHeight(h2)
-    -- высота всей страницы: шапка, галочки, ползунок, кнопки, импорт и команды
-    body:SetHeight(170 + #checks * 30 + 64 + (restoreRows and 3 or 2) * 30 + 16 + h2 + 20 + 24
-      + (cmds:GetStringHeight() or 200) + 30)
-  end
   panel:SetScript("OnShow", function()
     lang.Refresh()
     if not sharePage and ns.Helper and ns.Helper.BuildShareCompact then
       local w = math.max(520, math.floor(body:GetWidth() or 600) - 4)
       hostB:SetWidth(w)
-      sharePage = ns.Helper.BuildShareCompact(hostB, w)
+      sharePage = ns.Helper.BuildShareCompact(hostB, w, true)
     end
-    P.hostRelayout = LayoutHosted
-    LayoutHosted()
+    P.hostRelayout = Refresh
+    Refresh()
   end)
   panel:Hide()
   if Settings and Settings.RegisterCanvasLayoutCategory then

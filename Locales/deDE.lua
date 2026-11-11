@@ -1852,4 +1852,5 @@ ns.LOCALES.deDE = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Eine Zeile ist getrennt: Der Zaubername steht in einer eigenen Zeile und das Makro funktioniert nicht. Die Taste unten fügt die Zeilen zusammen.",
  ["restored as they were, macros: %d."] = "wie zuvor wiederhergestellt, Makros: %d.",
  ["Restores the macros' text and names as they were before the last fix."] = "Stellt Text und Namen der Makros so wieder her, wie sie vor der letzten Korrektur waren.",
+ ["General"] = "Allgemein",
 } end

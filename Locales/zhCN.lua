@@ -1869,4 +1869,5 @@ ns.LOCALES.zhCN = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "有一行被拆开了：法术名称单独成了一行，宏无法使用。下面的按钮会把两行合并。",
  ["restored as they were, macros: %d."] = "已恢复原样，宏：%d 个。",
  ["Restores the macros' text and names as they were before the last fix."] = "把宏的内容和名称恢复到上次修正之前的样子。",
+ ["General"] = "常规",
 } end

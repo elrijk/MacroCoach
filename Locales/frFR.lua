@@ -1837,4 +1837,5 @@ ns.LOCALES.frFR = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Une ligne est coupée : le nom du sort se retrouve seul sur une ligne et la macro ne fonctionne pas. Le bouton ci-dessous réunit les lignes.",
  ["restored as they were, macros: %d."] = "rétablies comme avant, macros : %d.",
  ["Restores the macros' text and names as they were before the last fix."] = "Rend aux macros le texte et les noms qu'elles avaient avant la dernière correction.",
+ ["General"] = "Général",
 } end

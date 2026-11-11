@@ -1475,3 +1475,8 @@ for k, v in pairs({
     ["возвращено как было, макросов: %d."] = "restored as they were, macros: %d.",
     ["Вернёт макросам текст и названия, какими они были до последнего исправления."] = "Restores the macros' text and names as they were before the last fix.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: разделы настроек
+for k, v in pairs({
+    ["Общее"] = "General",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

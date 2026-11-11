@@ -1869,4 +1869,5 @@ ns.LOCALES.zhTW = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "有一行被拆開了：法術名稱單獨成了一行，巨集無法使用。下面的按鈕會把兩行合併。",
  ["restored as they were, macros: %d."] = "已恢復原樣，巨集：%d 個。",
  ["Restores the macros' text and names as they were before the last fix."] = "把巨集的內容和名稱恢復到上次修正之前的樣子。",
+ ["General"] = "一般",
 } end

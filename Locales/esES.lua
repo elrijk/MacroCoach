@@ -1860,4 +1860,5 @@ ns.LOCALES.esES = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Una línea está partida: el nombre del hechizo quedó en una línea aparte y la macro no funciona. El botón de abajo une las líneas.",
  ["restored as they were, macros: %d."] = "restauradas como estaban, macros: %d.",
  ["Restores the macros' text and names as they were before the last fix."] = "Devuelve a las macros el texto y los nombres que tenían antes de la última corrección.",
+ ["General"] = "General",
 } end

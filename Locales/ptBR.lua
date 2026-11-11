@@ -1799,4 +1799,5 @@ ns.LOCALES.ptBR = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Uma linha está quebrada: o nome do feitiço ficou sozinho em outra linha e a macro não funciona. O botão abaixo junta as linhas.",
  ["restored as they were, macros: %d."] = "restauradas como estavam, macros: %d.",
  ["Restores the macros' text and names as they were before the last fix."] = "Devolve às macros o texto e os nomes de antes da última correção.",
+ ["General"] = "Geral",
 } end

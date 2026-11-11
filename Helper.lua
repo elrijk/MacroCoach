@@ -3588,7 +3588,8 @@ local BUILDERS = {
 -- Импорт и экспорт для страницы аддона в настройках игры: без карточек,
 -- небольшой заголовок, два столбца - слева «Сохранить код», справа
 -- «Загрузить код». f:Refresh() обновляет подписи и возвращает высоту.
-function H.BuildShareCompact(parent, width)
+-- noHead - заголовок раздела рисует сама страница настроек.
+function H.BuildShareCompact(parent, width, noHead)
   local f = CreateFrame("Frame", nil, parent)
   f:SetPoint("TOPLEFT")
   f:SetSize(width, 10)
@@ -3601,7 +3602,12 @@ function H.BuildShareCompact(parent, width)
 
   -- слева: сохранить
   local eTag = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-  eTag:SetPoint("TOPLEFT", head, "BOTTOMLEFT", 0, -10)
+  if noHead then
+    head:Hide()
+    eTag:SetPoint("TOPLEFT", PADX, 0)
+  else
+    eTag:SetPoint("TOPLEFT", head, "BOTTOMLEFT", 0, -10)
+  end
   eTag:SetText(T("Сохранить код"))
   local exBox = TextBox(f, colW, BOX_H)
   exBox:SetPoint("TOPLEFT", eTag, "BOTTOMLEFT", 0, -6)
@@ -3706,7 +3712,7 @@ function H.BuildShareCompact(parent, width)
       eInfo:SetText((T("Своих макросов: %d, правок готовых: %d.")):format(#UI.CustomList(), nEdits))
     end
     iInfo:SetText(st.imported or "")
-    local h = (head:GetStringHeight() or 14) + 10 + (eTag:GetStringHeight() or 14) + 6 + BOX_H + 8 + 22 + 6
+    local h = (noHead and 0 or ((head:GetStringHeight() or 14) + 10)) + (eTag:GetStringHeight() or 14) + 6 + BOX_H + 8 + 22 + 6
       + math.max(eInfo:GetStringHeight() or 12, iInfo:GetStringHeight() or 12, 12) + 6
     self:SetHeight(h)
     return h

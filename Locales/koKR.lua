@@ -1867,4 +1867,5 @@ ns.LOCALES.koKR = function() return {
  ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "줄이 끊겼습니다. 주문 이름이 따로 한 줄에 있어서 매크로가 작동하지 않습니다. 아래 버튼으로 줄을 합칩니다.",
  ["restored as they were, macros: %d."] = "원래대로 되돌렸습니다. 매크로: %d개.",
  ["Restores the macros' text and names as they were before the last fix."] = "매크로의 내용과 이름을 마지막 수정 전 상태로 되돌립니다.",
+ ["General"] = "일반",
 } end
