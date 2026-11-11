@@ -1735,4 +1735,8 @@ ns.LOCALES.koKR = function() return {
   ["your pet's target"] = "소환수의 대상",
   ["your target's target"] = "대상의 대상",
   ["yourself"] = "나 자신",
+  ["Restore deleted (%d)"] = "삭제한 매크로 복원 (%d)",
+  ["macros restored: %d."] = "복원한 매크로: %d개.",
+  ["not enough room: restored %d of %d."] = "공간 부족: %d개 복원 (전체 %d개).",
+  ["macros can't be restored in combat."] = "전투 중에는 매크로를 복원할 수 없습니다.",
 } end

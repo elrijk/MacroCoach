@@ -1728,4 +1728,8 @@ ns.LOCALES.esES = function() return {
   ["your pet's target"] = "el objetivo de tu mascota",
   ["your target's target"] = "el objetivo de tu objetivo",
   ["yourself"] = "a ti mismo",
+  ["Restore deleted (%d)"] = "Restaurar eliminadas (%d)",
+  ["macros restored: %d."] = "macros restauradas: %d.",
+  ["not enough room: restored %d of %d."] = "no hay espacio suficiente: %d de %d restauradas.",
+  ["macros can't be restored in combat."] = "no se pueden restaurar macros en combate.",
 } end

@@ -1737,4 +1737,8 @@ ns.LOCALES.zhTW = function() return {
   ["your pet's target"] = "你寵物的目標",
   ["your target's target"] = "你目標的目標",
   ["yourself"] = "你自己",
+  ["Restore deleted (%d)"] = "還原已刪除的巨集 (%d)",
+  ["macros restored: %d."] = "已還原巨集：%d 個。",
+  ["not enough room: restored %d of %d."] = "空間不足：已還原 %d 個，共 %d 個。",
+  ["macros can't be restored in combat."] = "戰鬥中無法還原巨集。",
 } end

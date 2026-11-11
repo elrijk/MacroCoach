@@ -1595,8 +1595,6 @@ end
 --  Экранирование: \\ \n \s (~) \p (|).
 -------------------------------------------------------------------------------
 local HEADER = "MacroCoach:1"
--- коды, сделанные под прежним именем EasyMacros, тоже принимаются
-local OLD_HEADER = "EasyMacros:1"
 local function Esc(s)
     s = tostring(s or ""):gsub("\r", "")
     return (s:gsub("\\", "\\\\"):gsub("\n", "\\n"):gsub("~", "\\s"):gsub("|", "\\p"))
@@ -1722,7 +1720,7 @@ function H.Import(text)
     for line in (text .. "\n"):gmatch("(.-)\n") do
         line = strtrim(line)
         if line ~= "" then
-            if first and (line == HEADER or line == OLD_HEADER) then
+            if first and line == HEADER then
                 head = true
             else
                 local ok, kind = ApplyRecord(line)
@@ -2663,7 +2661,7 @@ local function BuildSharePage(key)
         local has = strtrim(text) ~= ""
         iGo:SetEnabled(has)
         -- вставили код целиком - подсказать следующий шаг
-        if user and has and (text:find("MacroCoach:", 1, true) or text:find("EasyMacros:", 1, true)) and not page.pasted then
+        if user and has and text:find("MacroCoach:", 1, true) and not page.pasted then
             page.pasted = true
             page.imported = GREEN .. T("Код вставлен: нажмите «Загрузить».") .. "|r"
             UI.Relayout()

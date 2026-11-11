@@ -1737,4 +1737,8 @@ ns.LOCALES.zhCN = function() return {
   ["your pet's target"] = "你宠物的目标",
   ["your target's target"] = "你目标的目标",
   ["yourself"] = "你自己",
+  ["Restore deleted (%d)"] = "恢复已删除的宏 (%d)",
+  ["macros restored: %d."] = "已恢复宏：%d 个。",
+  ["not enough room: restored %d of %d."] = "空间不足：已恢复 %d 个，共 %d 个。",
+  ["macros can't be restored in combat."] = "战斗中无法恢复宏。",
 } end

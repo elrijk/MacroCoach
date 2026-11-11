@@ -1705,4 +1705,8 @@ ns.LOCALES.frFR = function() return {
   ["your pet's target"] = "la cible de ton familier",
   ["your target's target"] = "la cible de ta cible",
   ["yourself"] = "toi-même",
+  ["Restore deleted (%d)"] = "Restaurer les supprimées (%d)",
+  ["macros restored: %d."] = "macros restaurées : %d.",
+  ["not enough room: restored %d of %d."] = "pas assez de place : %d sur %d restaurées.",
+  ["macros can't be restored in combat."] = "impossible de restaurer des macros en combat.",
 } end

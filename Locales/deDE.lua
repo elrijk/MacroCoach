@@ -1720,4 +1720,8 @@ ns.LOCALES.deDE = function() return {
   ["your pet's target"] = "das Ziel deines Begleiters",
   ["your target's target"] = "das Ziel deines Ziels",
   ["yourself"] = "dich selbst",
+  ["Restore deleted (%d)"] = "Gelöschte wiederherstellen (%d)",
+  ["macros restored: %d."] = "Makros wiederhergestellt: %d.",
+  ["not enough room: restored %d of %d."] = "nicht genug Platz: %d von %d wiederhergestellt.",
+  ["macros can't be restored in combat."] = "im Kampf können Makros nicht wiederhergestellt werden.",
 } end

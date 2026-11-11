@@ -1667,4 +1667,8 @@ ns.LOCALES.ptBR = function() return {
   ["your pet's target"] = "alvo do seu ajudante",
   ["your target's target"] = "alvo do seu alvo",
   ["yourself"] = "você mesmo",
+  ["Restore deleted (%d)"] = "Restaurar excluídas (%d)",
+  ["macros restored: %d."] = "macros restauradas: %d.",
+  ["not enough room: restored %d of %d."] = "sem espaço suficiente: %d de %d restauradas.",
+  ["macros can't be restored in combat."] = "não é possível restaurar macros em combate.",
 } end

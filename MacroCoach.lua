@@ -50,18 +50,6 @@ end
 --  Сохранённые настройки
 -------------------------------------------------------------------------------
 local function DB()
-    -- переезд с прежних имён EasyMacros и GodMacroser: в старых папках
-    -- остались только файлы описания с сохранениями - свои макросы и
-    -- настройки забираем один раз. Чужой аддон с именем EasyMacros не
-    -- трогаем: берём только сохранения со своими полями.
-    if MacroCoachDB == nil then
-        local old = EasyMacrosDB
-        if type(old) == "table" and (old.edits or old.custom or old.own or old.helper) then
-            MacroCoachDB = old
-        elseif type(GodMacroserDB) == "table" then
-            MacroCoachDB = GodMacroserDB
-        end
-    end
     MacroCoachDB = MacroCoachDB or {}
     local db = MacroCoachDB
     db.minimap = db.minimap or { hide = false, angle = 200 }
@@ -920,7 +908,7 @@ function ns.DefaultNameSize()
     local size
     ForEachBarButton(function(b)
         if size then return end
-        local f = b.Name.godFont
+        local f = b.Name.origFont
         size = f and f[2] or select(2, b.Name:GetFont())
     end)
     return math.floor((size or 10) + 0.5)
@@ -934,7 +922,7 @@ local function Enforce(fs)
     applying = true
     if cfg.size then
         local path, _, flags = fs:GetFont()
-        path = path or (fs.godFont and fs.godFont[1])
+        path = path or (fs.origFont and fs.origFont[1])
         if path then fs:SetFont(path, cfg.size, flags) end
     end
     if cfg.hide then fs:SetAlpha(0) end
@@ -942,8 +930,8 @@ local function Enforce(fs)
 end
 
 local function HookName(fs)
-    if fs.godHooked then return end
-    fs.godHooked = true
+    if fs.coachHooked then return end
+    fs.coachHooked = true
     hooksecurefunc(fs, "SetFont", function(self)
         if not applying and DB().barNames.size then Enforce(self) end
     end)
@@ -964,33 +952,40 @@ function ns.ApplyBarNames()
     namesTouched = (cfg.size or cfg.hide) and true or nil
     ForEachBarButton(function(b)
         local fs = b.Name
-        if not fs.godFont then
-            fs.godFont = { fs:GetFont() }
-            fs.godH = fs:GetHeight()
+        if not fs.origFont then
+            fs.origFont = { fs:GetFont() }
+            fs.origHeight = fs:GetHeight()
         end
         HookName(fs)
         applying = true
         if cfg.size then
             local path, _, flags = fs:GetFont()
-            path = path or fs.godFont[1]
+            path = path or fs.origFont[1]
             if path then fs:SetFont(path, cfg.size, flags) end
             fs:SetHeight(cfg.size + 4)
-            fs.godChanged = true
-        elseif fs.godChanged then
-            local f = fs.godFont
+            fs.coachSized = true
+        elseif fs.coachSized then
+            local f = fs.origFont
             if f[1] then fs:SetFont(f[1], f[2], f[3]) end
-            if fs.godH and fs.godH > 0 then fs:SetHeight(fs.godH) end
-            fs.godChanged = nil
+            if fs.origHeight and fs.origHeight > 0 then fs:SetHeight(fs.origHeight) end
+            fs.coachSized = nil
         end
         if cfg.hide then
             fs:SetAlpha(0)
-            fs.godHid = true
-        elseif fs.godHid then
+            fs.coachHid = true
+        elseif fs.coachHid then
             fs:SetAlpha(1)
-            fs.godHid = nil
+            fs.coachHid = nil
         end
         applying = false
     end)
+end
+
+-- Копии перед очисткой лежат в MacroCoachDB.wiped: общие - под ключом
+-- "general", макросы персонажа - под «Имя-Сервер».
+local function WipeKey(perChar)
+    if not perChar then return "general" end
+    return (UnitName("player") or "?") .. "-" .. (GetRealmName() or "")
 end
 
 -- Удалить все общие макросы или все макросы персонажа (в самой игре).
@@ -1002,8 +997,48 @@ local function WipeMacros(perChar)
     local general, char = GetNumMacros()
     local base = perChar and (MAX_ACCOUNT_MACROS or 120) or 0
     local n = perChar and (char or 0) or (general or 0)
+    -- копия перед удалением: её возвращает кнопка «Вернуть удалённые»
+    local saved = {}
+    for i = base + 1, base + n do
+        local name, icon, body = GetMacroInfo(i)
+        if name then saved[#saved + 1] = { name, icon, body } end
+    end
+    local db = DB()
+    db.wiped = db.wiped or {}
+    db.wiped[WipeKey(perChar)] = saved
     for i = base + n, base + 1, -1 do DeleteMacro(i) end
     Print((perChar and T("удалено макросов персонажа: %d.") or T("удалено общих макросов: %d.")):format(n))
+end
+
+function ns.WipedCount(perChar)
+    local list = DB().wiped and DB().wiped[WipeKey(perChar)]
+    return list and #list or 0
+end
+
+-- Вернуть макросы, удалённые последней очисткой (на панели они не вернутся).
+function ns.RestoreWiped(perChar)
+    if InCombatLockdown() then
+        Print(T("в бою макросы вернуть нельзя."))
+        return
+    end
+    local wiped, key = DB().wiped, WipeKey(perChar)
+    local list = wiped and wiped[key]
+    if not list or #list == 0 then return end
+    local general, char = GetNumMacros()
+    local free = perChar and (MAX_CHARACTER_MACROS or 18) - (char or 0) or (MAX_ACCOUNT_MACROS or 120) - (general or 0)
+    local total, done = #list, 0
+    while list[1] and free > 0 do
+        local m = list[1]
+        CreateMacro(m[1], m[2] or QUESTION, m[3] or "", perChar and true or nil)
+        tremove(list, 1)
+        done, free = done + 1, free - 1
+    end
+    if not list[1] then wiped[key] = nil end
+    if done == total then
+        Print(T("возвращено макросов: %d."):format(done))
+    else
+        Print(T("не хватило места: возвращено %d из %d."):format(done, total))
+    end
 end
 
 -- Таблицу игры StaticPopupDialogs не переприсваиваем (только добавляем ключ):
@@ -3469,6 +3504,10 @@ function BuildOptionsPage(key)
     wipeShared:SetPoint("TOPLEFT", wNote, "BOTTOMLEFT", 0, -14)
     local wipeChar = SmallButton(wipeCard, "", 260, function() ns.AskWipe(true) end)
     wipeChar:SetPoint("LEFT", wipeShared, "RIGHT", 10, 0)
+    local restoreShared = SmallButton(wipeCard, "", 260, function() ns.RestoreWiped(false) end)
+    restoreShared:SetPoint("TOPLEFT", wipeShared, "BOTTOMLEFT", 0, -6)
+    local restoreChar = SmallButton(wipeCard, "", 260, function() ns.RestoreWiped(true) end)
+    restoreChar:SetPoint("TOPLEFT", wipeChar, "BOTTOMLEFT", 0, -6)
 
     function page:Layout()
         local cfg = DB().barNames
@@ -3480,6 +3519,11 @@ function BuildOptionsPage(key)
         wipeChar:SetText((T("Удалить персонажа (%d)")):format(char or 0))
         wipeShared:SetEnabled((general or 0) > 0)
         wipeChar:SetEnabled((char or 0) > 0)
+        local backShared, backChar = ns.WipedCount(false), ns.WipedCount(true)
+        restoreShared:SetText((T("Вернуть удалённые (%d)")):format(backShared))
+        restoreChar:SetText((T("Вернуть удалённые (%d)")):format(backChar))
+        restoreShared:SetShown(backShared > 0)
+        restoreChar:SetShown(backChar > 0)
         local y = -header:Layout(16)
         names:ClearAllPoints()
         names:SetPoint("TOPLEFT", 10, y)
@@ -3502,6 +3546,7 @@ function BuildOptionsPage(key)
         wipeCard:ClearAllPoints()
         wipeCard:SetPoint("TOPLEFT", 10, y)
         local wh = 14 + wTitle:GetStringHeight() + 6 + wNote:GetStringHeight() + 14 + 24 + 18
+        if backShared > 0 or backChar > 0 then wh = wh + 30 end
         wipeCard:SetHeight(wh)
         y = y - wh - 10
         self:SetHeight(-y)
@@ -4374,10 +4419,14 @@ function ns.OpenSettings()
     end
 end
 
+-- Меню аддонов у миникарты: ЛКМ - окно, ПКМ - настройки.
+function MacroCoach_OnAddonCompartmentClick(_, mouseButton)
+    if mouseButton == "RightButton" then ns.OpenSettings() else ns.Toggle() end
+end
+
 SLASH_MACROCOACH1 = "/coach"
 SLASH_MACROCOACH2 = "/макросы"
-SLASH_MACROCOACH3 = "/makros"
-SLASH_MACROCOACH4 = "/macrocoach"
+SLASH_MACROCOACH3 = "/macrocoach"
 SlashCmdList.MACROCOACH = function(msg)
     msg = strtrim((msg or ""):lower())
     if msg == "minimap" or msg == "миникарта" then
@@ -4451,10 +4500,7 @@ loader:SetScript("OnEvent", function(_, _, name)
     if name == "Blizzard_MacroUI" then
         AddMacroFrameTab()
     elseif name == ADDON then
-        -- Язык: свой выбор MacroCoach; раньше он был общим в GodCore.
-        local db = DB()
-        if db.lang == nil and type(GodCoreDB) == "table" and GodCoreDB.lang then db.lang = GodCoreDB.lang end
-        ns.SetLang(db.lang)
+        ns.SetLang(DB().lang)
         BuildSettings()
         UpdateMinimapButton()
         if C_AddOns.IsAddOnLoaded("Blizzard_MacroUI") then AddMacroFrameTab() end

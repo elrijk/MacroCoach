@@ -1659,4 +1659,8 @@ ns.LOCALES.itIT = function() return {
   ["your pet's target"] = "il bersaglio del tuo famiglio",
   ["your target's target"] = "il bersaglio del tuo bersaglio",
   ["yourself"] = "te stesso",
+  ["Restore deleted (%d)"] = "Ripristina eliminate (%d)",
+  ["macros restored: %d."] = "macro ripristinate: %d.",
+  ["not enough room: restored %d of %d."] = "spazio insufficiente: ripristinate %d di %d.",
+  ["macros can't be restored in combat."] = "impossibile ripristinare le macro in combattimento.",
 } end
