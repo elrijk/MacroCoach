@@ -1,0 +1,35 @@
+## Interface: 16001
+## Title: |cff33ff99Macro|rCoach
+## Notes: Ready-made WoW Forever macros for every class and a builder for your own: plain-language descriptions, adding with one click, rank and macro checks, beginner tips. /coach
+## Notes-ruRU: Готовые макросы WoW Forever для всех классов и конструктор своих: описание простыми словами, добавление одной кнопкой, проверка рангов и макросов, советы новичку. /coach
+## Notes-deDE: Fertige WoW-Forever-Makros für jede Klasse und ein Baukasten für eigene: Beschreibungen in einfachen Worten, Hinzufügen mit einem Klick, Prüfung von Rängen und Makros, Tipps für Einsteiger. /coach
+## Notes-frFR: Macros prêtes de WoW Forever pour toutes les classes et un constructeur pour les tiennes : descriptions en mots simples, ajout en un clic, vérification des rangs et des macros, conseils pour débutants. /coach
+## Notes-esES: Macros listas de WoW Forever para todas las clases y un editor para las tuyas: descripciones sencillas, añadir con un clic, revisión de rangos y macros, consejos para principiantes. /coach
+## Notes-esMX: Macros listas de WoW Forever para todas las clases y un editor para las tuyas: descripciones sencillas, añadir con un clic, revisión de rangos y macros, consejos para principiantes. /coach
+## Notes-itIT: Macro pronte di WoW Forever per ogni classe e un costruttore per le tue: descrizioni in parole semplici, aggiunta con un clic, controllo di gradi e macro, consigli per principianti. /coach
+## Notes-ptBR: Macros prontas do WoW Forever para todas as classes e um construtor para as suas: descrições em palavras simples, adição com um clique, verificação de graus e macros, dicas para iniciantes. /coach
+## Notes-koKR: 모든 직업을 위한 WoW Forever 기본 매크로와 나만의 매크로 생성기: 쉬운 설명, 한 번 클릭으로 추가, 레벨과 매크로 검사, 초보자 팁. /coach
+## Notes-zhCN: 适合所有职业的 WoW Forever 现成宏和自制宏构建器：简单易懂的说明、一键添加、等级和宏检查、新手提示。/coach
+## Notes-zhTW: 適合所有職業的 WoW Forever 現成巨集和自製巨集建構器：簡單易懂的說明、一鍵新增、等級和巨集檢查、新手提示。/coach
+## Author: Химик
+## Version: 1.0
+## Category: Action Bars
+## Category-ruRU: Панели команд
+## OptionalDeps: EasyMacros, GodMacroser
+## SavedVariables: MacroCoachDB
+## IconTexture: Interface\AddOns\MacroCoach\Media\Icon
+
+Locale.lua
+Locales\deDE.lua
+Locales\frFR.lua
+Locales\esES.lua
+Locales\itIT.lua
+Locales\ptBR.lua
+Locales\koKR.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Data.lua
+HelperData.lua
+Food.lua
+MacroCoach.lua
+Helper.lua
