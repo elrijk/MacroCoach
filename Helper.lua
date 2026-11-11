@@ -2586,18 +2586,42 @@ local function BuildIntroPage(key)
   -- Шапка без рамки (общая для всех страниц): заголовок, мысль, куда идти.
   local header = UI.PageHeader(page, width)
   header:Set(I.title, I.text)
+  -- куда идти дальше - плитки в ряд, как в шапках EasyCraft: тёмная плашка,
+  -- значок в кольце и название; что это - в подсказке
+  local TILE_ICON = { "Spell_Holy_SealOfWisdom", "INV_Misc_Gear_01", "INV_Misc_Book_09" }
+  local tileW = math.floor((width - 52 - 10 * (#D.START - 1)) / #D.START)
   for i, st in ipairs(D.START) do
-    local b = Button(page, T(st.label), 100, function() OpenTarget(st.open) end, T(st.tip))
+    local b = CreateFrame("Button", nil, page, "BackdropTemplate")
+    UI.Card(b)
+    b:SetSize(tileW, 46)
+    local hl = b:CreateTexture(nil, "HIGHLIGHT")
+    hl:SetPoint("TOPLEFT", 3, -3)
+    hl:SetPoint("BOTTOMRIGHT", -3, 3)
+    hl:SetColorTexture(1, 0.82, 0, 0.12)
+    local ring = UI.Badge(b, 26, "Interface\\Icons\\" .. (TILE_ICON[i] or "INV_Misc_Note_01"))
+    ring:SetPoint("LEFT", 10, 0)
+    ring:EnableMouse(false)
+    local title = UI.Text(b, "SystemFont_Med3", "GameFontNormal", GOLD, true)
+    title:SetJustifyH("LEFT")
+    title:SetJustifyV("MIDDLE")
+    title:SetPoint("LEFT", ring, "RIGHT", 9, 0)
+    title:SetPoint("RIGHT", b, "RIGHT", -8, 0)
+    title:SetHeight(38)
+    if title.SetMaxLines then title:SetMaxLines(2) end
+    title:SetText(T(st.label))
+    b:SetScript("OnClick", function()
+      ns.P.Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+      OpenTarget(st.open)
+    end)
+    b:SetScript("OnEnter", function(self)
+      GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+      GameTooltip:SetText(T(st.label), 1, 0.82, 0)
+      GameTooltip:AddLine(T(st.tip), 1, 1, 1, true)
+      GameTooltip:Show()
+    end)
+    b:SetScript("OnLeave", function() GameTooltip:Hide() end)
     header.buttons[i] = b
   end
-  -- кнопки крупные, столбиком, одной ширины - по самой длинной надписи
-  header.stack = true
-  local bw = 280
-  for _, b in ipairs(header.buttons) do
-    local fs = b:GetFontString()
-    bw = math.max(bw, math.ceil((fs and fs:GetStringWidth() or 0) + 48))
-  end
-  for _, b in ipairs(header.buttons) do b:SetSize(bw, 32) end
 
   -- блоки по два в строку; оба в строке одной высоты
   local GAP = 10
