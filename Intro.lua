@@ -93,8 +93,6 @@ local function build()
   f.title:SetPoint("TOP", 0, -26)
   local file, _, flags = f.title:GetFont()
   if file then f.title:SetFont(file, 24, flags) end
-  f.rule = rule(f, 360)
-  f.rule:SetPoint("TOP", f.title, "BOTTOM", 0, -10)
 
   -- три главные возможности: крупные блоки в золотой рамке
   f.killer = {}
@@ -104,10 +102,10 @@ local function build()
     c:SetBackdropColor(0.2, 0.14, 0.05, 0.9)
     c:SetBackdropBorderColor(1, 0.82, 0, 1)
     c.icon = ring(c, 72)
-    c.icon:SetPoint("TOP", 0, -24)
+    c.icon:SetPoint("TOP", 0, -28)
     c.head = UI.Text(c, "SystemFont_Large", "GameFontNormalLarge", UI.GOLD, true)
     c.head:SetJustifyH("CENTER")
-    c.head:SetPoint("TOP", c.icon, "BOTTOM", 0, -16)
+    c.head:SetPoint("TOP", c.icon, "BOTTOM", 0, -20)
     c.text = UI.Text(c, "SystemFont_Med2", "GameFontHighlight", { 0.92, 0.9, 0.84 }, true)
     c.text:SetJustifyH("CENTER")
     c.text:SetPoint("TOP", c.head, "BOTTOM", 0, -8)
@@ -150,7 +148,7 @@ end
 
 local function show(f)
   f.title:SetText(T(TITLE))
-  local y = 26 + f.title:GetStringHeight() + 10 + 1 + 24
+  local y = 26 + f.title:GetStringHeight() + 24
 
   -- главные возможности
   local colW = floor((WIDTH - SIDE * 2 - GAP * (COLS - 1)) / COLS)
@@ -162,7 +160,7 @@ local function show(f)
     c.head:SetText(T(d[2]))
     c.text:SetWidth(colW - 28)
     c.text:SetText(T(d[3]))
-    h = max(h, 24 + 72 + 16 + c.head:GetStringHeight() + 8 + c.text:GetStringHeight() + 20)
+    h = max(h, 28 + 72 + 20 + c.head:GetStringHeight() + 8 + c.text:GetStringHeight() + 24)
     c:ClearAllPoints()
     c:SetPoint("TOPLEFT", SIDE + (i - 1) * (colW + GAP), -y)
     c:SetWidth(colW)
@@ -185,7 +183,9 @@ local function show(f)
   y = y + f.moreHead:GetStringHeight() + 18
 
   -- остальное: все значки в один ряд
-  local cellW = floor((WIDTH - SIDE * 2) / #MORE)
+  -- значки рядом друг с другом, по центру окна
+  local cellW = 112
+  local x0 = floor((WIDTH - #MORE * cellW) / 2)
   local mh = 0
   for i, c in ipairs(f.more) do
     local d = MORE[i]
@@ -194,7 +194,7 @@ local function show(f)
     c.head:SetText(T(d[2]))
     mh = max(mh, 4 + 40 + 10 + c.head:GetStringHeight())
     c:ClearAllPoints()
-    c:SetPoint("TOPLEFT", SIDE + (i - 1) * cellW, -y)
+    c:SetPoint("TOPLEFT", x0 + (i - 1) * cellW, -y)
     c:SetWidth(cellW)
   end
   for _, c in ipairs(f.more) do c:SetHeight(mh) end
