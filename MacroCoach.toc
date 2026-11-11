@@ -34,6 +34,10 @@ Data.lua
 HelperData.lua
 Food.lua
 MacroCoach.lua
+Cards.lua
+Editor.lua
+Pages.lua
+Window.lua
 Helper.lua
 Backup.lua
 Share.lua
