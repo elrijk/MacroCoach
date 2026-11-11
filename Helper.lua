@@ -2289,7 +2289,7 @@ end
 -------------------------------------------------------------------------------
 --  Страница «Зачем макросы»
 -------------------------------------------------------------------------------
-local ILL_W = 206 -- ширина картинки «до -> после»
+local ILL_W = 206 -- ширина картинки «было -> стало»
 
 local function OpenTarget(open)
   if open == "CLASS" or open == "REC" then
@@ -2302,14 +2302,16 @@ local function OpenTarget(open)
   end
 end
 
+-- Блок сверху вниз: заголовок, картинка, проблема и решение, текст макроса,
+-- кнопка. width - ширина самого блока (их два в строке).
 local function OnboardCard(page, width, def)
-  local c = NewCard(page, width)
-  local inner = width - 20 - 32
-  local textX = 16 + ILL_W + 14
-  local textW = inner - ILL_W - 14
+  local c = NewCard(page, width + 20)
+  local inner = width - 32
   local L = ns.Pick(def)
   local title = Title(c)
   title:SetWidth(inner)
+  title:SetJustifyH("LEFT")
+  title:SetWordWrap(true)
   title:SetText(L.title)
   -- «лучшее из сумок» - своё у класса: вода у заклинателей, зелья у остальных
   local ex = D.EXAMPLE[PlayerClass()] or D.EXAMPLE.SHAMAN
@@ -2344,10 +2346,10 @@ local function OnboardCard(page, width, def)
   aTag:SetText(T(def.afterTag or "Макрос"))
 
   local text = Body(c)
-  text:SetWidth(textW)
+  text:SetWidth(inner)
   text:SetText(RED .. T("Проблема:") .. "|r " .. L.problem .. "\n\n" .. GREEN .. T("Решение:") .. "|r " .. L.solution)
   local code = Code(c)
-  code:SetWidth(textW - 12)
+  code:SetWidth(inner - 12)
   local codeBg = CodeBg(c, code)
   local btn
   if def.open then
@@ -2367,8 +2369,9 @@ local function OnboardCard(page, width, def)
     end
     after.tex:SetTexture(ArtIcon(after.what))
     after:SetMark("ok")
+    y = y + 70 + 8
     text:ClearAllPoints()
-    text:SetPoint("TOPLEFT", textX, -y)
+    text:SetPoint("TOPLEFT", 16, -y)
     local ty = y + text:GetStringHeight()
     local stored = ExampleCode(def)
     code:SetShown(stored ~= nil)
@@ -2382,17 +2385,16 @@ local function OnboardCard(page, width, def)
       end
       code:SetText(((UI.Render(stored)):gsub("|", "||")))
       code:ClearAllPoints()
-      code:SetPoint("TOPLEFT", textX + 6, -(ty + 16))
+      code:SetPoint("TOPLEFT", 16 + 6, -(ty + 16))
       ty = ty + 16 + code:GetStringHeight() + 8
     end
+    -- кнопка прижата к низу: у двух блоков в строке кнопки на одной линии
     if btn then
       btn:ClearAllPoints()
-      btn:SetPoint("TOPLEFT", textX, -(ty + 10))
+      btn:SetPoint("BOTTOMLEFT", 16, 16)
       ty = ty + 10 + 22
     end
-    local h = math.max(y + 70, ty) + 16
-    self:SetHeight(h)
-    return h
+    return ty + 16
   end
   return c
 end
@@ -2410,18 +2412,29 @@ local function BuildIntroPage(key)
     header.buttons[i] = b
   end
 
+  -- блоки по два в строку; оба в строке одной высоты
+  local GAP = 10
+  local colW = math.floor((width - 20 - GAP) / 2)
   local cards = {}
   local class = PlayerClass()
   for _, def in ipairs(D.ONBOARDING) do
-    if not (def.skip and def.skip[class]) then cards[#cards + 1] = OnboardCard(page, width, def) end
+    if not (def.skip and def.skip[class]) then cards[#cards + 1] = OnboardCard(page, colW, def) end
   end
 
   function page:Layout()
     local y = -header:Layout(16)
-    for _, c in ipairs(cards) do
-      c:ClearAllPoints()
-      c:SetPoint("TOPLEFT", 10, y)
-      y = y - c:Fit() - 10
+    for i = 1, #cards, 2 do
+      local a, b = cards[i], cards[i + 1]
+      local h = math.max(a:Fit(), b and b:Fit() or 0)
+      a:ClearAllPoints()
+      a:SetPoint("TOPLEFT", 10, y)
+      a:SetHeight(h)
+      if b then
+        b:ClearAllPoints()
+        b:SetPoint("TOPLEFT", 10 + colW + GAP, y)
+        b:SetHeight(h)
+      end
+      y = y - h - GAP
     end
     self:SetHeight(-y)
     return -y
