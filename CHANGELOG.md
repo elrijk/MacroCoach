@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Backup of every macro in the /macro window, with restore.
+- `/coach update`: top spell ranks on your bars and refreshed ready-made macros in one go.
+- Option "Only macros I can use" hides macros whose spells you have not learned yet.
+
 ## 1.0.0
 
 First public release.

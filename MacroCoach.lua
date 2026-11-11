@@ -1863,16 +1863,26 @@ local function BuildPage(class, list, key, rec)
         local home = m.homeClass or class
         RequestSpells(m.body)
         RequestSpells(Effective(home, m).body)
-        page.rows[#page.rows + 1] = BuildRow(page, home, m, width - 20, rec)
+        local row = BuildRow(page, home, m, width - 20, rec)
+        row.filterEntry = { class = home, m = m }
+        page.rows[#page.rows + 1] = row
     end
     function page:Layout()
         -- Книга заклинаний могла измениться: кто выучен, кто откроется позже.
         if ns.Helper and ns.Helper.ScanBook then ns.Helper.ScanBook() end
         local y = header and -header:Layout(16) or -10
+        -- «Только доступные макросы»: без единого выученного заклинания - скрыть
+        local H = ns.Helper
+        local readyOnly = H and H.Opt("readyOnly")
         for _, row in ipairs(self.rows) do
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", 10, y)
-            y = y - row:Fill() - 10
+            if readyOnly and row.filterEntry and H.TipState(row.filterEntry) == "later" then
+                row:Hide()
+            else
+                row:Show()
+                row:ClearAllPoints()
+                row:SetPoint("TOPLEFT", 10, y)
+                y = y - row:Fill() - 10
+            end
         end
         self:SetHeight(-y)
         return -y
@@ -3468,6 +3478,8 @@ function BuildOptionsPage(key)
           note = "Текст и ID заклинаний под каждым макросом сразу. Без этого - по значку-записке в углу карточки." },
         { key = "learn", label = "Режим «Учусь»",
           note = "Под каждым макросом - что делает каждая строка, простыми словами." },
+        { key = "readyOnly", label = "Только доступные макросы",
+          note = "Скрывает готовые макросы, для которых у тебя пока нет ни одного заклинания." },
         { key = "tips", label = "Подсказки после тренера",
           note = "Выучил новое заклинание - аддон пишет в чат, если появился полезный макрос или на панелях остался старый ранг." },
     }
@@ -3488,6 +3500,24 @@ function BuildOptionsPage(key)
         end)
         helpChecks[i] = { cb = cb, note = note, key = o.key }
     end
+
+    -- Резервная копия всех макросов игры (Backup.lua)
+    local backupCard = CreateFrame("Frame", nil, page, "BackdropTemplate")
+    Card(backupCard)
+    backupCard:SetWidth(width - 20)
+    local bTitle = Text(backupCard, "SystemFont_Large", "GameFontNormalLarge", GOLD)
+    bTitle:SetPoint("TOPLEFT", 16, -14)
+    bTitle:SetText(T("Резервная копия макросов"))
+    local bNote = Text(backupCard, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
+    bNote:SetPoint("TOPLEFT", bTitle, "BOTTOMLEFT", 0, -6)
+    bNote:SetWidth(inner)
+    local bSave = SmallButton(backupCard, T("Сохранить копию"), 260, function()
+        ns.Backup.Save()
+        page:Layout()
+    end)
+    bSave:SetPoint("TOPLEFT", bNote, "BOTTOMLEFT", 0, -14)
+    local bRestore = SmallButton(backupCard, T("Вернуть из копии"), 260, function() ns.Backup.Restore() end)
+    bRestore:SetPoint("LEFT", bSave, "RIGHT", 10, 0)
 
     -- Макросы в игре
     local wipeCard = CreateFrame("Frame", nil, page, "BackdropTemplate")
@@ -3543,6 +3573,15 @@ function BuildOptionsPage(key)
         end
         helpCard:SetHeight(hy + 8)
         y = y - hy - 8 - 10
+        local when, saved = ns.Backup.Info()
+        local about = T("Сохраняет все макросы из окна /macro: общие и этого персонажа. Из копии можно вернуть текст изменённых макросов и удалённые макросы.")
+        bNote:SetText(about .. "\n" .. (when and (T("Копия от %s: макросов %d.")):format(date("%d.%m.%Y %H:%M", when), saved) or T("Копии пока нет.")))
+        bRestore:SetEnabled(when ~= nil)
+        backupCard:ClearAllPoints()
+        backupCard:SetPoint("TOPLEFT", 10, y)
+        local bh = 14 + bTitle:GetStringHeight() + 6 + bNote:GetStringHeight() + 14 + 24 + 18
+        backupCard:SetHeight(bh)
+        y = y - bh - 10
         wipeCard:ClearAllPoints()
         wipeCard:SetPoint("TOPLEFT", 10, y)
         local wh = 14 + wTitle:GetStringHeight() + 6 + wNote:GetStringHeight() + 14 + 24 + 18
@@ -4285,6 +4324,7 @@ local COMMANDS = {
     { "/coach help", "зачем макросы: короткое знакомство" },
     { "/coach tips", "рекомендуемые макросы для твоего класса" },
     { "/coach check", "проверить ранги и макросы на панелях" },
+    { "/coach update", "обновить ранги на панелях и готовые макросы" },
     { "/coach translate", "перевести макрос с английского" },
     { "/coach share", "импорт и экспорт макросов" },
     { "/coach options", "открыть настройки" },
@@ -4440,6 +4480,8 @@ SlashCmdList.MACROCOACH = function(msg)
         Open(class, ns.UI.TabIndex(class, "Рекомендации") or 1)
     elseif msg == "check" or msg == "проверка" or msg == "ranks" or msg == "ранги" then
         Open("HELPER", 2)
+    elseif msg == "update" or msg == "обновить" then
+        ns.UpdateAll()
     elseif msg == "translate" or msg == "перевод" then
         Open("CUSTOM", 1)
         OpenCustomText(nil, B.New())
