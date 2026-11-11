@@ -1860,57 +1860,91 @@ local function SameTemplate(body, m)
     return false
 end
 
-function H.ResyncLanguage(retry)
+-- Один готовый макрос: найти его в игре под любым из названий и перевести.
+-- Возвращает "done", "wait" (названия заклинаний ещё не загружены) или nil;
+-- вторым - почему не тронут (для /coach lang).
+local function ResyncOne(db, class, m)
+    if db.edits[UI.Key(class, m)] then return nil end
+    local em = UI.Effective(class, m)
+    for _, old in ipairs(OldNames(class, m, em)) do
+        local index = GetMacroIndexByName(old)
+        if index and index > 0 then
+            local name, icon, now = GetMacroInfo(index)
+            if name ~= old or type(now) ~= "string" then return nil end
+            -- игра может хранить текст с пробелами и переводом строки в конце
+            local body = now:gsub("%s+$", "")
+            local best = m.best
+            if not (db.own[old] == now or SameTemplate(body, m)) then
+                -- макрос другого класса с тем же названием или текст меняли руками
+                return nil, "other"
+            end
+            -- еда и вода: в тексте только id предметов, меняется одно название
+            local want, missing = now, nil
+            if not best then want, missing = UI.Render(em.body) end
+            if missing then
+                UI.RequestSpells(em.body)
+                local ids = {}
+                for id in em.body:gmatch("{[sr]:(%d+)}") do
+                    if not C_Spell.GetSpellName(tonumber(id)) then ids[#ids + 1] = id end
+                end
+                return "wait", "spell " .. table.concat(ids, ", ")
+            end
+            if old == em.name and want == now then return nil end -- уже на нужном языке
+            if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name end
+            if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long" end
+            EditMacro(index, em.name, icon, want)
+            db.own[old] = nil
+            db.own[em.name] = want
+            return "done"
+        end
+    end
+end
+
+-- force - не смотреть, менялся ли язык, и написать в чат, что не тронуто и
+-- почему (/coach lang).
+function H.ResyncLanguage(retry, force)
     local db = UI.DB()
     local h = db.helper
     db.own = db.own or {}
-    -- «2»: вторая версия проверки (по виду текста, а не только по записи)
-    local sig = "2/" .. (GetLocale() or "") .. "/" .. (ns.lang or "")
-    if h.langSig == sig then return end
+    -- «3»: третья версия проверки (по виду текста, каждый макрос отдельно)
+    local sig = "3/" .. (GetLocale() or "") .. "/" .. (ns.lang or "")
+    if h.langSig == sig and not force then return end
     if InCombatLockdown() then
-        UI.AfterCombat("resyncLang", H.ResyncLanguage)
+        UI.AfterCombat("resyncLang", function() H.ResyncLanguage(retry, force) end)
         return
     end
-    local done, waiting = 0, false
+    local done, waiting, notes = 0, false, {}
     for class, groups in pairs(ns.MACROS) do
         for _, g in ipairs(groups) do
             for _, m in ipairs(g.list or {}) do
-                if not db.edits[UI.Key(class, m)] then
-                    local em = UI.Effective(class, m)
-                    for _, old in ipairs(OldNames(class, m, em)) do
-                        local index = GetMacroIndexByName(old)
-                        if index and index > 0 then
-                            local name, icon, now = GetMacroInfo(index)
-                            local body = now
-                            if name == old and (db.own[old] == now or SameTemplate(now, m)) then
-                                -- еда и вода: в тексте только id предметов, меняется одно название
-                                local want, missing = body, nil
-                                if not m.best then want, missing = UI.Render(em.body) end
-                                local taken = old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0
-                                if missing then
-                                    UI.RequestSpells(em.body)
-                                    waiting = true
-                                elseif not taken and (old ~= em.name or want ~= body) and UI.CharCount(want) <= UI.MAX_CHARS then
-                                    EditMacro(index, em.name, icon, want)
-                                    db.own[old] = nil
-                                    db.own[em.name] = want
-                                    done = done + 1
-                                end
-                            end
-                            break
-                        end
-                    end
+                -- ошибка на одном макросе не мешает остальным
+                local ok, res, why = pcall(ResyncOne, db, class, m)
+                if not ok then
+                    notes[#notes + 1] = class .. "/" .. m.name .. ": error " .. tostring(res)
+                elseif res == "done" then
+                    done = done + 1
+                elseif res == "wait" then
+                    waiting = true
+                    notes[#notes + 1] = class .. "/" .. m.name .. ": " .. tostring(why)
+                elseif why and why ~= "other" then
+                    notes[#notes + 1] = class .. "/" .. m.name .. ": " .. why
                 end
             end
         end
     end
     if done > 0 then Print((T("язык сменился: макросов переведено на новый язык - %d. На панелях они остались на своих местах.")):format(done)) end
-    if waiting and not retry then
-        -- названия заклинаний ещё грузятся: одна повторная попытка
-        C_Timer.After(3, function() pcall(H.ResyncLanguage, true) end)
+    if force then
+        Print("lang: done " .. done .. ", notes " .. #notes)
+        for i = 1, math.min(#notes, 20) do Print("  " .. notes[i]) end
+    end
+    retry = tonumber(retry) or 0
+    if waiting and retry < 3 then
+        -- названия заклинаний ещё грузятся: до трёх повторных попыток
+        C_Timer.After(3, function() pcall(H.ResyncLanguage, retry + 1, force) end)
         return
     end
-    h.langSig = sig
+    -- что-то так и не загрузилось - попробуем снова при следующем входе
+    if not waiting then h.langSig = sig end
 end
 
 local spellWatch = CreateFrame("Frame")

@@ -4513,6 +4513,9 @@ SlashCmdList.MACROCOACH = function(msg)
     elseif msg == "translate" or msg == "перевод" then
         Open("CUSTOM", 1)
         OpenCustomText(nil, B.New())
+    elseif msg == "lang" or msg == "язык" then
+        -- перевести готовые макросы в игре на нынешний язык и сказать, что не тронуто
+        if ns.Helper and ns.Helper.ResyncLanguage then ns.Helper.ResyncLanguage(0, true) end
     elseif msg == "share" or msg == "обмен" or msg == "export" or msg == "экспорт" then
         Open("CUSTOM", 3)
     elseif msg == "data" or msg == "данные" then
