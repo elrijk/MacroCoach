@@ -410,7 +410,7 @@ local function Build()
   gear:SetFrameLevel(P.frame:GetFrameLevel() + 10)
   gear:SetScript("OnClick", function()
     Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
-    P.ShowClass("OPTIONS")
+    ns.OpenSettings()
   end)
   gear:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
@@ -854,20 +854,20 @@ local function BuildSettings()
   -- Состояние ставим сразу: страница видима с создания, и при первом
   -- открытии настроек OnShow может не сработать.
   mm:SetChecked(not DB().minimap.hide)
-  -- остальные настройки - в окне аддона (шестерёнка у крестика)
-  local more = CreateFrame("Button", nil, body, "UIPanelButtonTemplate")
-  more:SetSize(240, 22)
-  more:SetPoint("TOPLEFT", mm, "BOTTOMLEFT", 2, -6)
-  more:SetText(T("Настройки макросов в окне"))
-  more:SetScript("OnClick", function()
-    Front()
-    Open("OPTIONS")
-    P.frame:Raise()
-  end)
+  -- Настройки макросов и импорт/экспорт - прямо здесь, теми же страницами,
+  -- что были в окне аддона. Строятся при первом показе: к этому времени
+  -- загружены все файлы и известна ширина страницы.
+  local hostA = CreateFrame("Frame", nil, body)
+  hostA:SetPoint("TOPLEFT", mm, "BOTTOMLEFT", -14, -10)
+  hostA:SetSize(600, 10)
+  local hostB = CreateFrame("Frame", nil, body)
+  hostB:SetPoint("TOPLEFT", hostA, "BOTTOMLEFT", 0, -6)
+  hostB:SetSize(600, 10)
+  local optPage, sharePage
 
   -- команды чата
   local cmdHead = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-  cmdHead:SetPoint("TOPLEFT", more, "BOTTOMLEFT", 0, -24)
+  cmdHead:SetPoint("TOPLEFT", hostB, "BOTTOMLEFT", 16, -20)
   cmdHead:SetText(T("Команды в чате"))
   local cmds = body:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   cmds:SetPoint("TOPLEFT", cmdHead, "BOTTOMLEFT", 0, -8)
@@ -876,9 +876,33 @@ local function BuildSettings()
   if cmds.SetSpacing then cmds:SetSpacing(4) end
   cmds:SetText(table.concat(CommandLines(), "\n") .. "\n|cff9d9d9d" .. T("То же по-русски: /макросы, /coach помощь, /coach советы, /coach проверка.") .. "|r")
 
+  local function LayoutHosted()
+    if not optPage then return end
+    local h1 = optPage:Layout()
+    hostA:SetHeight(h1)
+    local h2 = sharePage and sharePage:Layout() or 10
+    hostB:SetHeight(h2)
+    -- высота всей страницы: шапка с кнопками, обе части и команды
+    body:SetHeight(190 + h1 + 6 + h2 + 20 + 24 + (cmds:GetStringHeight() or 200) + 30)
+  end
   panel:SetScript("OnShow", function()
     mm:SetChecked(not DB().minimap.hide)
     lang.Refresh()
+    if not optPage then
+      Build() -- страницы обращаются к окну аддона
+      local w = math.max(520, math.floor(body:GetWidth() or 600) - 4)
+      hostA:SetWidth(w)
+      hostB:SetWidth(w)
+      P.host = { child = hostA }
+      optPage = P.BuildOptionsPage("host:options")
+      if ns.BuildHelperPage then
+        P.host = { child = hostB }
+        sharePage = ns.BuildHelperPage("share", "host:share")
+      end
+      P.host = nil
+      P.hostRelayout = LayoutHosted
+    end
+    LayoutHosted()
   end)
   panel:Hide()
   if Settings and Settings.RegisterCanvasLayoutCategory then

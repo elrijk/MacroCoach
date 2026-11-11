@@ -133,7 +133,7 @@ local function BuildCustomPage(key)
     self:SetHeight(-y)
     return -y
   end
-  pages[key] = page
+  if not P.host then pages[key] = page end
   return page
 end
 
@@ -405,14 +405,22 @@ local function SmallButton(parent, text, w, onClick)
   return b
 end
 
+-- Страница строится на странице аддона в настройках игры: P.host.child -
+-- куда её положить (Window.lua, BuildSettings). Фон там тёмный, поэтому
+-- шапка светлая, а не чернилами.
 function P.BuildOptionsPage(key)
-  local page = CreateFrame("Frame", nil, P.frame.child)
+  local host = P.host and P.host.child or P.frame.child
+  local page = CreateFrame("Frame", nil, host)
   page:SetPoint("TOPLEFT")
-  local width = P.frame.child:GetWidth()
+  local width = host:GetWidth()
   page:SetWidth(width)
   local inner = width - 20 - 32
   local header = PageHeader(page, width)
-  header:Set(T("Настройки макросов"), T("Названия на панелях, подсказки и безопасность. Резервная копия и перенос - во вкладке «Импорт/экспорт»."))
+  header:Set(T("Настройки макросов"), T("Названия на панелях, безопасность, импорт и экспорт."))
+  if P.host then
+    header.title:SetTextColor(1, 0.82, 0)
+    header.text:SetTextColor(0.85, 0.85, 0.85)
+  end
 
   -- Названия на панелях
   local names = CreateFrame("Frame", nil, page, "BackdropTemplate")

@@ -385,8 +385,6 @@ end
 local tabCache = {
   CUSTOM = { { label = "Мои макросы", custom = true, list = {} }, { label = "Как написать", guide = true, list = {} },
     { label = "Импорт/экспорт", helper = "share", list = {} } },
-  OPTIONS = { { label = "Панели и макросы", options = true, list = {} },
-    { label = "Импорт/экспорт", helper = "share", list = {} } },
   HELPER = { { label = "Зачем макросы", helper = "intro", list = {} }, { label = "Проверка", helper = "check", list = {} } },
 }
 local function SpecTabs(class)
@@ -919,6 +917,8 @@ end
 
 -- Перерисовать текущую страницу, не сбрасывая прокрутку.
 local function Relayout()
+  -- страницы на странице аддона в настройках игры
+  if P.hostRelayout then P.hostRelayout() end
   if not (P.frame and P.currentKey and pages[P.currentKey]) then return end
   local pos = P.frame.scroll:GetVerticalScroll()
   local h = pages[P.currentKey]:Layout()

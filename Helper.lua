@@ -2107,13 +2107,16 @@ end)
 -------------------------------------------------------------------------------
 --  Общие детали страниц
 -------------------------------------------------------------------------------
+-- ns.P.host - страницу просят не для окна аддона, а для страницы в
+-- настройках игры: кладём её туда и в страницы окна не записываем.
 local function NewPage(key)
-  local f = UI.Frame()
-  local page = CreateFrame("Frame", nil, f.child)
+  local host = ns.P.host and ns.P.host.child
+  local child = host or UI.Frame().child
+  local page = CreateFrame("Frame", nil, child)
   page:SetPoint("TOPLEFT")
-  local width = f.child:GetWidth()
+  local width = child:GetWidth()
   page:SetWidth(width)
-  UI.Pages()[key] = page
+  if not host then UI.Pages()[key] = page end
   return page, width
 end
 
@@ -2837,6 +2840,41 @@ local function BuildIntroPage(key)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
     header.buttons[i] = b
   end
+  -- режим «Учусь» включается и здесь, не только в настройках: плитка с галочкой
+  local learn = CreateFrame("Button", nil, page, "BackdropTemplate")
+  UI.Card(learn)
+  learn:SetHeight(46)
+  local lhl = learn:CreateTexture(nil, "HIGHLIGHT")
+  lhl:SetPoint("TOPLEFT", 3, -3)
+  lhl:SetPoint("BOTTOMRIGHT", -3, 3)
+  lhl:SetColorTexture(1, 0.82, 0, 0.12)
+  local lcheck = CreateFrame("CheckButton", nil, learn, "UICheckButtonTemplate")
+  lcheck:SetSize(26, 26)
+  lcheck:SetPoint("LEFT", 8, 0)
+  local ltitle = UI.Text(learn, "SystemFont_Med3", "GameFontNormal", GOLD)
+  ltitle:SetWordWrap(false)
+  ltitle:SetPoint("LEFT", lcheck, "RIGHT", 4, 0)
+  ltitle:SetText(T("Режим «Учусь»"))
+  learn:SetWidth(math.max(160, 8 + 26 + 4 + math.ceil(ltitle:GetStringWidth() or 100) + 16))
+  local function SetLearn(on)
+    H.SetOpt("learn", on and true or false)
+    lcheck:SetChecked(on and true or false)
+  end
+  lcheck:SetScript("OnClick", function(self) SetLearn(self:GetChecked()) end)
+  learn:SetScript("OnClick", function()
+    ns.P.Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+    SetLearn(not H.Opt("learn"))
+  end)
+  learn:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+    GameTooltip:SetText(T("Режим «Учусь»"), 1, 0.82, 0)
+    GameTooltip:AddLine(T("Под каждым макросом - что делает каждая строка, простыми словами."), 1, 1, 1, true)
+    GameTooltip:Show()
+  end)
+  learn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+  learn:SetScript("OnShow", function() lcheck:SetChecked(H.Opt("learn") and true or false) end)
+  lcheck:SetChecked(H.Opt("learn") and true or false)
+  header.buttons[#header.buttons + 1] = learn
 
   -- блоки по два в строку; оба в строке одной высоты
   local GAP = 10
@@ -3224,6 +3262,11 @@ local function BuildSharePage(key)
   local inner = width - 20 - 32
   local header = UI.PageHeader(page, width)
   header:Set(T("Импорт и экспорт"), T("Сохрани свои макросы кодом - на случай переустановки игры или чтобы поделиться с другом."))
+  if ns.P.host then
+    -- в настройках игры фон тёмный: шапка светлая
+    header.title:SetTextColor(1, 0.82, 0)
+    header.text:SetTextColor(0.85, 0.85, 0.85)
+  end
 
   -- Экспорт
   local ex = NewCard(page, width)
