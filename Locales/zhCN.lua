@@ -1857,4 +1857,8 @@ ns.LOCALES.zhCN = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "文本已选中：按 Ctrl+C。插件无法自行写入剪贴板，游戏不允许这样做。",
  ["Copy the macro text"] = "复制宏的内容",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "按游戏里的写法显示内容，带法术名称。可以粘贴到 /macro 窗口或发给朋友。",
+ ["spell numbers replaced with names, macros: %d."] = "已把法术编号换成名称，宏：%d 个。",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "内容里是法术编号而不是名称：游戏不认识编号。下面的按钮会把它们换成名称。",
+ ["To fix: %d."] = "需要修正：%d 个。",
+ ["It also lists macros that have a spell's number instead of its name."] = "这里也会列出用法术编号代替名称的宏。",
 } end

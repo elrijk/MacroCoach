@@ -1787,4 +1787,8 @@ ns.LOCALES.ptBR = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "O texto está selecionado: pressione Ctrl+C. O addon não consegue copiar sozinho para a área de transferência: o jogo não permite.",
  ["Copy the macro text"] = "Copiar o texto da macro",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Mostra o texto como ele é escrito no jogo, com os nomes dos feitiços. Você pode colar na janela /macro ou enviar a um amigo.",
+ ["spell numbers replaced with names, macros: %d."] = "números de feitiços trocados por nomes, macros: %d.",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "O texto tem números de feitiços em vez de nomes: o jogo não os entende. O botão abaixo troca por nomes.",
+ ["To fix: %d."] = "Para corrigir: %d.",
+ ["It also lists macros that have a spell's number instead of its name."] = "Aqui também aparecem as macros que têm o número do feitiço em vez do nome.",
 } end

@@ -1857,4 +1857,8 @@ ns.LOCALES.zhTW = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "文字已選取：按 Ctrl+C。插件無法自行寫入剪貼簿，遊戲不允許這樣做。",
  ["Copy the macro text"] = "複製巨集的內容",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "按遊戲裡的寫法顯示內容，帶法術名稱。可以貼到 /macro 視窗或傳給朋友。",
+ ["spell numbers replaced with names, macros: %d."] = "已把法術編號換成名稱，巨集：%d 個。",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "內容裡是法術編號而不是名稱：遊戲不認得編號。下面的按鈕會把它們換成名稱。",
+ ["To fix: %d."] = "需要修正：%d 個。",
+ ["It also lists macros that have a spell's number instead of its name."] = "這裡也會列出用法術編號代替名稱的巨集。",
 } end

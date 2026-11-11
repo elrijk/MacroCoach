@@ -1443,3 +1443,11 @@ for k, v in pairs({
     ["Скопировать текст макроса"] = "Copy the macro text",
     ["Покажет текст так, как он пишется в игре, - с названиями заклинаний. Его можно вставить в окно /macro или отправить другу."] = "Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: номера заклинаний в макросах игры
+for k, v in pairs({
+    ["номера заклинаний заменены названиями, макросов: %d."] = "spell numbers replaced with names, macros: %d.",
+    ["В тексте номера заклинаний вместо названий: игра их не понимает. Кнопка ниже заменит их названиями."] = "The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names.",
+    ["Нужно исправить: %d."] = "To fix: %d.",
+    ["Здесь же - макросы, где вместо названия заклинания стоит его номер."] = "It also lists macros that have a spell's number instead of its name.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

@@ -1848,4 +1848,8 @@ ns.LOCALES.esES = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "El texto está seleccionado: pulsa Ctrl+C. El addon no puede copiar al portapapeles por sí mismo: el juego no lo permite.",
  ["Copy the macro text"] = "Copiar el texto de la macro",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Muestra el texto tal como se escribe en el juego, con los nombres de los hechizos. Puedes pegarlo en la ventana /macro o enviárselo a un amigo.",
+ ["spell numbers replaced with names, macros: %d."] = "números de hechizo sustituidos por nombres, macros: %d.",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "El texto tiene números de hechizo en lugar de nombres: el juego no los entiende. El botón de abajo los sustituye por nombres.",
+ ["To fix: %d."] = "Por corregir: %d.",
+ ["It also lists macros that have a spell's number instead of its name."] = "Aquí también aparecen las macros que tienen el número del hechizo en lugar de su nombre.",
 } end

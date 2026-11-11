@@ -1825,4 +1825,8 @@ ns.LOCALES.frFR = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "Le texte est sélectionné : appuyez sur Ctrl+C. L'addon ne peut pas copier lui-même dans le presse-papiers : le jeu ne le permet pas.",
  ["Copy the macro text"] = "Copier le texte de la macro",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Affiche le texte tel qu'il s'écrit en jeu, avec les noms des sorts. Vous pouvez le coller dans la fenêtre /macro ou l'envoyer à un ami.",
+ ["spell numbers replaced with names, macros: %d."] = "numéros de sorts remplacés par des noms, macros : %d.",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "Le texte contient des numéros de sorts au lieu des noms : le jeu ne les comprend pas. Le bouton ci-dessous les remplace par des noms.",
+ ["To fix: %d."] = "À corriger : %d.",
+ ["It also lists macros that have a spell's number instead of its name."] = "Y figurent aussi les macros qui contiennent le numéro d'un sort au lieu de son nom.",
 } end

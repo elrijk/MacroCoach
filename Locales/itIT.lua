@@ -1779,4 +1779,8 @@ ns.LOCALES.itIT = function() return {
  ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "Il testo è selezionato: premi Ctrl+C. L'addon non può copiare da solo negli appunti: il gioco non lo permette.",
  ["Copy the macro text"] = "Copia il testo della macro",
  ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Mostra il testo come si scrive nel gioco, con i nomi degli incantesimi. Puoi incollarlo nella finestra /macro o inviarlo a un amico.",
+ ["spell numbers replaced with names, macros: %d."] = "numeri degli incantesimi sostituiti con i nomi, macro: %d.",
+ ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "Nel testo ci sono numeri di incantesimi invece dei nomi: il gioco non li capisce. Il pulsante qui sotto li sostituisce con i nomi.",
+ ["To fix: %d."] = "Da correggere: %d.",
+ ["It also lists macros that have a spell's number instead of its name."] = "Qui compaiono anche le macro che hanno il numero dell'incantesimo invece del nome.",
 } end

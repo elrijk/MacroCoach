@@ -1940,8 +1940,48 @@ local function LangEach(db, dry, fn)
   end
 end
 
--- Для вкладки «Проверка»: какие макросы аддона в игре не на языке игры.
--- { { index, name, icon, state = "todo" | "wait" | "blocked" | "changed", why } }
+-- Номера заклинаний в тексте макроса игры: «spell:324», «{324}», «{s:324}»,
+-- «{r:324}». Игра их не понимает (в /cast нужно название) - меняем на
+-- названия на языке игры. Вернёт новый текст и true, если названия ещё не
+-- загружены; nil - номеров в тексте нет.
+local function IdsToNames(body)
+  if type(body) ~= "string" then return nil end
+  local stored = body:gsub("spell:(%d+)", "{s:%1}"):gsub("{(%d+)}", "{s:%1}")
+  if not stored:find("{[sr]:%d+}") then return nil end
+  local want, missing = UI.Render(stored)
+  if missing then UI.RequestSpells(stored) end
+  return want, missing
+end
+
+-- Все макросы игры: общие и этого персонажа.
+local function GameMacroIndexes()
+  local general, char = GetNumMacros()
+  local base = MAX_ACCOUNT_MACROS or 120
+  local list = {}
+  for i = 1, general or 0 do list[#list + 1] = i end
+  for i = base + 1, base + (char or 0) do list[#list + 1] = i end
+  return list
+end
+
+-- Заменить номера названиями во всех макросах игры; вернёт, сколько исправлено.
+function H.FixSpellIDs()
+  if InCombatLockdown() then return 0 end
+  local done = 0
+  for _, index in ipairs(GameMacroIndexes()) do
+    local name, icon, body = GetMacroInfo(index)
+    local want, missing = IdsToNames(body)
+    if name and want and not missing and UI.CharCount(want) <= UI.MAX_CHARS then
+      EditMacro(index, name, icon, want)
+      done = done + 1
+    end
+  end
+  if done > 0 then Print((T("номера заклинаний заменены названиями, макросов: %d.")):format(done)) end
+  return done
+end
+
+-- Для вкладки «Проверка»: какие макросы аддона в игре не на языке игры и в
+-- каких макросах игры вместо названий стоят номера заклинаний.
+-- { { index, name, icon, state = "todo" | "ids" | "wait" | "blocked" | "changed", why } }
 local LANG_RANK = { ok = 5, todo = 4, wait = 3, blocked = 2, changed = 1 }
 function H.LanguageScan()
   local db = UI.DB()
@@ -1961,6 +2001,20 @@ function H.LanguageScan()
       byIndex[index] = { index = index, name = name, state = state, why = why }
     end
   end)
+  -- номера вместо названий - в любых макросах игры, не только наших
+  for _, index in ipairs(GameMacroIndexes()) do
+    local cur = byIndex[index]
+    if not (cur and cur.state == "todo") then
+      local name, _, body = GetMacroInfo(index)
+      local want, missing = IdsToNames(body)
+      if want then
+        local state, why = "ids", nil
+        if missing then state = "wait"
+        elseif UI.CharCount(want) > UI.MAX_CHARS then state, why = "blocked", "too long" end
+        byIndex[index] = { index = index, name = name, state = state, why = why }
+      end
+    end
+  end
   local list = {}
   for _, e in pairs(byIndex) do
     if e.state ~= "ok" then
@@ -2923,14 +2977,17 @@ local function BuildCheckPage(key)
 
   -- Язык макросов: готовые и свои макросы аддона, оставшиеся на другом языке
   local lang = CheckCard(T("Язык макросов"),
-    T("Макросы MacroCoach в игре должны быть на языке игры: иначе на кнопке квадратики, а макрос не работает. После смены языка аддон переводит их сам; здесь видно, что осталось."),
+    T("Макросы MacroCoach в игре должны быть на языке игры: иначе на кнопке квадратики, а макрос не работает. После смены языка аддон переводит их сам; здесь видно, что осталось.")
+      .. " " .. T("Здесь же - макросы, где вместо названия заклинания стоит его номер."),
     { T("Другой язык"), T("Язык игры") })
   local lRows = {}
   local lFix = Button(lang, "", 220, function()
+    H.FixSpellIDs()
     H.ResyncLanguage(nil, "ui", function() Refresh() end)
   end, T("Переведёт название и текст на язык игры. На панелях макросы останутся на своих местах."))
   local LANG_WHY = {
     todo = T("На другом языке: переведётся кнопкой ниже."),
+    ids = T("В тексте номера заклинаний вместо названий: игра их не понимает. Кнопка ниже заменит их названиями."),
     wait = T("Названия заклинаний ещё загружаются: нажми «Проверить снова»."),
     changed = T("Название готового макроса на другом языке, а текст меняли руками: аддон его не трогает."),
     long = T("Не переведён: на языке игры текст длиннее 255 знаков."),
@@ -3000,11 +3057,11 @@ local function BuildCheckPage(key)
     lang:ClearAllPoints()
     lang:SetPoint("TOPLEFT", 10, y)
     local todo = 0
-    for _, e in ipairs(page.lang) do if e.state == "todo" then todo = todo + 1 end end
+    for _, e in ipairs(page.lang) do if e.state == "todo" or e.state == "ids" then todo = todo + 1 end end
     if #page.lang == 0 then
       lang.status:SetText(StatusText(true, T("Все макросы MacroCoach - на языке игры.")))
     else
-      lang.status:SetText(StatusText(false, (T("На другом языке: %d.")):format(#page.lang)))
+      lang.status:SetText(StatusText(false, (T("Нужно исправить: %d.")):format(#page.lang)))
     end
     local l1 = page.lang[1]
     local lIcon = (l1 and l1.icon) or UI.SpellIcon(ExampleSpell("mo")) or "Interface\\Icons\\INV_Misc_Note_01"
@@ -3019,7 +3076,7 @@ local function BuildCheckPage(key)
         local taken = tostring(e.why or ""):match("^name taken: (.+)$")
         why = taken and LANG_WHY.taken:format(taken) or LANG_WHY.long
       end
-      r.why:SetText((e.state == "todo" and YELLOW or RED) .. "- " .. (why or "") .. "|r")
+      r.why:SetText(((e.state == "todo" or e.state == "ids") and YELLOW or RED) .. "- " .. (why or "") .. "|r")
       local h = math.max(18 + r.why:GetStringHeight() + 4, ROW_ICON + rowPad * 2)
       r:SetHeight(h)
       r:ClearAllPoints()
