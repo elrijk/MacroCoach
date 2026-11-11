@@ -1280,3 +1280,21 @@ local HELPER_EN = {
     ["Этих заклинаний в WoW Forever нет: макрос не сработает."] = "These spells don't exist in WoW Forever: the macro won't work.",
 }
 for k, v in pairs(HELPER_EN) do ns.EN[k] = v end
+
+-- 1.2: наборы по специализации и ссылка на макрос в чат
+for k, v in pairs({
+    ["В чат"] = "To chat",
+    ["Ссылка в чат"] = "Link in chat",
+    ["Вставит ссылку на этот макрос в строку чата. У кого стоит MacroCoach, откроет его щелчком."] = "Puts a link to this macro into the chat line. Anyone with MacroCoach opens it with a click.",
+    ["Набор: %s"] = "Set: %s",
+    ["Все макросы этой вкладки можно создать сразу. Они появятся в окне /macro - перетащи нужные на панель."] = "All macros of this tab can be created at once. They appear in the /macro window - drag the ones you need to a bar.",
+    ["Добавить весь набор (%d)"] = "Add the whole set (%d)",
+    ["в бою макросы создавать нельзя."] = "macros can't be created in combat.",
+    ["набор «%s»: добавлено %d, уже было %d, не получилось %d."] = "set \"%s\": added %d, already there %d, failed %d.",
+    ["не получилось - значит, нет места в /macro или заклинания ещё загружаются: нажми ещё раз."] = "failed means there is no room in /macro or spells are still loading: press again.",
+    ["макрос слишком длинный для чата: отправь его кодом из «Импорт/экспорт»."] = "the macro is too long for chat: send it as a code from \"Import/export\".",
+    ["макрос из чата добавлен в «Мои макросы». Посмотри его текст, прежде чем добавлять в игру."] = "the macro from chat is now in \"My macros\". Read its text before adding it to the game.",
+    ["такой макрос у тебя уже есть."] = "you already have this macro.",
+    ["не получилось прочитать макрос из ссылки."] = "could not read the macro from the link.",
+    ["Добавить макрос «%s» из чата в «Мои макросы»?"] = "Add the macro \"%s\" from chat to \"My macros\"?",
+}) do ns.EN[k] = v end

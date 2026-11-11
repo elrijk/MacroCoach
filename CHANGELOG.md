@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+- Sets: every specialization tab has an "Add the whole set" button that creates all its macros at once.
+- "To chat" button on every macro: a chat link that other MacroCoach users open with a click. Your own macros can be shared this way and are added only after a confirmation.
+- New strings are in English and Russian only; other languages show them in English.
+
 ## 1.0.0
 
 First public release.

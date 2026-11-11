@@ -765,6 +765,7 @@ local function Pickup(m, retried, shared, mode, confirmed)
     end
     if index and index > 0 then
         if mode == "create" then
+            if ns.quietPickup then return index end -- набор: итог одной строкой (Share.lua)
             if where then
                 Print((T("«%s» добавлен %s. Нажми «Добавить», чтобы взять его на курсор.")):format(m.name, where))
             else
@@ -1673,7 +1674,18 @@ local function BuildRow(parent, class, m, width, rec)
         edit:SetPoint("TOPRIGHT", -10, -10)
     end
     add:SetPoint("RIGHT", edit, "LEFT", -6, 0)
-    local headW = add:GetWidth() + 6 + edit:GetWidth() + 8
+    -- «В чат»: ссылка на макрос в строку чата (Share.lua)
+    local link = HeadButton(T("В чат"))
+    link:SetPoint("RIGHT", add, "LEFT", -6, 0)
+    link:SetScript("OnClick", function() if ns.LinkToChat then ns.LinkToChat(class, m) end end)
+    link:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(T("Ссылка в чат"))
+        GameTooltip:AddLine(T("Вставит ссылку на этот макрос в строку чата. У кого стоит MacroCoach, откроет его щелчком."), 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    link:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    local headW = link:GetWidth() + 6 + add:GetWidth() + 6 + edit:GetWidth() + 8
     local buttons = {}
     if class == "CUSTOM" then
         local del = NewButton(T("Удалить"))
@@ -1845,7 +1857,7 @@ local function BuildRow(parent, class, m, width, rec)
     return row
 end
 
-local function BuildPage(class, list, key, rec)
+local function BuildPage(class, list, key, rec, label)
     local page = CreateFrame("Frame", nil, frame.child)
     page:SetPoint("TOPLEFT")
     local width = frame.child:GetWidth()
@@ -1857,6 +1869,17 @@ local function BuildPage(class, list, key, rec)
         header = PageHeader(page, width)
         header:Set(class == "GENERAL" and T("Рекомендации для всех классов") or (T("Рекомендации: ") .. ClassName(class)),
             T("Самые полезные макросы для старта: какую проблему решает каждый, что делает и когда жать. Значок макроса перетащи на панель или нажми «Добавить»."))
+    elseif label and #list > 1 then
+        -- Набор вкладки (специализации): все её макросы одним нажатием.
+        header = PageHeader(page, width)
+        header:Set((T("Набор: %s")):format(T(label)),
+            T("Все макросы этой вкладки можно создать сразу. Они появятся в окне /macro - перетащи нужные на панель."))
+        local all = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+        all:SetText((T("Добавить весь набор (%d)")):format(#list))
+        local fs = all:GetFontString()
+        all:SetSize(math.max(180, math.ceil((fs and fs:GetStringWidth() or 150) + 30)), 24)
+        all:SetScript("OnClick", function() if ns.AddSet then ns.AddSet(class, list, label) end end)
+        header.buttons[1] = all
     end
     for _, m in ipairs(list) do
         -- Общий макрос во вкладке «Рекомендации» класса остаётся общим (m.homeClass).
@@ -3648,7 +3671,7 @@ ShowClass = function(class, spec)
     local page = pages[key] or (tab and tab.custom and BuildCustomPage(key)) or (tab and tab.guide and BuildGuidePage(key))
         or (tab and tab.options and BuildOptionsPage(key))
         or (tab and tab.helper and ns.BuildHelperPage and ns.BuildHelperPage(tab.helper, key))
-        or BuildPage(class, tab and tab.list or {}, key, tab and tab.rec)
+        or BuildPage(class, tab and tab.list or {}, key, tab and tab.rec, tab and tab.label)
     page:Show()
     frame.child:SetHeight(page:Layout())
     frame.scroll:SetVerticalScroll(0)
