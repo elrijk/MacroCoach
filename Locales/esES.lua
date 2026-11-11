@@ -1845,4 +1845,7 @@ ns.LOCALES.esES = function() return {
  ["In another language: %d."] = "En otro idioma: %d.",
  ["A macro in another language: the game does not recognise the spell names."] = "Una macro en otro idioma: el juego no reconoce los nombres de los hechizos.",
  ["Translate all (%d)"] = "Traducir todas (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "El texto está seleccionado: pulsa Ctrl+C. El addon no puede copiar al portapapeles por sí mismo: el juego no lo permite.",
+ ["Copy the macro text"] = "Copiar el texto de la macro",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Muestra el texto tal como se escribe en el juego, con los nombres de los hechizos. Puedes pegarlo en la ventana /macro o enviárselo a un amigo.",
 } end

@@ -1837,4 +1837,7 @@ ns.LOCALES.deDE = function() return {
  ["In another language: %d."] = "In einer anderen Sprache: %d.",
  ["A macro in another language: the game does not recognise the spell names."] = "Ein Makro in einer anderen Sprache: Das Spiel erkennt die Zaubernamen nicht.",
  ["Translate all (%d)"] = "Alle übersetzen (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "Der Text ist markiert: Drücke Strg+C. Das Addon kann selbst keinen Text in die Zwischenablage legen - das Spiel erlaubt es nicht.",
+ ["Copy the macro text"] = "Makrotext kopieren",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Zeigt den Text so, wie er im Spiel geschrieben wird, mit Zaubernamen. Du kannst ihn ins /macro-Fenster einfügen oder einem Freund schicken.",
 } end

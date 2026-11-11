@@ -1776,4 +1776,7 @@ ns.LOCALES.itIT = function() return {
  ["In another language: %d."] = "In un'altra lingua: %d.",
  ["A macro in another language: the game does not recognise the spell names."] = "Una macro in un'altra lingua: il gioco non riconosce i nomi degli incantesimi.",
  ["Translate all (%d)"] = "Traduci tutte (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "Il testo è selezionato: premi Ctrl+C. L'addon non può copiare da solo negli appunti: il gioco non lo permette.",
+ ["Copy the macro text"] = "Copia il testo della macro",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Mostra il testo come si scrive nel gioco, con i nomi degli incantesimi. Puoi incollarlo nella finestra /macro o inviarlo a un amico.",
 } end

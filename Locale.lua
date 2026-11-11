@@ -1436,3 +1436,10 @@ for k, v in pairs({
     ["Макрос на другом языке: игра не узнаёт названия заклинаний."] = "A macro in another language: the game does not recognise the spell names.",
     ["Перевести все (%d)"] = "Translate all (%d)",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: значок «скопировать текст макроса»
+for k, v in pairs({
+    ["Текст выделен: нажми Ctrl+C. Сам аддон положить текст в буфер обмена не может - игра этого не разрешает."] = "The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it.",
+    ["Скопировать текст макроса"] = "Copy the macro text",
+    ["Покажет текст так, как он пишется в игре, - с названиями заклинаний. Его можно вставить в окно /macro или отправить другу."] = "Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

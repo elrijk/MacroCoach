@@ -459,6 +459,67 @@ local function MissingText(missing)
   return text
 end
 
+-- Окно с текстом макроса для копирования. Буфер обмена аддону недоступен:
+-- текст показывается выделенным, копирует игрок по Ctrl+C.
+local copyWin
+local function ShowCopy(title, text)
+  local f = copyWin
+  if not f then
+    f = CreateFrame("Frame", "MacroCoachCopyFrame", UIParent, "BackdropTemplate")
+    copyWin = f
+    P.Card(f)
+    f:SetBackdropColor(0.06, 0.045, 0.03, 1)
+    f:SetSize(420, 250)
+    f:SetPoint("CENTER", 0, 60)
+    f:SetFrameStrata("DIALOG")
+    f:SetToplevel(true)
+    f:SetClampedToScreen(true)
+    f:EnableMouse(true)
+    f:SetMovable(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", f.StopMovingOrSizing)
+    tinsert(UISpecialFrames, "MacroCoachCopyFrame")
+    local x = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+    x:SetPoint("TOPRIGHT", 0, 0)
+    f.title = P.Text(f, "SystemFont_Large", "GameFontNormalLarge", P.GOLD)
+    f.title:SetPoint("TOPLEFT", 18, -16)
+    f.title:SetWidth(360)
+    f.title:SetWordWrap(false)
+    f.hint = P.Text(f, "SystemFont_Med1", "GameFontHighlightSmall", P.LIGHT, true)
+    f.hint:SetPoint("TOPLEFT", 18, -42)
+    f.hint:SetWidth(384)
+    f.hint:SetText(T("Текст выделен: нажми Ctrl+C. Сам аддон положить текст в буфер обмена не может - игра этого не разрешает."))
+    local bg = f:CreateTexture(nil, "ARTWORK")
+    bg:SetColorTexture(0, 0, 0, 0.7)
+    bg:SetPoint("TOPLEFT", 16, -84)
+    bg:SetPoint("BOTTOMRIGHT", -16, 16)
+    f.edit = CreateFrame("EditBox", nil, f)
+    f.edit:SetMultiLine(true)
+    f.edit:SetAutoFocus(false)
+    f.edit:SetFontObject(GameFontHighlightSmall)
+    f.edit:SetPoint("TOPLEFT", bg, "TOPLEFT", 8, -8)
+    f.edit:SetPoint("BOTTOMRIGHT", bg, "BOTTOMRIGHT", -8, 8)
+    f.edit:SetMaxLetters(0)
+    -- набранное возвращается обратно: поле только для копирования
+    f.edit:SetScript("OnTextChanged", function(e, user)
+      if user and e:GetText() ~= e.value then
+        e:SetText(e.value or "")
+        e:HighlightText()
+      end
+    end)
+    f.edit:SetScript("OnEscapePressed", function() f:Hide() end)
+    f.edit:SetScript("OnMouseUp", function(e) e:HighlightText() end)
+  end
+  f.title:SetText(title or "")
+  f.edit.value = text
+  f.edit:SetText(text)
+  f:Show()
+  f:Raise()
+  f.edit:SetFocus()
+  f.edit:HighlightText()
+end
+
 local function BuildRow(parent, class, m, width, rec)
   local row = CreateFrame("Frame", nil, parent, "BackdropTemplate")
   row:SetWidth(width)
@@ -535,6 +596,25 @@ local function BuildRow(parent, class, m, width, rec)
   codeBg:SetColorTexture(0, 0, 0, 0.7)
   codeBg:SetPoint("TOPLEFT", code, "TOPLEFT", -6, 6)
   codeBg:SetPoint("BOTTOMRIGHT", code, "BOTTOMRIGHT", 22, -6)
+  -- значок в углу блока: текст макроса, как он пишется в игре (с названиями
+  -- заклинаний на языке игры), - для копирования
+  local copy = CreateFrame("Button", nil, row)
+  copy:SetSize(18, 18)
+  copy:SetPoint("TOPRIGHT", codeBg, "TOPRIGHT", -3, -3)
+  copy:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
+  copy:SetHighlightTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up", "ADD")
+  copy:SetScript("OnClick", function()
+    Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+    local em = Effective(class, m)
+    ShowCopy(em.name, (P.Render(em.body)))
+  end)
+  copy:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(T("Скопировать текст макроса"))
+    GameTooltip:AddLine(T("Покажет текст так, как он пишется в игре, - с названиями заклинаний. Его можно вставить в окно /macro или отправить другу."), 1, 1, 1, true)
+    GameTooltip:Show()
+  end)
+  copy:SetScript("OnLeave", function() GameTooltip:Hide() end)
   local ids = Text(row, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
   ids:SetWidth(wideW)
   -- Режим «Учусь»: объяснение под каждым макросом.
@@ -706,6 +786,7 @@ local function BuildRow(parent, class, m, width, rec)
     local open = not H or H.CodeShown(key, mine)
     code:SetShown(open)
     codeBg:SetShown(open)
+    copy:SetShown(open)
     ids:SetShown(open)
     if help then
       help.body, help.class, help.codeKey, help.codeOpen = em.body, class, key, mine

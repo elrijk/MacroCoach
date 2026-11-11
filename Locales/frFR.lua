@@ -1822,4 +1822,7 @@ ns.LOCALES.frFR = function() return {
  ["In another language: %d."] = "Dans une autre langue : %d.",
  ["A macro in another language: the game does not recognise the spell names."] = "Une macro dans une autre langue : le jeu ne reconnaît pas les noms des sorts.",
  ["Translate all (%d)"] = "Tout traduire (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "Le texte est sélectionné : appuyez sur Ctrl+C. L'addon ne peut pas copier lui-même dans le presse-papiers : le jeu ne le permet pas.",
+ ["Copy the macro text"] = "Copier le texte de la macro",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "Affiche le texte tel qu'il s'écrit en jeu, avec les noms des sorts. Vous pouvez le coller dans la fenêtre /macro ou l'envoyer à un ami.",
 } end

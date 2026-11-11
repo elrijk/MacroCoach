@@ -1854,4 +1854,7 @@ ns.LOCALES.zhCN = function() return {
  ["In another language: %d."] = "其他语言：%d 个。",
  ["A macro in another language: the game does not recognise the spell names."] = "其他语言的宏：游戏认不出法术名称。",
  ["Translate all (%d)"] = "全部翻译 (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "文本已选中：按 Ctrl+C。插件无法自行写入剪贴板，游戏不允许这样做。",
+ ["Copy the macro text"] = "复制宏的内容",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "按游戏里的写法显示内容，带法术名称。可以粘贴到 /macro 窗口或发给朋友。",
 } end

@@ -1852,4 +1852,7 @@ ns.LOCALES.koKR = function() return {
  ["In another language: %d."] = "다른 언어: %d개.",
  ["A macro in another language: the game does not recognise the spell names."] = "다른 언어의 매크로: 게임이 주문 이름을 인식하지 못합니다.",
  ["Translate all (%d)"] = "모두 번역 (%d)",
+ ["The text is selected: press Ctrl+C. The addon cannot put text on the clipboard itself - the game does not allow it."] = "텍스트가 선택되어 있습니다. Ctrl+C를 누르세요. 애드온은 직접 클립보드에 복사할 수 없습니다. 게임이 허용하지 않기 때문입니다.",
+ ["Copy the macro text"] = "매크로 내용 복사",
+ ["Shows the text as it is written in the game, with spell names. You can paste it into the /macro window or send it to a friend."] = "게임에 쓰이는 그대로, 주문 이름이 들어간 내용을 보여 줍니다. /macro 창에 붙여 넣거나 친구에게 보낼 수 있습니다.",
 } end
