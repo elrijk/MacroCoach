@@ -68,7 +68,8 @@ local function PageHeader(page, width)
     local x, rowH = 26, 0
     for _, b in ipairs(self.buttons) do
       if b:IsShown() then
-        if x > 26 and x + b:GetWidth() > width - 26 then
+        -- h.stack - кнопки столбиком, каждая на своей строке
+        if x > 26 and (self.stack or x + b:GetWidth() > width - 26) then
           x, y = 26, y + rowH + 8
           rowH = 0
         end

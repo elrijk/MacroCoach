@@ -2407,10 +2407,16 @@ local function BuildIntroPage(key)
   header:Set(I.title, I.text)
   for i, st in ipairs(D.START) do
     local b = Button(page, T(st.label), 100, function() OpenTarget(st.open) end, T(st.tip))
-    local fs = b:GetFontString()
-    b:SetWidth(math.ceil((fs and fs:GetStringWidth() or 120) + 28))
     header.buttons[i] = b
   end
+  -- кнопки крупные, столбиком, одной ширины - по самой длинной надписи
+  header.stack = true
+  local bw = 280
+  for _, b in ipairs(header.buttons) do
+    local fs = b:GetFontString()
+    bw = math.max(bw, math.ceil((fs and fs:GetStringWidth() or 0) + 48))
+  end
+  for _, b in ipairs(header.buttons) do b:SetSize(bw, 32) end
 
   -- блоки по два в строку; оба в строке одной высоты
   local GAP = 10
