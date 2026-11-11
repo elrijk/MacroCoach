@@ -6,6 +6,12 @@
 - "To chat" button on every macro: a chat link that other MacroCoach users open with a click. Your own macros can be shared this way and are added only after a confirmation.
 - New strings are in English and Russian only; other languages show them in English.
 
+## 1.1.0
+
+- Backup of every macro in the /macro window, with restore.
+- `/coach update`: top spell ranks on your bars and refreshed ready-made macros in one go.
+- Option "Only macros I can use" hides macros whose spells you have not learned yet.
+
 ## 1.0.0
 
 First public release.

@@ -36,7 +36,7 @@ local function Print(msg) UI.Print(msg) end
 --  Настройки помощника (MacroCoachDB.helper)
 -------------------------------------------------------------------------------
 -- showCode: текст макроса на карточках открыт сразу (иначе - по щелчку на «?»).
-local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false }
+local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false, readyOnly = false }
 
 function H.Opt(key)
     local v = UI.DB().helper[key]
