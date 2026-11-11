@@ -1387,3 +1387,9 @@ for k, v in pairs({
 if ns.EN["Сменил язык игры - макросы на панелях переведутся сами."] == nil then
     ns.EN["Сменил язык игры - макросы на панелях переведутся сами."] = "Changed the game language? Macros on your bars translate themselves."
 end
+
+-- 1.2: окно рядом с окном макросов игры
+for k, v in pairs({
+    ["окно будет открываться рядом с окном макросов игры."] = "the window will open beside the game's macro window.",
+    ["окно больше не открывается само рядом с окном макросов игры."] = "the window no longer opens by itself beside the game's macro window.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

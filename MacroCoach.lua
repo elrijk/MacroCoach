@@ -4614,6 +4614,11 @@ SlashCmdList.MACROCOACH = function(msg)
     elseif msg == "lang" or msg == "язык" then
         -- перевести готовые макросы в игре на нынешний язык и сказать, что не тронуто
         if ns.Helper and ns.Helper.ResyncLanguage then ns.Helper.ResyncLanguage(0, true) end
+    elseif msg == "beside" or msg == "рядом" then
+        local db = DB()
+        db.besideMacro = db.besideMacro == false
+        Print(db.besideMacro and T("окно будет открываться рядом с окном макросов игры.")
+            or T("окно больше не открывается само рядом с окном макросов игры."))
     elseif msg == "share" or msg == "обмен" or msg == "export" or msg == "экспорт" then
         Open("CUSTOM", 3)
     elseif msg == "data" or msg == "данные" then
@@ -4644,6 +4649,20 @@ local function AddMacroFrameTab()
         self:SetChecked(frame and frame:IsShown() or false)
     end)
     ns.macroTab = tab
+    -- Окно макросов игры открыли - MacroCoach сам встаёт рядом, закрыли -
+    -- уходит вместе с ним (если открылся сам). Выключить: /coach beside.
+    MacroFrame:HookScript("OnShow", function()
+        if DB().besideMacro == false then return end
+        if InCombatLockdown and InCombatLockdown() then return end
+        if frame and frame:IsShown() then return end
+        local ok = pcall(OpenBeside, MacroFrame)
+        ns.openedBeside = ok and frame and frame:IsShown() or nil
+        tab:SetChecked(frame and frame:IsShown() or false)
+    end)
+    MacroFrame:HookScript("OnHide", function()
+        if ns.openedBeside and frame and frame:IsShown() then frame:Hide() end
+        ns.openedBeside = nil
+    end)
 end
 
 -- Функции окна для помощника (Helper.lua загружается после этого файла).
