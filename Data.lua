@@ -22,13 +22,13 @@ ns.TAB_ORDER = {
 ns.MACROS = {
     GENERAL = {
         { group = "Бой", list = {
-            { name = "Аксессуары", icon = "INV_Jewelry_Talisman_01", desc = "Применяет оба аксессуара (ячейки 13 и 14). Поставьте строки перед своим главным заклинанием, чтобы аксессуары не простаивали.",
+            { name = "Аксессуары", icon = "INV_Jewelry_Talisman_01", desc = "Применяет оба аксессуара (ячейки 13 и 14). Поставь строки перед своим главным заклинанием, чтобы аксессуары не простаивали.",
               body = "#showtooltip\n/use 13\n/use 14" },
             { name = "Фокус", icon = "Ability_Hunter_SniperShot", desc = "Делает фокусом врага под курсором, а если под курсором никого, то текущую цель. С Shift сбрасывает фокус.",
               body = "/clearfocus [mod:shift]\n/stopmacro [mod:shift]\n/focus [@mouseover,exists,nodead][]" },
-            { name = "Помощь танку", icon = "Ability_Warrior_DefensiveStance", desc = "Берёт в цель того, кого бьёт ваш фокус (например, танк). Если фокуса нет, берёт цель вашей цели.",
+            { name = "Помощь танку", icon = "Ability_Warrior_DefensiveStance", desc = "Берёт в цель того, кого бьёт твой фокус (например, танк). Если фокуса нет, берёт цель твоей цели.",
               body = "/assist [@focus,help,nodead][]" },
-            { name = "Ближайший враг", icon = "Ability_TownWatch", desc = "Берёт ближайшего врага, только если у вас сейчас нет живой вражеской цели. С той, которую вы бьёте, не перескакивает.",
+            { name = "Ближайший враг", icon = "Ability_TownWatch", desc = "Берёт ближайшего врага, только если у тебя сейчас нет живой вражеской цели. С той, которую ты бьёшь, не перескакивает.",
               body = "/targetenemy [noharm][dead]" },
             { name = "Череп на цель", icon = "INV_Misc_Bone_HumanSkull_01", desc = "Ставит метку «череп» на врага под курсором, иначе на текущую цель.",
               body = "/targetmarker [@mouseover,exists][] 8" },
@@ -54,7 +54,7 @@ ns.MACROS = {
         { group = "Прочее", list = {
             { name = "Готовность", icon = "INV_Misc_PocketWatch_01", title = "Проверка готовности", desc = "Запускает проверку готовности группы или рейда (нужно быть лидером или помощником).",
               body = "/readycheck" },
-            { name = "Координаты", icon = "INV_Misc_Map_01", title = "Мои координаты", desc = "Пишет в чат ваши координаты на карте зоны. В подземельях и некоторых пещерах не работает.",
+            { name = "Координаты", icon = "INV_Misc_Map_01", title = "Мои координаты", desc = "Пишет в чат твои координаты на карте зоны. В подземельях и некоторых пещерах не работает.",
               body = "/run local m=C_Map.GetBestMapForUnit(\"player\") local p=m and C_Map.GetPlayerMapPosition(m,\"player\") if p then print(format(\"%.1f, %.1f\",p.x*100,p.y*100)) end" },
             { name = "Перезагрузка", icon = "INV_Misc_Gear_01", title = "Перезагрузить интерфейс", desc = "Перезагружает интерфейс: если что-то зависло или нужно применить настройки аддонов.",
               body = "/reload" },
@@ -66,7 +66,7 @@ ns.MACROS = {
         { group = "Бой", list = {
             { name = "Цель + атака", icon = "Ability_DualWield", desc = "Если цели нет или она мертва, берёт ближайшего врага и сразу начинает автоатаку. Удобно для ближнего боя.",
               body = "/cleartarget [dead]\n/targetenemy [noharm]\n/startattack" },
-            { name = "Стоп: атака", title = "Стоп атаке и касту", icon = "Spell_Frost_Stun", desc = "Останавливает автоатаку и ваш каст. Нажмите перед контролем (Превращение, Ошеломление, Страх), чтобы случайно его не сбить.",
+            { name = "Стоп: атака", title = "Стоп атаке и касту", icon = "Spell_Frost_Stun", desc = "Останавливает автоатаку и твой каст. Нажми перед контролем (Превращение, Ошеломление, Страх), чтобы случайно его не сбить.",
               body = "/stopattack\n/stopcasting" },
             { name = "Череп или крест", icon = "INV_Misc_Bone_HumanSkull_01", desc = "Ставит метку «череп» на врага под курсором, иначе на цель. С Shift ставит «крест». Удобно показать группе, кого бить первым, а кого вторым.",
               body = "/targetmarker [@mouseover,exists,mod:shift][mod:shift] 7; [@mouseover,exists][] 8" },
@@ -78,13 +78,13 @@ ns.MACROS = {
               body = "#showtooltip\n/use item:4594\n/use item:4593\n/use item:4592\n/use item:787" },
             { name = "Противоядие", desc = "Снимает яд лучшим противоядием из сумок: от мощного до простого (первая помощь).",
               body = "#showtooltip\n/use item:19440\n/use item:6453\n/use item:6452" },
-            { name = "Зелье свободы", desc = "Зелье свободных действий: 30 секунд вас нельзя оглушить, обездвижить или замедлить. Для PvP и боссов.",
+            { name = "Зелье свободы", desc = "Зелье свободных действий: 30 секунд тебя нельзя оглушить, обездвижить или замедлить. Для PvP и боссов.",
               body = "#showtooltip\n/use item:5634" },
             { name = "Руны маны", desc = "Демоническая или Тёмная руна: сразу восполняет 900-1500 маны ценой здоровья. Для заклинателей на высоких уровнях.",
               body = "#showtooltip\n/use item:12662\n/use item:20520" },
         } },
         { group = "Прочее", list = {
-            { name = "Пригласить цель", icon = "INV_Letter_15", desc = "Приглашает в группу игрока, который у вас в цели.",
+            { name = "Пригласить цель", icon = "INV_Letter_15", desc = "Приглашает в группу игрока, который у тебя в цели.",
               body = "/invite" },
         } },
     },
@@ -97,7 +97,7 @@ ns.MACROS = {
               body = "#showtooltip\n/stopcasting\n/cast [stance:3] {s:6552}; {s:72}" },
             { name = "Раскол + удар", desc = "Каждое нажатие накладывает Раскол брони. С Ctrl ещё ставит Удар героя на следующий взмах.",
               body = "#showtooltip {s:7386}\n/cast [mod:ctrl] {s:78}\n/cast {s:7386}" },
-            { name = "Устрашающий крик", desc = "Останавливает автоатаку и пугает врагов: ваш следующий взмах не снимет страх.",
+            { name = "Устрашающий крик", desc = "Останавливает автоатаку и пугает врагов: твой следующий взмах не снимет страх.",
               body = "#showtooltip {s:5246}\n/stopattack\n/cast {s:5246}" },
             { name = "Большой кулдаун", desc = "Главная способность текущей стойки: Возмездие (Боевая), Глухая оборона (Оборонительная), Безрассудство (Берсерк).",
               body = "#showtooltip\n/cast [stance:1] {s:20230}; [stance:2] {s:871}; [stance:3] {s:1719}" },
@@ -105,7 +105,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [stance:1] {s:694}; [stance:2] {s:355}; [stance:3] {s:71}" },
             { name = "Удар грома/Крик", desc = "Удар грома по группе врагов, с Ctrl Деморализующий крик. Из стойки Берсерка переходит в Боевую.",
               body = "#showtooltip\n/cast [mod:ctrl] {s:1160}; [stance:1/2] {s:6343}; {s:2457}" },
-            { name = "Удар героя", desc = "Удар героя и сразу автоатака, чтобы не терять урон, если вы ещё не начали бить.",
+            { name = "Удар героя", desc = "Удар героя и сразу автоатака, чтобы не терять урон, если ты ещё не начал бить.",
               body = "#showtooltip {s:78}\n/startattack\n/cast {s:78}" },
         } },
         { group = "Оружие", list = {
@@ -169,7 +169,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [mod:shift] {s:2687}; {s:6673}" },
         } },
         { group = "Защита", list = {
-            { name = "Провокация нав.", title = "Провокация по наведению", desc = "Провокация по врагу под курсором, иначе по цели. Если вы не в Оборонительной стойке, сначала встаёт в неё.",
+            { name = "Провокация нав.", title = "Провокация по наведению", desc = "Провокация по врагу под курсором, иначе по цели. Если ты не в Оборонительной стойке, сначала встаёт в неё.",
               body = "#showtooltip {s:355}\n/cast [nostance:2] {s:71}\n/cast [@mouseover,harm,nodead][] {s:355}" },
             { name = "Раскол навед.", title = "Раскол брони по наведению", desc = "Раскол брони по врагу под курсором, иначе по цели. Помогает держать угрозу на нескольких врагах.",
               body = "#showtooltip {s:7386}\n/startattack\n/cast [@mouseover,harm,nodead][] {s:7386}" },
@@ -181,7 +181,7 @@ ns.MACROS = {
               body = "#showtooltip {s:1715}\n/startattack\n/cast [stance:2] {s:2457}\n/cast [@mouseover,harm,nodead][] {s:1715}" },
         } },
         { group = "Неистовство", list = {
-            { name = "Безрассудство", desc = "Оба аксессуара и Безрассудство. Если вы не в стойке Берсерка, сначала встаёт в неё (тогда нажмите ещё раз).",
+            { name = "Безрассудство", desc = "Оба аксессуара и Безрассудство. Если ты не в стойке Берсерка, сначала встаёт в неё (тогда нажми ещё раз).",
               body = "#showtooltip {s:1719}\n/use 13\n/use 14\n/cast [nostance:3] {s:2458}\n/cast {s:1719}" },
         } },
     },
@@ -319,7 +319,7 @@ ns.MACROS = {
               body = "#showtooltip\n/castsequence reset=target {s:1130}, {s:1978}, {s:3044}\n/petattack" },
         } },
         { group = "Повелитель зверей", list = {
-            { name = "Питомец: ко мне", icon = "Ability_Tracking", desc = "Питомец бросает атаку, возвращается к вам и становится пассивным.",
+            { name = "Питомец: ко мне", icon = "Ability_Tracking", desc = "Питомец бросает атаку, возвращается к тебе и становится пассивным.",
               body = "/petfollow\n/petpassive" },
             { name = "Рык: авто", title = "Рык питомца: вкл/выкл", desc = "Включает или выключает автоматический Рык питомца. В группе с танком лучше выключить.",
               body = "#showtooltip {s:2649}\n/petautocasttoggle {s:2649}" },
@@ -331,9 +331,9 @@ ns.MACROS = {
               body = "/petstay\n/petpassive" },
         } },
         { group = "Общие", list = {
-            { name = "Метка навед.", title = "Метка охотника по наведению", desc = "Метка охотника на врага под курсором, иначе на цель. Ваша цель не меняется.",
+            { name = "Метка навед.", title = "Метка охотника по наведению", desc = "Метка охотника на врага под курсором, иначе на цель. Твоя цель не меняется.",
               body = "#showtooltip\n/cast [@mouseover,harm,nodead][] {s:1130}" },
-            { name = "Покормить", title = "Покормить питомца", desc = "Кормит питомца едой из первой ячейки самой левой сумки (сумка 4). Положите туда корм, который он любит.",
+            { name = "Покормить", title = "Покормить питомца", desc = "Кормит питомца едой из первой ячейки самой левой сумки (сумка 4). Положи туда корм, который он любит.",
               body = "#showtooltip {s:6991}\n/cast {s:6991}\n/use 4 1" },
         } },
         { group = "Стрельба", list = {
@@ -347,7 +347,7 @@ ns.MACROS = {
         { group = "Выживание", list = {
         } },
         { group = "Повелитель зверей", list = {
-            { name = "Отпугивание", title = "Отпугивание зверя", desc = "Пугает зверя под курсором, иначе цель. Останавливает вашу атаку и отзывает питомца.",
+            { name = "Отпугивание", title = "Отпугивание зверя", desc = "Пугает зверя под курсором, иначе цель. Останавливает твою атаку и отзывает питомца.",
               body = "#showtooltip {s:1513}\n/stopattack\n/petfollow\n/cast [@mouseover,harm,nodead][] {s:1513}" },
         } },
     },
@@ -461,7 +461,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [@mouseover,help,dead][] {s:2006}" },
         } },
         { group = "Тьма", list = {
-            { name = "Облик Тьмы", desc = "Если вы не в облике Тьмы, принимает его. В облике бьёт Пыткой разума, канал не перезапускается.",
+            { name = "Облик Тьмы", desc = "Если ты не в облике Тьмы, принимает его. В облике бьёт Пыткой разума, канал не перезапускается.",
               body = "#showtooltip\n/cast [noform] {s:15473}; [nochanneling:{s:15407}] {s:15407}" },
             { name = "Боль по наведен.", title = "Слово Тьмы: Боль по наведению", desc = "Слово Тьмы: Боль по врагу под курсором, иначе по цели.",
               body = "#showtooltip\n/cast [@mouseover,harm,nodead][] {s:589}" },
@@ -526,7 +526,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [@target,harm,nodead] {s:370}; [@target,help,nodead][@player] {s:526}" },
             { name = "Тотемы: вызов", desc = "Зов Стихий ставит набор тотемов, с Ctrl Возвращение тотемов.",
               body = "#showtooltip [mod:ctrl] {s:36936}; {s:66842}\n/cast [mod:ctrl] {s:36936}; {s:66842}" },
-            { name = "Волк", desc = "Призрачный волк: включает, а если вы уже волк, снимает.",
+            { name = "Волк", desc = "Призрачный волк: включает, а если ты уже волк, снимает.",
               body = "#showtooltip {s:2645}\n/cancelform [form]\n/cast [noform] {s:2645}" },
             { name = "Удар или лечение", desc = "Если в цели враг, Молния. Если союзник, Волна исцеления.",
               body = "#showtooltip\n/cast [harm] {s:403}; [help] {s:331}" },
@@ -568,7 +568,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [mod:shift] {s:8170}; {s:8166}" },
         } },
         { group = "Стихии", list = {
-            { name = "Молния навед.", title = "Молния по наведению", desc = "Молния по врагу под курсором, иначе по цели. Свою цель не меняете.",
+            { name = "Молния навед.", title = "Молния по наведению", desc = "Молния по врагу под курсором, иначе по цели. Свою цель не меняешь.",
               body = "#showtooltip {s:403}\n/cast [@mouseover,harm,nodead][] {s:403}" },
             { name = "Цепная навед.", title = "Цепная молния по наведению", desc = "Цепная молния по врагу под курсором, иначе по цели.",
               body = "#showtooltip {s:421}\n/cast [@mouseover,harm,nodead][] {s:421}" },
@@ -578,7 +578,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [mod:shift,@mouseover,help][mod:shift,help][mod:shift,@player] {s:131}; [@mouseover,help][help][@player] {s:546}" },
         } },
         { group = "Общие", list = {
-            { name = "Сбить навед.", title = "Сбить каст по наведению", desc = "Земной шок 1-го ранга по врагу под курсором, иначе по цели: сбивает каст за мало маны. Сначала обрывает ваш каст.",
+            { name = "Сбить навед.", title = "Сбить каст по наведению", desc = "Земной шок 1-го ранга по врагу под курсором, иначе по цели: сбивает каст за мало маны. Сначала обрывает твой каст.",
               body = "#showtooltip {s:8042}\n/stopcasting\n/cast [@mouseover,harm,nodead][] {r:8042}" },
         } },
         { group = "Стихии", list = {
@@ -603,11 +603,11 @@ ns.MACROS = {
               body = "#showtooltip {s:2136}\n/stopcasting\n/cast [@target,harm,nodead] {s:2136}" },
             { name = "Чар. стрелы", title = "Чародейские стрелы", desc = "Чародейские стрелы. Повторное нажатие не сбивает канал, который уже идёт.",
               body = "#showtooltip {s:5143}\n/cast [nochanneling:{s:5143},@target,harm,nodead] {s:5143}" },
-            { name = "Снять проклятие", desc = "Снятие малого проклятия: под курсором, цель, цель цели, вы.",
+            { name = "Снять проклятие", desc = "Снятие малого проклятия: под курсором, цель, цель цели, ты.",
               body = "#showtooltip {s:475}\n/stopcasting\n/cast [@mouseover,help,nodead][@target,help,nodead][@targettarget,help,nodead][@player] {s:475}" },
             { name = "Ледяная стрела", desc = "Ледяная стрела высшего ранга, с Ctrl 1-го ранга (быстро и дёшево замедлить).",
               body = "#showtooltip {s:116}\n/cast [mod:ctrl,@target,harm,nodead] {r:116}; [@target,harm,nodead] {s:116}" },
-            { name = "Превращ. фокуса", title = "Превращение фокуса", desc = "Делает цель фокусом (если фокуса нет или Ctrl) и превращает фокус снова, пока вы бьёте другого.",
+            { name = "Превращ. фокуса", title = "Превращение фокуса", desc = "Делает цель фокусом (если фокуса нет или Ctrl) и превращает фокус снова, пока ты бьёшь другого.",
               body = "#showtooltip {s:118}\n/focus [@focus,noexists][@focus,dead][mod:ctrl] target\n/cast [@focus,harm,nodead][@target,harm,nodead] {s:118}" },
         } },
         { group = "Тайная магия", list = {
@@ -667,7 +667,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [@mouseover,help,nodead][help,nodead][@player] {s:130}" },
             { name = "Защиты", title = "Защиты от стихий", desc = "Защита от огня. С Shift Защита от магии льда. Поглощают урон своей стихии.",
               body = "#showtooltip\n/cast [mod:shift] {s:6143}; {s:543}" },
-            { name = "Щит маны", desc = "Обрывает ваш каст и ставит Щит маны: урон снимает ману вместо здоровья.",
+            { name = "Щит маны", desc = "Обрывает твой каст и ставит Щит маны: урон снимает ману вместо здоровья.",
               body = "#showtooltip {s:1463}\n/stopcasting\n/cast {s:1463}" },
             { name = "Телепорт: Альянс", desc = "Телепортация в Штормград. С Shift в Стальгорн, с Ctrl в Дарнас.",
               body = "#showtooltip\n/cast [mod:shift] {s:3562}; [mod:ctrl] {s:3565}; {s:3561}" },
@@ -690,7 +690,7 @@ ns.MACROS = {
               body = "#showtooltip\n/petfollow\n/cast [mod:ctrl] {s:710}; {s:5782}" },
             { name = "Все DoT подряд", desc = "Каждое нажатие делает следующее: Порча, Проклятие агонии, Жертвенный огонь. Сбрасывается при смене цели.",
               body = "#showtooltip\n/castsequence reset=target {s:172}, {s:980}, {s:348}" },
-            { name = "Страх фокусу", desc = "Делает цель фокусом (если фокуса нет или Ctrl) и пугает фокус снова, пока вы бьёте другого.",
+            { name = "Страх фокусу", desc = "Делает цель фокусом (если фокуса нет или Ctrl) и пугает фокус снова, пока ты бьёшь другого.",
               body = "#showtooltip {s:5782}\n/focus [@focus,noexists][@focus,dead][mod:ctrl] target\n/cast [@focus,harm,nodead][@target,harm,nodead] {s:5782}" },
         } },
         { group = "Колдовство", list = {
@@ -728,7 +728,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [mod:shift] {s:1490}; [mod:ctrl] {s:1714}; {s:704}" },
         } },
         { group = "Демонология", list = {
-            { name = "Соблазн фокусу", title = "Соблазн по фокусу", desc = "Суккуб соблазняет врага в фокусе, иначе цель. Свою цель вы не меняете.",
+            { name = "Соблазн фокусу", title = "Соблазн по фокусу", desc = "Суккуб соблазняет врага в фокусе, иначе цель. Свою цель ты не меняешь.",
               body = "#showtooltip {s:6358}\n/cast [@focus,harm,nodead][] {s:6358}" },
             { name = "Запрет чар", desc = "Охотник Скверны прерывает заклинание врага под курсором, иначе в фокусе, иначе цели.",
               body = "#showtooltip {s:19244}\n/cast [@mouseover,harm,nodead][@focus,harm,nodead][] {s:19244}" },
@@ -744,9 +744,9 @@ ns.MACROS = {
               body = "#showtooltip\n/petattack\n/castsequence reset=target {s:348}, {s:980}, {s:172}, !{s:5019}" },
         } },
         { group = "Демонология", list = {
-            { name = "Жертва", desc = "Синий демон жертвует собой и дает вам щит.",
+            { name = "Жертва", desc = "Синий демон жертвует собой и дает тебе щит.",
               body = "#showtooltip {s:7812}\n/cast {s:7812}" },
-            { name = "Пожирание магии", desc = "Охотник Скверны снимает эффект: с Shift с вас, иначе с того, кто под курсором, или с цели.",
+            { name = "Пожирание магии", desc = "Охотник Скверны снимает эффект: с Shift с тебя, иначе с того, кто под курсором, или с цели.",
               body = "#showtooltip {s:19505}\n/cast [mod:shift,@player][@mouseover,exists,nodead][] {s:19505}" },
         } },
         { group = "Разрушение", list = {
@@ -760,7 +760,7 @@ ns.MACROS = {
               body = "#showtooltip\n/use [help,nodead][@player] item:16896\n/use [help,nodead][@player] item:16895\n/use [help,nodead][@player] item:16893\n/use [help,nodead][@player] item:16892\n/use [help,nodead][@player] item:5232" },
         } },
         { group = "Демонология", list = {
-            { name = "Огн. щит беса", title = "Огненный щит беса", desc = "Бес ставит Огненный щит на союзника под курсором, иначе на цель, иначе на вас.",
+            { name = "Огн. щит беса", title = "Огненный щит беса", desc = "Бес ставит Огненный щит на союзника под курсором, иначе на цель, иначе на тебя.",
               body = "#showtooltip\n/cast [@mouseover,help,nodead][help,nodead][@player] {s:2947}" },
         } },
     },
@@ -769,7 +769,7 @@ ns.MACROS = {
         { group = "Общие", list = {
             { name = "Облик для пути", desc = "В воде Водный облик, на открытом месте Походный облик, иначе облик кошки.",
               body = "#showtooltip\n/cast [swimming] {s:1066}; [outdoors] {s:783}; {s:768}" },
-            { name = "Кошка + рывок", desc = "Если вы не кошка, принимает облик кошки. Если уже кошка, Порыв.",
+            { name = "Кошка + рывок", desc = "Если ты не кошка, принимает облик кошки. Если уже кошка, Порыв.",
               body = "#showtooltip\n/cast [noform:3] !{s:768}\n/cast [form:3] {s:1850}" },
             { name = "Озарение", desc = "Выходит из облика и даёт Озарение союзнику под курсором, цели или себе.",
               body = "#showtooltip {s:29166}\n/cancelform\n/cast [@mouseover,help,nodead][help,nodead][@player] {s:29166}" },
@@ -793,7 +793,7 @@ ns.MACROS = {
               body = "#showtooltip\n/cast [form:1] {s:6795}; {s:16857}" },
         } },
         { group = "Баланс", list = {
-            { name = "Совух + Звёздный", title = "Облик совуха + Звёздный огонь", desc = "Включает облик лунного совуха, если вы не в нём (и не снимает его). Следующее нажатие бьёт Звёздным огнём (талант).",
+            { name = "Совух + Звёздный", title = "Облик совуха + Звёздный огонь", desc = "Включает облик лунного совуха, если ты не в нём (и не снимает его). Следующее нажатие бьёт Звёздным огнём (талант).",
               body = "#showtooltip {s:2912}\n/cast !{s:24858}\n/cast {s:2912}" },
             { name = "Лунный огонь", desc = "Лунный огонь по врагу под курсором, иначе по цели.",
               body = "#showtooltip\n/cast [@mouseover,harm,nodead][] {s:8921}" },
@@ -803,7 +803,7 @@ ns.MACROS = {
               body = "#showtooltip {s:2637}\n/focus [@focus,noexists][@focus,dead][mod:ctrl] target\n/cast [@focus,harm,nodead][] {s:2637}" },
         } },
         { group = "Сила зверя", list = {
-            { name = "Крадущийся зверь", desc = "Если вы не кошка, принимает облик кошки. Если уже кошка, Крадущийся зверь.",
+            { name = "Крадущийся зверь", desc = "Если ты не кошка, принимает облик кошки. Если уже кошка, Крадущийся зверь.",
               body = "#showtooltip\n/cast [noform:3] !{s:768}; [nostealth] {s:5215}" },
             { name = "Накин./Полоснуть", title = "Накинуться/Полоснуть", desc = "Из незаметности Накинуться, без неё Полоснуть.",
               body = "#showtooltip\n/cast [stealth] {s:6785}; {s:5221}" },
@@ -853,7 +853,7 @@ ns.MACROS = {
               body = "#showtooltip {s:5221}\n/castsequence reset=target {s:5221}, {s:5221}, {s:5221}, {s:22568}" },
             { name = "Рык навед.", title = "Рык по наведению", desc = "В облике медведя Рык по врагу под курсором, иначе по цели.",
               body = "#showtooltip {s:6795}\n/cast [@mouseover,harm,form:1][form:1] {s:6795}" },
-            { name = "Вызывающий рёв", desc = "В облике медведя Вызывающий рёв: все враги рядом бьют вас.",
+            { name = "Вызывающий рёв", desc = "В облике медведя Вызывающий рёв: все враги рядом бьют тебя.",
               body = "#showtooltip {s:5209}\n/cast [form:1] {s:5209}" },
             { name = "Звериная атака", desc = "Из любого облика переходит в облик лютого медведя, следующее нажатие делает Звериную атаку (талант).",
               body = "#showtooltip {s:16979}\n/cancelform [noform:1]\n/cast [noform:1] {s:9634}\n/cast [@mouseover,harm][harm] {s:16979}" },

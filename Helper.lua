@@ -231,20 +231,20 @@ end
 local UNIT_TEXT = {
     on = {
         mouseover = "на того, кто под курсором", target = "на текущую цель", focus = "на фокус", player = "на себя",
-        targettarget = "на цель вашей цели", pet = "на питомца", pettarget = "на цель питомца",
+        targettarget = "на цель твоей цели", pet = "на питомца", pettarget = "на цель питомца",
         cursor = "в точку под курсором", focustarget = "на цель фокуса", mouseovertarget = "на цель того, кто под курсором",
         party1 = "на 1-го в группе", party2 = "на 2-го в группе", party3 = "на 3-го в группе", party4 = "на 4-го в группе",
         none = "без цели",
     },
     whom = {
         mouseover = "того, кто под курсором", target = "текущую цель", focus = "фокус", player = "себя",
-        targettarget = "цель вашей цели", pet = "питомца", pettarget = "цель питомца", focustarget = "цель фокуса",
+        targettarget = "цель твоей цели", pet = "питомца", pettarget = "цель питомца", focustarget = "цель фокуса",
         mouseovertarget = "цель того, кто под курсором", party1 = "1-го в группе", party2 = "2-го в группе",
         party3 = "3-го в группе", party4 = "4-го в группе",
     },
     of = {
-        mouseover = "того, кто под курсором", target = "текущей цели", focus = "фокуса", player = "вас", pet = "питомца",
-        targettarget = "цели вашей цели", pettarget = "цели питомца", focustarget = "цели фокуса",
+        mouseover = "того, кто под курсором", target = "текущей цели", focus = "фокуса", player = "тебя", pet = "питомца",
+        targettarget = "цели твоей цели", pettarget = "цели питомца", focustarget = "цели фокуса",
         mouseovertarget = "цели того, кто под курсором",
         party1 = "1-го в группе", party2 = "2-го в группе", party3 = "3-го в группе", party4 = "4-го в группе",
     },
@@ -269,12 +269,12 @@ local UNIT_CONDS = { help = 1, harm = 1, nohelp = 1, noharm = 1, dead = 1, nodea
 local COND_TEXT = {
     combat = "в бою", nocombat = "вне боя", stealth = "в незаметности", nostealth = "не в незаметности",
     mounted = "верхом", nomounted = "не верхом", swimming = "в воде", noswimming = "не в воде",
-    outdoors = "на улице", indoors = "в помещении", pet = "у вас есть питомец", nopet = "питомца нет",
-    group = "в группе", nogroup = "не в группе", form = "вы в облике или стойке", noform = "вы без облика и стойки",
-    stance = "вы в облике или стойке", nostance = "вы без облика и стойки",
+    outdoors = "на улице", indoors = "в помещении", pet = "у тебя есть питомец", nopet = "питомца нет",
+    group = "в группе", nogroup = "не в группе", form = "ты в облике или стойке", noform = "ты без облика и стойки",
+    stance = "ты в облике или стойке", nostance = "ты без облика и стойки",
     channeling = "идёт поддерживаемое заклинание", nochanneling = "нет поддерживаемого заклинания",
     mod = "зажат Shift, Ctrl или Alt", nomod = "Shift, Ctrl и Alt не зажаты", modifier = "зажат Shift, Ctrl или Alt",
-    nomodifier = "Shift, Ctrl и Alt не зажаты", resting = "вы отдыхаете", noresting = "вы не отдыхаете",
+    nomodifier = "Shift, Ctrl и Alt не зажаты", resting = "ты отдыхаешь", noresting = "ты не отдыхаешь",
     flying = "в полёте", noflying = "не в полёте",
 }
 local KEY_NAME = { shift = "Shift", ctrl = "Ctrl", alt = "Alt" }
@@ -396,7 +396,7 @@ local function CondText(token)
         -- «сейчас «Боевая стойка»» - без падежей, подходит к любому названию.
         local names, zero = StanceNames(val)
         local parts = {}
-        if zero then parts[1] = neg and T("вы в облике или стойке") or T("вы без облика и стойки") end
+        if zero then parts[1] = neg and T("ты в облике или стойке") or T("ты без облика и стойки") end
         if #names > 0 then
             if neg then
                 parts[#parts + 1] = #names > 1 and (T("сейчас ни %s")):format(table.concat(names, T(", ни ")))
@@ -550,7 +550,7 @@ end
 local PLAIN = {
     ["/startattack"] = { "Включает автоатаку по цели", "Повторное нажатие её не выключает." },
     ["/stopattack"] = { "Выключает автоатаку", "Например, чтобы не разбудить цель под контролем." },
-    ["/stopcasting"] = { "Обрывает ваше текущее заклинание", "Так следующее сработает сразу." },
+    ["/stopcasting"] = { "Обрывает твоё текущее заклинание", "Так следующее сработает сразу." },
     ["/dismount"] = { "Слезает с транспорта" },
     ["/cancelform"] = { "Снимает облик или стойку" },
     ["/clearfocus"] = { "Убирает фокус" },
@@ -558,10 +558,10 @@ local PLAIN = {
     ["/targetenemy"] = { "Выбирает ближайшего врага (как клавиша Tab)" },
     ["/targetfriend"] = { "Выбирает ближайшего союзника" },
     ["/targetlasttarget"] = { "Возвращает прошлую цель" },
-    ["/petfollow"] = { "Питомец идёт за вами" },
+    ["/petfollow"] = { "Питомец идёт за тобой" },
     ["/petpassive"] = { "Питомец сам не нападает" },
     ["/petstay"] = { "Питомец стоит на месте" },
-    ["/petdefensive"] = { "Питомец защищает вас" },
+    ["/petdefensive"] = { "Питомец защищает тебя" },
     ["/petaggressive"] = { "Питомец нападает на всех врагов рядом" },
     ["/readycheck"] = { "Запускает проверку готовности группы" },
     ["/reload"] = { "Перезагружает интерфейс" },
@@ -650,7 +650,7 @@ function H.ExplainLine(line)
         local v = p.variants[1] or { groups = {} }
         return T("Питомец атакует ") .. UnitOrPlain(v.groups, "whom") .. "."
     end
-    if cmd == "/cancelaura" then return VariantsText(T("Снимает с вас"), p, "cond") end
+    if cmd == "/cancelaura" then return VariantsText(T("Снимает с тебя"), p, "cond") end
     if cmd == "/equip" then return VariantsText(T("Надевает"), p, "cond") end
     if cmd == "/petautocasttoggle" or cmd == "/petautocaston" or cmd == "/petautocastoff" then
         local word = cmd == "/petautocaston" and T("Включает") or cmd == "/petautocastoff" and T("Выключает")
@@ -1157,16 +1157,16 @@ function H.FixGameMacro(index, onDone, expect)
     local text, missing = UI.Render(res.text)
     if missing then
         UI.RequestSpells(res.text)
-        Print(T("не все заклинания загружены, попробуйте ещё раз через пару секунд."))
+        Print(T("не все заклинания загружены, попробуй ещё раз через пару секунд."))
         return
     end
     if UI.CharCount(text) > UI.MAX_CHARS then
-        Print(T("после перевода макрос длиннее 255 символов: сократите его в /macro."))
+        Print(T("после перевода макрос длиннее 255 символов: сократи его в /macro."))
         return
     end
     EditMacro(index, name, icon, text)
     Print((T("макрос «%s» исправлен: названий переведено - %d.")):format(name, res.count))
-    if #res.unknown > 0 then Print(T("не найдено, поправьте вручную: ") .. table.concat(res.unknown, ", ")) end
+    if #res.unknown > 0 then Print(T("не найдено, поправь вручную: ") .. table.concat(res.unknown, ", ")) end
     for _, n in ipairs(res.notes) do Print(n) end
     if onDone then onDone() end
 end
@@ -1302,7 +1302,7 @@ function H.FixRanks(list, onDone)
     if n > 0 then
         Print((T("обновлено заклинаний на панелях: %d. Теперь там высшие ранги.")):format(n))
     elseif #list > 0 then
-        Print(T("не получилось заменить ранги: перетащите заклинания из книги заклинаний вручную."))
+        Print(T("не получилось заменить ранги: перетащи заклинания из книги заклинаний вручную."))
     end
     ScanBook(true)
     if onDone then onDone(n) end
@@ -1496,7 +1496,7 @@ end
 local ACT = {
     target = { icon = "Interface\\Icons\\Ability_Hunter_SniperShot", tip = "Выбрать цель" },
     attack = { icon = "Interface\\Icons\\INV_Sword_04", tip = "Автоатака" },
-    stop = { icon = "Interface\\Icons\\Spell_Nature_Lightning", tip = "Ваше текущее заклинание" },
+    stop = { icon = "Interface\\Icons\\Spell_Nature_Lightning", tip = "Твоё текущее заклинание" },
     mount = { icon = "Interface\\Icons\\Ability_Mount_RidingHorse", tip = "Слезть с транспорта" },
     mark = { icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8", tip = "Метка на цель" },
     pet = { icon = "Interface\\Icons\\Ability_Physical_Taunt", tip = "Команда питомцу" },
@@ -2340,7 +2340,7 @@ local function BuildCheckPage(key)
     local ROW_ICON = 22
     local rowPad = math.floor(ROW_ICON * (64 / 37 - 1) / 2 + 0.5) -- рамка ячейки шире значка
     local header = UI.PageHeader(page, width)
-    header:Set(T("Проверка"), T("Аддон сам находит старые ранги на панелях и ошибки в ваших макросах. Исправить или удалить - одной кнопкой."))
+    header:Set(T("Проверка"), T("Аддон сам находит старые ранги на панелях и ошибки в твоих макросах. Исправить или удалить - одной кнопкой."))
     local function Refresh() UI.Relayout() end
 
     -- Карточка проверки: заголовок и «Проверить снова» сверху; ниже картинка
@@ -2397,7 +2397,7 @@ local function BuildCheckPage(key)
 
     -- Старые ранги
     local ranks = CheckCard(T("Старые ранги на панелях"),
-        T("Новый ранг от тренера сам на панель не встаёт: аддон ставит на это место высший. Низкий ранг нужен нарочно (дешёвое прерывание, лечение ради маны) - нажмите «Оставить»."),
+        T("Новый ранг от тренера сам на панель не встаёт: аддон ставит на это место высший. Низкий ранг нужен нарочно (дешёвое прерывание, лечение ради маны) - нажми «Оставить»."),
         { T("Ранг 1"), T("Высший") })
     local rRows = {}
     local rFix = Button(ranks, T("Обновить все"), 150, function() H.FixRanks(page.old, Refresh) end)
@@ -2408,7 +2408,7 @@ local function BuildCheckPage(key)
     local rKept = Button(ranks, "", 200, function()
         H.ClearKept()
         Refresh()
-    end, T("Снова показывать кнопки, где вы оставили низкий ранг."))
+    end, T("Снова показывать кнопки, где ты оставил низкий ранг."))
     local rUndo = Button(ranks, T("Вернуть как было"), 150, function() H.UndoRanks(Refresh) end,
         T("Вернуть на кнопки ранги, которые стояли до последнего обновления."))
 
@@ -2474,7 +2474,7 @@ local function BuildCheckPage(key)
         r.issues:SetPoint("TOPLEFT", tx, -18)
         r.del = ArmedButton(r, T("Удалить"), 100, function()
             if r.data then H.DeleteGameMacro(r.data.index, Refresh, r.data.name) end
-        end, T("Удалит этот макрос из окна /macro. Щёлкните ещё раз, чтобы подтвердить."))
+        end, T("Удалит этот макрос из окна /macro. Щёлкни ещё раз, чтобы подтвердить."))
         r.del:SetPoint("TOPRIGHT", 0, 0)
         r.btn = Button(r, T("Исправить"), 110, function()
             if r.data then H.FixGameMacro(r.data.index, Refresh, r.data.name) end
@@ -2582,7 +2582,7 @@ local function BuildSharePage(key)
     local page, width = NewPage(key)
     local inner = width - 20 - 32
     local header = UI.PageHeader(page, width)
-    header:Set(T("Импорт и экспорт"), T("Сохраните свои макросы кодом - на случай переустановки игры или чтобы поделиться с другом."))
+    header:Set(T("Импорт и экспорт"), T("Сохрани свои макросы кодом - на случай переустановки игры или чтобы поделиться с другом."))
 
     -- Экспорт
     local ex = NewCard(page, width)
@@ -2590,7 +2590,7 @@ local function BuildSharePage(key)
     eTitle:SetText(T("Сохранить код"))
     local eNote = Small(ex)
     eNote:SetWidth(inner)
-    eNote:SetText(T("Свои макросы и правки готовых - одним кодом. Скопируйте его в файл или отправьте другу."))
+    eNote:SetText(T("Свои макросы и правки готовых - одним кодом. Скопируй его в файл или отправь другу."))
     local exBox = TextBox(ex, inner, 90)
     local eMake = Button(ex, T("Копировать код"), 150, function()
         local text, nc, ne = H.Export()
@@ -2622,21 +2622,21 @@ local function BuildSharePage(key)
     iTitle:SetText(T("Загрузить код"))
     local iNote = Small(im)
     iNote:SetWidth(inner)
-    iNote:SetText(T("Вставьте код (Ctrl+V) и нажмите «Загрузить». Макросы добавятся к вашим, такие же не повторятся."))
+    iNote:SetText(T("Вставь код (Ctrl+V) и нажми «Загрузить». Макросы добавятся к твоим, такие же не повторятся."))
     local iBox = TextBox(im, inner, 90)
     local iInfo = Body(im)
     iInfo:SetWidth(inner - 300)
     local iGo = Button(im, T("Загрузить"), 150, function()
         local text = strtrim(iBox.edit:GetText() or "")
         if text == "" then
-            page.imported = YELLOW .. T("Сначала вставьте код в поле выше (Ctrl+V).") .. "|r"
+            page.imported = YELLOW .. T("Сначала вставь код в поле выше (Ctrl+V).") .. "|r"
             UI.Relayout()
             return
         end
         local nc, ne, bad, same, head = H.Import(text)
         local msg
         if nc + ne + same == 0 and not head then
-            msg = RED .. T("Это не код MacroCoach: скопируйте его целиком, вместе с первой строкой.") .. "|r"
+            msg = RED .. T("Это не код MacroCoach: скопируй его целиком, вместе с первой строкой.") .. "|r"
         else
             msg = (T("Добавлено своих макросов: %d, правок готовых: %d.")):format(nc, ne)
             if same > 0 then msg = msg .. " " .. (T("Уже были: %d.")):format(same) end
@@ -2654,7 +2654,7 @@ local function BuildSharePage(key)
     local iPaste = Button(im, T("Вставить"), 120, function()
         iBox.edit:SetText("")
         iBox.edit:SetFocus()
-        page.imported = YELLOW .. T("Нажмите Ctrl+V.") .. "|r"
+        page.imported = YELLOW .. T("Нажми Ctrl+V.") .. "|r"
         UI.Relayout()
     end)
     iBox.onChange = function(text, user)
@@ -2663,7 +2663,7 @@ local function BuildSharePage(key)
         -- вставили код целиком - подсказать следующий шаг
         if user and has and text:find("MacroCoach:", 1, true) and not page.pasted then
             page.pasted = true
-            page.imported = GREEN .. T("Код вставлен: нажмите «Загрузить».") .. "|r"
+            page.imported = GREEN .. T("Код вставлен: нажми «Загрузить».") .. "|r"
             UI.Relayout()
         elseif not has then
             page.pasted = nil
@@ -2696,13 +2696,13 @@ local function BuildSharePage(key)
         eInfo:SetPoint("TOPLEFT", eMake, "TOPRIGHT", 12, -2)
         local S = ns.Pick(D.SUBMIT)
         if page.suggested then
-            eInfo:SetText(GREEN .. (T("Код макроса «%s» выделен: нажмите Ctrl+C и отправьте автору.")):format(page.suggested) .. "|r\n" .. S)
+            eInfo:SetText(GREEN .. (T("Код макроса «%s» выделен: нажми Ctrl+C и отправь автору.")):format(page.suggested) .. "|r\n" .. S)
         elseif page.exported and page.exported.nc + page.exported.ne == 0 then
             eInfo:SetText(YELLOW .. T("Пока нечего сохранять: своих макросов и правок готовых нет.") .. "|r")
         elseif page.exported and page.copied then
-            eInfo:SetText(GREEN .. T("Скопировано. Вставьте код в файл или в сообщение другу.") .. "|r")
+            eInfo:SetText(GREEN .. T("Скопировано. Вставь код в файл или в сообщение другу.") .. "|r")
         elseif page.exported then
-            eInfo:SetText(YELLOW .. T("Код выделен: нажмите Ctrl+C.") .. "|r\n" .. (T("Своих макросов: %d, правок готовых: %d.")):format(page.exported.nc, page.exported.ne))
+            eInfo:SetText(YELLOW .. T("Код выделен: нажми Ctrl+C.") .. "|r\n" .. (T("Своих макросов: %d, правок готовых: %d.")):format(page.exported.nc, page.exported.ne))
         else
             local nEdits = 0
             for _ in pairs(UI.DB().edits) do nEdits = nEdits + 1 end

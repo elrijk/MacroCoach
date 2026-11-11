@@ -97,21 +97,21 @@ ns.Builder = B
 B.KINDS = {
     { group = "Заклинания и предметы" },
     { key = "cast", cmd = "/cast", label = "Применить заклинание", arg = "spell", multi = true, conds = true,
-      ph = "Перетащите заклинание сюда или впишите {ID}",
+      ph = "Перетащи заклинание сюда или впиши {ID}",
       desc = "Применяет заклинание. Можно добавить варианты «иначе»: сработает первый, чьи условия выполнены." },
     { key = "stopcasting", cmd = "/stopcasting", label = "Прервать применение", conds = true,
-      desc = "Обрывает ваше текущее заклинание. Ставьте перед прерыванием, чтобы оно сработало сразу." },
+      desc = "Обрывает твоё текущее заклинание. Ставь перед прерыванием, чтобы оно сработало сразу." },
     { key = "castsequence", cmd = "/castsequence", label = "Последовательность заклинаний", arg = "spells", conds = true, reset = true,
-      ph = "Перетащите заклинания: {ID}, {ID}",
+      ph = "Перетащи заклинания: {ID}, {ID}",
       desc = "Каждое нажатие применяет следующее заклинание из списка. «Сброс» - когда начинать сначала: через сколько секунд, при смене цели (target) или после боя (combat)." },
     { key = "use", cmd = "/use", label = "Использовать предмет / слот", arg = "spell", multi = true, conds = true,
       ph = "Предмет, item:ID или слот (13, 14)",
       desc = "Использует предмет по названию или ID (item:ID), ячейку экипировки (13 и 14 это аксессуары). Предмет можно перетащить из сумки." },
-    { key = "cancelaura", cmd = "/cancelaura", label = "Снять бафф", arg = "spell", conds = true, ph = "Перетащите заклинание или впишите {ID}",
-      desc = "Снимает с вас бафф, например Ледяную глыбу или Божественный щит." },
+    { key = "cancelaura", cmd = "/cancelaura", label = "Снять бафф", arg = "spell", conds = true, ph = "Перетащи заклинание или впиши {ID}",
+      desc = "Снимает с тебя бафф, например Ледяную глыбу или Божественный щит." },
     { key = "cancelform", cmd = "/cancelform", label = "Выйти из облика", conds = true,
       desc = "Выходит из облика: облики друида, Призрачный волк, Облик Тьмы и т. п." },
-    { key = "castrandom", cmd = "/castrandom", label = "Случайное заклинание", arg = "spells", conds = true, ph = "Перетащите заклинания: {ID}, {ID}",
+    { key = "castrandom", cmd = "/castrandom", label = "Случайное заклинание", arg = "spells", conds = true, ph = "Перетащи заклинания: {ID}, {ID}",
       desc = "Применяет случайное заклинание из списка." },
     { key = "userandom", cmd = "/userandom", label = "Случайный предмет", arg = "spells", conds = true, ph = "Предметы через запятую",
       desc = "Использует случайный предмет из списка, например транспорт." },
@@ -124,13 +124,13 @@ B.KINDS = {
     { key = "stopattack", cmd = "/stopattack", label = "Остановить атаку", conds = true,
       desc = "Выключает автоатаку, например чтобы не разбудить цель под контролем." },
     { key = "petattack", cmd = "/petattack", label = "Питомец: атака", conds = true,
-      desc = "Питомец атакует вашу цель (или выбранную в «На кого»)." },
-    { key = "petfollow", cmd = "/petfollow", label = "Питомец: за мной", conds = true, desc = "Питомец бросает всё и идёт за вами." },
+      desc = "Питомец атакует твою цель (или выбранную в «На кого»)." },
+    { key = "petfollow", cmd = "/petfollow", label = "Питомец: за мной", conds = true, desc = "Питомец бросает всё и идёт за тобой." },
     { key = "petstay", cmd = "/petstay", label = "Питомец: стоять", conds = true, desc = "Питомец остаётся на месте." },
     { key = "petmoveto", cmd = "/petmoveto", label = "Питомец: переместиться", conds = true,
-      desc = "Питомец идёт в точку. В «На кого» выберите «В точку под курсором»." },
+      desc = "Питомец идёт в точку. В «На кого» выбери «В точку под курсором»." },
     { key = "petpassive", cmd = "/petpassive", label = "Питомец: пассивный", conds = true, desc = "Питомец сам никого не атакует." },
-    { key = "petdefensive", cmd = "/petdefensive", label = "Питомец: защита", conds = true, desc = "Питомец атакует тех, кто атакует вас или его." },
+    { key = "petdefensive", cmd = "/petdefensive", label = "Питомец: защита", conds = true, desc = "Питомец атакует тех, кто атакует тебя или его." },
     { key = "petaggressive", cmd = "/petaggressive", label = "Питомец: агрессивный", conds = true, desc = "Питомец атакует всех врагов рядом." },
     { key = "petautocaston", cmd = "/petautocaston", label = "Питомец: включить автоприменение", arg = "spell", conds = true, ph = "Способность питомца: {ID}",
       desc = "Включает автоприменение способности питомца." },
@@ -158,7 +158,7 @@ B.KINDS = {
     { key = "assist", cmd = "/assist", label = "Помощь", arg = "unit", conds = true, ph = "Имя (пусто: берётся из «На кого»)",
       desc = "Берёт цель другого игрока, например танка." },
     { key = "focus", cmd = "/focus", label = "Задать фокус", arg = "unit", conds = true, ph = "Имя (пусто: берётся из «На кого»)",
-      desc = "Запоминает цель как фокус, чтобы потом применять по ней заклинания (в «На кого» выберите «Фокус»)." },
+      desc = "Запоминает цель как фокус, чтобы потом применять по ней заклинания (в «На кого» выбери «Фокус»)." },
     { key = "clearfocus", cmd = "/clearfocus", label = "Сбросить фокус", conds = true, desc = "Убирает фокус." },
     { key = "targetmarker", cmd = "/tm", label = "Рейдовая метка", arg = "text", ph = "Номер 1-8",
       desc = "Ставит метку на цель: 1 звезда, 2 круг, 3 ромб, 4 треугольник, 5 луна, 6 квадрат, 7 крест, 8 череп." },
@@ -172,7 +172,7 @@ B.KINDS = {
       desc = "Переключает главную панель между двумя страницами." },
     { key = "click", cmd = "/click", label = "Нажать кнопку", arg = "text", conds = true, ph = "Имя кнопки, например MultiBarRightButton1",
       desc = "Нажимает другую кнопку интерфейса по её имени." },
-    { key = "equip", cmd = "/equip", label = "Надеть предмет", arg = "text", conds = true, ph = "item:ID или перетащите предмет",
+    { key = "equip", cmd = "/equip", label = "Надеть предмет", arg = "text", conds = true, ph = "item:ID или перетащи предмет",
       desc = "Надевает предмет в его обычную ячейку. В бою можно менять только оружие." },
     { key = "equipslot", cmd = "/equipslot", label = "Надеть в слот", arg = "text", conds = true, ph = "Слот и предмет, например 16 item:ID",
       desc = "Надевает предмет в нужную ячейку: 16 правая рука, 17 левая, 18 дальний бой, 13 и 14 аксессуары." },
@@ -180,7 +180,7 @@ B.KINDS = {
     { key = "stopmacro", cmd = "/stopmacro", label = "Остановить макрос здесь", conds = true,
       desc = "Если условия выполнены, строки ниже не выполняются." },
     { key = "chat", cmd = "/say", label = "Сообщение в чат", arg = "text", ph = "Текст (%t = имя цели)",
-      desc = "Пишет в чат. %t заменяется именем вашей цели." },
+      desc = "Пишет в чат. %t заменяется именем твоей цели." },
     { key = "console", cmd = "/console", label = "Настройка консоли", arg = "text", ph = "Настройка и значение, например Sound_EnableSFX 0",
       desc = "Меняет настройку игры (CVar)." },
     { key = "script", cmd = "/run", label = "Скрипт Lua", arg = "text", ph = "Код Lua",
@@ -230,15 +230,15 @@ B.CONDS = {
     { key = "help", label = "союзник", tip = "Цель дружественная: её можно лечить." },
     { key = "harm", label = "враг", tip = "Цель можно атаковать." },
     { key = "dead", label = "мёртв", tip = "Цель мертва." },
-    { key = "combat", label = "в бою", tip = "Вы в бою." },
-    { key = "stealth", label = "в незаметности", tip = "Вы в незаметности." },
-    { key = "mounted", label = "верхом", tip = "Вы на транспорте." },
-    { key = "channeling", label = "поддерживаю заклинание", tip = "Вы сейчас поддерживаете заклинание." },
-    { key = "pet", label = "есть питомец", tip = "У вас есть питомец." },
-    { key = "group", label = "в группе", tip = "Вы в группе или рейде." },
-    { key = "swimming", label = "плыву", tip = "Вы плывёте." },
-    { key = "indoors", label = "в помещении", tip = "Вы в помещении." },
-    { key = "outdoors", label = "на улице", tip = "Вы на улице." },
+    { key = "combat", label = "в бою", tip = "Ты в бою." },
+    { key = "stealth", label = "в незаметности", tip = "Ты в незаметности." },
+    { key = "mounted", label = "верхом", tip = "Ты на транспорте." },
+    { key = "channeling", label = "поддерживаю заклинание", tip = "Ты сейчас поддерживаешь заклинание." },
+    { key = "pet", label = "есть питомец", tip = "У тебя есть питомец." },
+    { key = "group", label = "в группе", tip = "Ты в группе или рейде." },
+    { key = "swimming", label = "плыву", tip = "Ты плывёшь." },
+    { key = "indoors", label = "в помещении", tip = "Ты в помещении." },
+    { key = "outdoors", label = "на улице", tip = "Ты на улице." },
     { key = "mod:shift", label = "зажат Shift", tip = "Зажата клавиша Shift." },
     { key = "mod:ctrl", label = "зажат Ctrl", tip = "Зажата клавиша Ctrl." },
     { key = "mod:alt", label = "зажат Alt", tip = "Зажата клавиша Alt." },
@@ -730,7 +730,7 @@ local function Pickup(m, retried, shared, mode, confirmed)
             C_Timer.After(0.5, function() Pickup(m, true, shared, mode, confirmed) end)
             return
         end
-        Print(T("не все заклинания загружены, попробуйте ещё раз через пару секунд."))
+        Print(T("не все заклинания загружены, попробуй ещё раз через пару секунд."))
         return
     end
     if CharCount(body) > MAX_CHARS then
@@ -742,7 +742,7 @@ local function Pickup(m, retried, shared, mode, confirmed)
     if index then
         -- в игре уже есть макрос с этим названием, и он не наш: спросить
         if not confirmed and not MayEdit(index, m) then
-            local ask = T("В окне /macro уже есть ваш макрос «%s». Заменить его макросом из MacroCoach?")
+            local ask = T("В окне /macro уже есть твой макрос «%s». Заменить его макросом из MacroCoach?")
             StaticPopup_Show("MACROCOACH_REPLACE", ask:format(GetMacroInfo(index) or ""), nil, { m = m, shared = shared, mode = mode })
             return
         end
@@ -756,7 +756,7 @@ local function Pickup(m, retried, shared, mode, confirmed)
         if perChar and not roomChar then perChar = false end
         if not perChar and not roomShared then perChar = true end
         if (perChar and not roomChar) or (not perChar and not roomShared) then
-            Print(T("нет свободных мест для макросов: удалите ненужные в /macro."))
+            Print(T("нет свободных мест для макросов: удали ненужные в /macro."))
             return
         end
         index = CreateMacro(m.name, GameIcon(m), body, perChar)
@@ -766,7 +766,7 @@ local function Pickup(m, retried, shared, mode, confirmed)
     if index and index > 0 then
         if mode == "create" then
             if where then
-                Print((T("«%s» добавлен %s. Нажмите «Добавить», чтобы взять его на курсор.")):format(m.name, where))
+                Print((T("«%s» добавлен %s. Нажми «Добавить», чтобы взять его на курсор.")):format(m.name, where))
             else
                 Print((T("макрос «%s» в игре обновлён.")):format(m.name))
             end
@@ -774,9 +774,9 @@ local function Pickup(m, retried, shared, mode, confirmed)
         end
         PickupMacro(index)
         if where then
-            Print((T("«%s» добавлен %s и взят на курсор: щёлкните по ячейке панели.")):format(m.name, where))
+            Print((T("«%s» добавлен %s и взят на курсор: щёлкни по ячейке панели.")):format(m.name, where))
         else
-            Print((T("«%s» на курсоре: щёлкните по ячейке панели.")):format(m.name))
+            Print((T("«%s» на курсоре: щёлкни по ячейке панели.")):format(m.name))
         end
         return index
     end
@@ -1595,7 +1595,7 @@ local function BuildRow(parent, class, m, width, rec)
         drag:SetScript("OnClick", Go)
         drag:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText(T("Перетащите на панель или щёлкните"))
+            GameTooltip:SetText(T("Перетащи на панель или щёлкни"))
             if self.isAdded then GameTooltip:AddLine(T("Уже стоит на панели."), 0.3, 0.9, 0.3) end
             GameTooltip:Show()
         end)
@@ -1621,7 +1621,7 @@ local function BuildRow(parent, class, m, width, rec)
         small:SetScript("OnClick", Go)
         small:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText(T("Перетащите на панель или щёлкните"))
+            GameTooltip:SetText(T("Перетащи на панель или щёлкни"))
             GameTooltip:Show()
         end)
         small:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -1732,7 +1732,7 @@ local function BuildRow(parent, class, m, width, rec)
         if onBars then
             stateText = GREEN_C .. T("Уже стоит на панели.") .. "|r"
         elseif st == "later" then
-            stateText = GREY_C .. T("Откроется позже, когда выучите: ") .. MissingText(missing) .. ".|r"
+            stateText = GREY_C .. T("Откроется позже, когда выучишь: ") .. MissingText(missing) .. ".|r"
         elseif st == "part" then
             stateText = YELLOW_C .. T("Работает частично, пока не выучено: ") .. MissingText(missing) .. ".|r"
         elseif st == "gone" then
@@ -1740,7 +1740,7 @@ local function BuildRow(parent, class, m, width, rec)
         elseif st == "noitems" then
             stateText = YELLOW_C .. T("Подходящих предметов в сумках пока нет: макрос заработает, когда они появятся.") .. "|r"
         elseif rec and st == "ready" then
-            stateText = GREEN_C .. T("Готов: нажмите «Добавить» и щёлкните по ячейке панели.") .. "|r"
+            stateText = GREEN_C .. T("Готов: нажми «Добавить» и щёлкни по ячейке панели.") .. "|r"
         end
         local grey = (st == "later" or st == "gone") and not onBars
         if art and not compact then
@@ -1856,7 +1856,7 @@ local function BuildPage(class, list, key, rec)
     if rec then
         header = PageHeader(page, width)
         header:Set(class == "GENERAL" and T("Рекомендации для всех классов") or (T("Рекомендации: ") .. ClassName(class)),
-            T("Самые полезные макросы для старта: какую проблему решает каждый, что делает и когда жать. Значок макроса перетащите на панель или нажмите «Добавить»."))
+            T("Самые полезные макросы для старта: какую проблему решает каждый, что делает и когда жать. Значок макроса перетащи на панель или нажми «Добавить»."))
     end
     for _, m in ipairs(list) do
         -- Общий макрос во вкладке «Рекомендации» класса остаётся общим (m.homeClass).
@@ -2262,12 +2262,12 @@ local function Template(name, desc, lines)
 end
 
 B.TEMPLATES = {
-    { label = "Пустой макрос", desc = "Одна строка «Применить заклинание», дальше сами.", make = function() return B.New() end },
-    { label = "Лечение по наведению", desc = "Лечит союзника под курсором. Если там никого, то цель, а если и её нет, то вас. Перетащите лечащее заклинание в первое поле.",
+    { label = "Пустой макрос", desc = "Одна строка «Применить заклинание», дальше сам.", make = function() return B.New() end },
+    { label = "Лечение по наведению", desc = "Лечит союзника под курсором. Если там никого, то цель, а если и её нет, то тебя. Перетащи лечащее заклинание в первое поле.",
       make = Template("Лечение", "Лечит союзника под курсором, иначе цель, иначе себя.", function()
           return { TL("cast", { TV("mouseover", { help = 1, dead = 2 }), TV("", { help = 1, dead = 2 }), TV("player") }) }
       end) },
-    { label = "По врагу под курсором", desc = "Заклинание по врагу под курсором, а если там никого, то по цели. Свою цель не меняете.",
+    { label = "По врагу под курсором", desc = "Заклинание по врагу под курсором, а если там никого, то по цели. Свою цель не меняешь.",
       make = Template("По наведению", "По врагу под курсором, иначе по цели.", function()
           return { TL("cast", { TV("mouseover", { harm = 1, dead = 2 }), TV("") }) }
       end) },
@@ -2275,13 +2275,13 @@ B.TEMPLATES = {
       make = Template("По фокусу", "По врагу в фокусе, иначе по цели.", function()
           return { TL("cast", { TV("focus", { harm = 1, dead = 2 }), TV("") }) }
       end) },
-    { label = "Прервать и применить", desc = "Обрывает ваш каст и сразу применяет заклинание. Подходит для прерываний.",
+    { label = "Прервать и применить", desc = "Обрывает твой каст и сразу применяет заклинание. Подходит для прерываний.",
       make = Template("Прерывание", "Обрывает свой каст и сразу применяет заклинание.", function()
           return { TL("stopcasting"), TL("cast") }
       end) },
     { label = "Атака + заклинание", desc = "Включает автоатаку и применяет заклинание.",
       make = Template("Атака", "Автоатака и заклинание.", function() return { TL("startattack"), TL("cast") } end) },
-    { label = "Разное на Shift и Ctrl", desc = "С Shift одно заклинание, с Ctrl второе, без клавиш третье. Впишите все три.",
+    { label = "Разное на Shift и Ctrl", desc = "С Shift одно заклинание, с Ctrl второе, без клавиш третье. Впиши все три.",
       make = Template("Модификаторы", "Shift, Ctrl и без клавиш: три разных заклинания.", function()
           return { TL("cast", { TV("", { ["mod:shift"] = 1 }), TV("", { ["mod:ctrl"] = 1 }), TV("") }) }
       end) },
@@ -2297,8 +2297,8 @@ B.TEMPLATES = {
       make = Template("Рывок урона", "Оба аксессуара и заклинание.", function()
           return { TL("use", { TV("", nil, "13") }), TL("use", { TV("", nil, "14") }), TL("cast") }
       end) },
-    { label = "Питомец атакует + заклинание", desc = "Питомец атакует вашу цель, вы применяете заклинание.",
-      make = Template("Питомец", "Питомец атакует, вы применяете заклинание.", function()
+    { label = "Питомец атакует + заклинание", desc = "Питомец атакует твою цель, ты применяешь заклинание.",
+      make = Template("Питомец", "Питомец атакует, ты применяешь заклинание.", function()
           return { TL("petattack"), TL("cast") }
       end) },
 }
@@ -2311,12 +2311,12 @@ SaveCustom = function(entry, model)
     model.name = name
     for _, other in ipairs(CustomList()) do
         if other ~= entry and other.name == name then
-            Print((T("свой макрос «%s» уже есть, выберите другое название.")):format(name))
+            Print((T("свой макрос «%s» уже есть, выбери другое название.")):format(name))
             return false
         end
     end
     if CharCount((Render(B.Build(model)))) > MAX_CHARS then
-        Print(T("макрос длиннее 255 символов, сократите его."))
+        Print(T("макрос длиннее 255 символов, сократи его."))
         return false
     end
     if entry then
@@ -2330,7 +2330,7 @@ SaveCustom = function(entry, model)
         model.prev = nil
         local list = CustomList()
         list[#list + 1] = model
-        Print((T("свой макрос «%s» сохранён. Нажмите «Добавить», чтобы поставить его на панель.")):format(name))
+        Print((T("свой макрос «%s» сохранён. Нажми «Добавить», чтобы поставить его на панель.")):format(name))
     end
     return true
 end
@@ -2671,7 +2671,7 @@ local function BuildBuilder()
         local text, missing = Render(stored)
         -- пока игрок печатает в поле, его текст не перезаписываем
         if not body:HasFocus() then body:SetText(ToDisplay(stored)) end
-        e.ids:SetText(stored == "" and T("Добавьте строку сверху или напишите макрос в этом поле.") or IDLine({ body = stored }))
+        e.ids:SetText(stored == "" and T("Добавь строку сверху или напиши макрос в этом поле.") or IDLine({ body = stored }))
         local n = CharCount(text)
         local msg = T("Символы: %d/255"):format(n)
         if missing then msg = T("неизвестный ID: ") .. msg end
@@ -2915,7 +2915,7 @@ local function BuildBuilder()
     e.addLine = Dropdown(child, 240)
     e.empty = Text(child, "SystemFont_Med2", "GameFontHighlight", GREY, true)
     e.empty:SetWidth(cardW)
-    e.empty:SetText(T("Строк пока нет. Нажмите «+ Добавить строку» и выберите, что должен делать макрос."))
+    e.empty:SetText(T("Строк пока нет. Нажми «+ Добавить строку» и выбери, что должен делать макрос."))
 
     Layout = function()
         local m = e.model
@@ -3019,7 +3019,7 @@ local function BuildCustomPage(key)
 
     -- Шапка, как у всех страниц: крупно и одна строка.
     local header = PageHeader(page, width)
-    header:Set(T("Свои макросы"), T("Соберите макрос из готовых строк - код писать не нужно."))
+    header:Set(T("Свои макросы"), T("Собери макрос из готовых строк - код писать не нужно."))
 
     -- Три способа начать - плитки, как строки подсказок EasyCraft: значок,
     -- что это и коротко зачем; подробно - при наведении.
@@ -3044,11 +3044,11 @@ local function BuildCustomPage(key)
     end
     local TILES = {
         { icon = "Interface\\Icons\\INV_Misc_Gear_01", title = T("Создать"), sub = T("в конструкторе"),
-          tip = T("Выберите, что сделать, на кого и когда, - внизу сразу видно, что получится."), run = function() NewMacro() end },
+          tip = T("Выбери, что сделать, на кого и когда, - внизу сразу видно, что получится."), run = function() NewMacro() end },
         { icon = "Interface\\Icons\\INV_Misc_Book_09", title = T("Из шаблона"), sub = T("готовые заготовки"),
           tip = T("Лечение по наведению, прерывание, питомец и другие: останется подставить свои заклинания."), run = OpenTemplates },
         { icon = "Interface\\Icons\\INV_Misc_Note_01", title = T("Текстом"), sub = T("вставить из гайда"),
-          tip = T("Вставьте текст макроса, например из английского гайда: названия заклинаний переведутся сами."),
+          tip = T("Вставь текст макроса, например из английского гайда: названия заклинаний переведутся сами."),
           run = function() OpenCustomText(nil, B.New()) end },
     }
     local tiles = {}
@@ -3099,12 +3099,12 @@ local function BuildCustomPage(key)
     end
     local empty = Text(emptyCard, "SystemFont_Med2", "GameFontHighlight", LIGHT)
     empty:SetPoint("LEFT", 12 + 24 + 10, 0)
-    empty:SetText(T("Пока пусто: начните с «Создать» или шаблона."))
+    empty:SetText(T("Пока пусто: начни с «Создать» или шаблона."))
     page.rows = {}
     for _, entry in ipairs(CustomList()) do
         page.rows[#page.rows + 1] = BuildRow(page, "CUSTOM", entry, width - 20)
     end
-    listHead:SetText(T("Ваши макросы") .. (#page.rows > 0 and ("  |cff7a5a2a" .. #page.rows .. "|r") or ""))
+    listHead:SetText(T("Твои макросы") .. (#page.rows > 0 and ("  |cff7a5a2a" .. #page.rows .. "|r") or ""))
 
     function page:Layout()
         local y = -header:Layout(16)
@@ -3140,10 +3140,10 @@ end
 local GUIDE = {
     ruRU = {
         { title = "Свой макрос за 4 шага", steps = {
-            "Нажмите «Создать» или выберите шаблон.",
-            "В строке выберите, что сделать, например «Применить заклинание».",
-            "Перетащите заклинание из книги заклинаний в поле.",
-            "«Сохранить», затем «Добавить» - и щёлкните по ячейке панели.",
+            "Нажми «Создать» или выбери шаблон.",
+            "В строке выбери, что сделать, например «Применить заклинание».",
+            "Перетащи заклинание из книги заклинаний в поле.",
+            "«Сохранить», затем «Добавить» - и щёлкни по ячейке панели.",
           }, note = "Внизу конструктора сразу видно, что получится." },
         { title = "Что такое макрос", text = {
             "Несколько команд на одной кнопке: они срабатывают сверху вниз за одно нажатие.",
@@ -3156,7 +3156,7 @@ local GUIDE = {
             { "/use 13", "Аксессуар: 13 - верхний, 14 - нижний." },
             { "/startattack", "Включить автоатаку." },
             { "/stopcasting", "Оборвать свой каст (перед прерыванием)." },
-            { "/petattack", "Питомец атакует вашу цель." },
+            { "/petattack", "Питомец атакует твою цель." },
           } },
         { title = "Условия", text = {
             "Пишутся в [квадратных скобках] перед заклинанием. Не подошло - вариант пропускается.",
@@ -3165,7 +3165,7 @@ local GUIDE = {
             { "[@player]", "На себя." },
             { "[help]  [harm]", "Цель - союзник. Цель - враг." },
             { "[nodead]", "Цель жива." },
-            { "[combat]", "Вы в бою." },
+            { "[combat]", "Ты в бою." },
             { "[mod:shift]", "Зажат Shift (так же ctrl и alt)." },
             { "[help,nodead]", "Через запятую - всё сразу." },
             { "[@mouseover][@player]", "Скобки подряд - первая подходящая." },
@@ -3219,10 +3219,10 @@ local function MouseoverExample()
     if not ex then return nil end
     if ex.moHelp then
         return "#showtooltip\n/cast [@mouseover,help,nodead][help,nodead][@player] {s:" .. ex.mo .. "}",
-            T("Лечит союзника под курсором. Никого нет - вашу цель, а если и её нет, то вас.")
+            T("Лечит союзника под курсором. Никого нет - твою цель, а если и её нет, то тебя.")
     end
     return "#showtooltip\n/cast [@mouseover,harm,nodead][harm,nodead] {s:" .. ex.mo .. "}",
-        T("Бьёт врага под курсором, не сбивая вашу цель. Никого нет - по вашей цели.")
+        T("Бьёт врага под курсором, не сбивая твою цель. Никого нет - по твоей цели.")
 end
 
 local CODE_GREEN = { 0.65, 1, 0.65 }
@@ -3348,11 +3348,11 @@ local function BuildGuidePage(key)
     tcard:SetWidth(width - 20)
     local thead = Text(tcard, "SystemFont_Large", "GameFontNormalLarge", GOLD)
     thead:SetPoint("TOPLEFT", 16, -14)
-    thead:SetText(T("Шаблоны: начните с готового"))
+    thead:SetText(T("Шаблоны: начни с готового"))
     local tnote = Text(tcard, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     tnote:SetPoint("TOPLEFT", thead, "BOTTOMLEFT", 0, -6)
     tnote:SetWidth(width - 20 - 32)
-    tnote:SetText(T("Нажмите на шаблон: откроется конструктор, останется перетащить свои заклинания."))
+    tnote:SetText(T("Нажми на шаблон: откроется конструктор, останется перетащить свои заклинания."))
     local bw = math.floor((width - 20 - 32 - 10) / 2)
     for i, t in ipairs(B.TEMPLATES) do
         local b = CreateFrame("Button", nil, tcard, "UIPanelButtonTemplate")
@@ -3463,13 +3463,13 @@ function BuildOptionsPage(key)
     hTitle:SetText(T("Безопасность и подсказки"))
     local HELP_OPTS = {
         { key = "altSelf", label = "Alt - лечение на себя", resync = true,
-          note = "С зажатым Alt готовые макросы лечения по наведению лечат вас. Без Alt, если под курсором никого, они лечат цель-союзника, иначе вас." },
+          note = "С зажатым Alt готовые макросы лечения по наведению лечат тебя. Без Alt, если под курсором никого, они лечат цель-союзника, иначе тебя." },
         { key = "showCode", label = "Показывать текст макросов",
           note = "Текст и ID заклинаний под каждым макросом сразу. Без этого - по значку-записке в углу карточки." },
         { key = "learn", label = "Режим «Учусь»",
           note = "Под каждым макросом - что делает каждая строка, простыми словами." },
         { key = "tips", label = "Подсказки после тренера",
-          note = "Выучили новое заклинание - аддон пишет в чат, если появился полезный макрос или на панелях остался старый ранг." },
+          note = "Выучил новое заклинание - аддон пишет в чат, если появился полезный макрос или на панелях остался старый ранг." },
     }
     local helpChecks = {}
     for i, o in ipairs(HELP_OPTS) do
@@ -3665,7 +3665,7 @@ end
 --  описанию, вкладке и заклинаниям в тексте макроса (их названия - на языке
 --  клиента). Несколько слов - нужны все. Свой класс и общие - первыми.
 -------------------------------------------------------------------------------
-local SEARCH_MAX = 30 -- больше карточек сразу не строим: «уточните запрос»
+local SEARCH_MAX = 30 -- больше карточек сразу не строим: «уточни запрос»
 local searchText, searchBack, searchGen, searchQuiet = "", nil, 0, false
 
 -- Строчные буквы и у кириллицы (string.lower её не трогает); ё = е.
@@ -3778,9 +3778,9 @@ local function BuildSearchPage()
         local found, total = FindMacros(searchText)
         local note
         if total == 0 then
-            note = T("Ничего не нашлось. Попробуйте название заклинания или слова «фокус», «наведение», «питомец».")
+            note = T("Ничего не нашлось. Попробуй название заклинания или слова «фокус», «наведение», «питомец».")
         elseif total > #found then
-            note = (T("Найдено: %d. Показаны первые %d - уточните запрос.")):format(total, #found)
+            note = (T("Найдено: %d. Показаны первые %d - уточни запрос.")):format(total, #found)
         else
             note = (T("Найдено: %d.")):format(total)
         end
@@ -4283,7 +4283,7 @@ end
 local COMMANDS = {
     { "/coach", "открыть или закрыть окно" },
     { "/coach help", "зачем макросы: короткое знакомство" },
-    { "/coach tips", "рекомендуемые макросы для вашего класса" },
+    { "/coach tips", "рекомендуемые макросы для твоего класса" },
     { "/coach check", "проверить ранги и макросы на панелях" },
     { "/coach translate", "перевести макрос с английского" },
     { "/coach share", "импорт и экспорт макросов" },
