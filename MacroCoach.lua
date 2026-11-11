@@ -38,6 +38,7 @@ ns.S = {
     btn = 22,      -- высота обычной кнопки
     btnBig = 26,   -- высота главной кнопки
     btnMin = 110,  -- кнопка не уже этого; шире - по тексту (+30)
+    bgTop = { 0.115, 0.09, 0.065 }, bgBottom = { 0.05, 0.038, 0.028 }, -- фон страницы: сверху и снизу
     GREEN = "|cff33dd33", RED = "|cffff5555", YELLOW = "|cffffd100", GREY = "|cff9d9d9d",
 }
 local WIDTH, HEIGHT = 680, 670
@@ -1125,11 +1126,8 @@ end)
 --  Оформление: рамка как у окна макросов игры, пергамент как в книге
 --  заклинаний WoW Forever, вкладки классов справа, специализаций - сверху.
 -------------------------------------------------------------------------------
-local INK = { 0.25, 0.14, 0.04 }
-if type(SPELLBOOK_FONT_COLOR) == "table" and SPELLBOOK_FONT_COLOR.GetRGB then
-    INK = { SPELLBOOK_FONT_COLOR:GetRGB() }
-end
-local CODE_INK = { 0.05, 0.25, 0.05 }
+local INK = { 1, 0.82, 0 } -- текст на тёмной странице: заголовки золотом
+local CODE_INK = { 0.65, 1, 0.65 }
 local MAX_SPEC_TABS = 5
 
 local function Font(name, fallback)
@@ -1158,7 +1156,7 @@ end
 --  пергаменте крупный заголовок тёмными чернилами, одна-две строки и кнопки.
 --  h:Set(title, text); h.buttons - кнопки в ряд; h:Layout(top) -> низ шапки.
 -------------------------------------------------------------------------------
-local INK_TITLE, INK_TEXT = { 0.16, 0.08, 0 }, { 0.24, 0.14, 0.04 }
+local INK_TITLE, INK_TEXT = { 1, 0.82, 0 }, { 0.9, 0.87, 0.8 }
 local function PageHeader(page, width)
     local h = { buttons = {} }
     h.title = Text(page, "SystemFont_Huge1", "GameFontNormalHuge", INK_TITLE, true)
@@ -1175,11 +1173,19 @@ local function PageHeader(page, width)
         self.title:ClearAllPoints()
         self.title:SetPoint("TOPLEFT", 26, -y)
         y = y + self.title:GetStringHeight() + 8
+        if not self.rule then
+            self.rule = page:CreateTexture(nil, "ARTWORK")
+            self.rule:SetColorTexture(0.75, 0.6, 0.3, 0.55)
+            self.rule:SetSize(width - 52, 1)
+        end
         if self.text:IsShown() then
             self.text:ClearAllPoints()
             self.text:SetPoint("TOPLEFT", 26, -y)
             y = y + self.text:GetStringHeight() + 12
         end
+        self.rule:ClearAllPoints()
+        self.rule:SetPoint("TOPLEFT", 26, -(y - 4))
+        y = y + 8
         -- кнопки в ряд, не влезли - на следующую строку
         local x, rowH = 26, 0
         for _, b in ipairs(self.buttons) do
@@ -3181,7 +3187,7 @@ local function BuildCustomPage(key)
     for _, entry in ipairs(CustomList()) do
         page.rows[#page.rows + 1] = BuildRow(page, "CUSTOM", entry, width - 20)
     end
-    listHead:SetText(T("Твои макросы") .. (#page.rows > 0 and ("  |cff7a5a2a" .. #page.rows .. "|r") or ""))
+    listHead:SetText(T("Твои макросы") .. (#page.rows > 0 and ("  |cff9d9d9d" .. #page.rows .. "|r") or ""))
 
     function page:Layout()
         local y = -header:Layout(16)
@@ -4095,18 +4101,12 @@ local function Build()
     -- Страница книги заклинаний Forever без затемнённых краёв.
     local parchment = page:CreateTexture(nil, "BACKGROUND")
     parchment:SetAllPoints()
-    local info = HasAtlas("spellbook-Page-Right-C60") and C_Texture.GetAtlasInfo("spellbook-Page-Right-C60")
-    local file = info and (info.file or info.filename)
-    if file and info.leftTexCoord and info.topTexCoord then
-        local l, r, t, b = info.leftTexCoord, info.rightTexCoord, info.topTexCoord, info.bottomTexCoord
-        local w, h = r - l, b - t
-        parchment:SetTexture(file)
-        parchment:SetTexCoord(l + w * 0.025, r - w * 0.02, t + h * 0.085, b - h * 0.025)
-    elseif info then
-        parchment:SetAtlas("spellbook-Page-Right-C60", false)
-    else
-        parchment:SetColorTexture(0.86, 0.77, 0.6)
-    end
+    -- Фон страницы - тёмный, как у окон игры: сверху чуть светлее.
+    local bgTop, bgBottom = ns.S.bgTop, ns.S.bgBottom
+    parchment:SetColorTexture(1, 1, 1, 1)
+    local okBg = CreateColor and pcall(parchment.SetGradient, parchment, "VERTICAL",
+        CreateColor(bgBottom[1], bgBottom[2], bgBottom[3], 1), CreateColor(bgTop[1], bgTop[2], bgTop[3], 1))
+    if not okBg then parchment:SetColorTexture(bgTop[1], bgTop[2], bgTop[3], 1) end
     frame.page = page
 
     frame.scroll = CreateFrame("ScrollFrame", "MacroCoachScroll", page, "UIPanelScrollFrameTemplate")
