@@ -1844,4 +1844,7 @@ ns.LOCALES.deDE = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "Im Text stehen Zaubernummern statt Namen: Das Spiel versteht sie nicht. Die Taste unten ersetzt sie durch Namen.",
  ["To fix: %d."] = "Zu beheben: %d.",
  ["It also lists macros that have a spell's number instead of its name."] = "Hier stehen auch Makros, die statt des Zaubernamens seine Nummer enthalten.",
+ ["Copy the link"] = "Link kopieren",
+ ["The link is selected: press Ctrl+C."] = "Der Link ist markiert: Drücke Strg+C.",
+ ["text of the macro \"%s\" copied."] = "Text des Makros „%s“ kopiert.",
 } end

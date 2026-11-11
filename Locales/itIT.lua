@@ -1783,4 +1783,7 @@ ns.LOCALES.itIT = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "Nel testo ci sono numeri di incantesimi invece dei nomi: il gioco non li capisce. Il pulsante qui sotto li sostituisce con i nomi.",
  ["To fix: %d."] = "Da correggere: %d.",
  ["It also lists macros that have a spell's number instead of its name."] = "Qui compaiono anche le macro che hanno il numero dell'incantesimo invece del nome.",
+ ["Copy the link"] = "Copia il link",
+ ["The link is selected: press Ctrl+C."] = "Il link è selezionato: premi Ctrl+C.",
+ ["text of the macro \"%s\" copied."] = "testo della macro «%s» copiato.",
 } end

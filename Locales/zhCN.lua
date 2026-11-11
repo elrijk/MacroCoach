@@ -1861,4 +1861,7 @@ ns.LOCALES.zhCN = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "内容里是法术编号而不是名称：游戏不认识编号。下面的按钮会把它们换成名称。",
  ["To fix: %d."] = "需要修正：%d 个。",
  ["It also lists macros that have a spell's number instead of its name."] = "这里也会列出用法术编号代替名称的宏。",
+ ["Copy the link"] = "复制链接",
+ ["The link is selected: press Ctrl+C."] = "链接已选中：按 Ctrl+C。",
+ ["text of the macro \"%s\" copied."] = "已复制宏“%s”的内容。",
 } end

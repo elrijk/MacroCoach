@@ -1861,4 +1861,7 @@ ns.LOCALES.zhTW = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "內容裡是法術編號而不是名稱：遊戲不認得編號。下面的按鈕會把它們換成名稱。",
  ["To fix: %d."] = "需要修正：%d 個。",
  ["It also lists macros that have a spell's number instead of its name."] = "這裡也會列出用法術編號代替名稱的巨集。",
+ ["Copy the link"] = "複製連結",
+ ["The link is selected: press Ctrl+C."] = "連結已選取：按 Ctrl+C。",
+ ["text of the macro \"%s\" copied."] = "已複製巨集「%s」的內容。",
 } end

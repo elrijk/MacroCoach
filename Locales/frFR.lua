@@ -1829,4 +1829,7 @@ ns.LOCALES.frFR = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "Le texte contient des numéros de sorts au lieu des noms : le jeu ne les comprend pas. Le bouton ci-dessous les remplace par des noms.",
  ["To fix: %d."] = "À corriger : %d.",
  ["It also lists macros that have a spell's number instead of its name."] = "Y figurent aussi les macros qui contiennent le numéro d'un sort au lieu de son nom.",
+ ["Copy the link"] = "Copier le lien",
+ ["The link is selected: press Ctrl+C."] = "Le lien est sélectionné : appuyez sur Ctrl+C.",
+ ["text of the macro \"%s\" copied."] = "texte de la macro « %s » copié.",
 } end

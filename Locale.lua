@@ -1451,3 +1451,10 @@ for k, v in pairs({
     ["Нужно исправить: %d."] = "To fix: %d.",
     ["Здесь же - макросы, где вместо названия заклинания стоит его номер."] = "It also lists macros that have a spell's number instead of its name.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: кнопка «Скопировать ссылку»
+for k, v in pairs({
+    ["Скопировать ссылку"] = "Copy the link",
+    ["Ссылка выделена: нажми Ctrl+C."] = "The link is selected: press Ctrl+C.",
+    ["текст макроса «%s» скопирован."] = "text of the macro \"%s\" copied.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

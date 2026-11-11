@@ -1852,4 +1852,7 @@ ns.LOCALES.esES = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "El texto tiene números de hechizo en lugar de nombres: el juego no los entiende. El botón de abajo los sustituye por nombres.",
  ["To fix: %d."] = "Por corregir: %d.",
  ["It also lists macros that have a spell's number instead of its name."] = "Aquí también aparecen las macros que tienen el número del hechizo en lugar de su nombre.",
+ ["Copy the link"] = "Copiar el enlace",
+ ["The link is selected: press Ctrl+C."] = "El enlace está seleccionado: pulsa Ctrl+C.",
+ ["text of the macro \"%s\" copied."] = "texto de la macro «%s» copiado.",
 } end

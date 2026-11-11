@@ -606,7 +606,13 @@ local function BuildRow(parent, class, m, width, rec)
   copy:SetScript("OnClick", function()
     Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
     local em = Effective(class, m)
-    ShowCopy(em.name, (P.Render(em.body)))
+    local text = (P.Render(em.body))
+    -- получилось скопировать сразу - окно не нужно
+    if ns.TryCopy and ns.TryCopy(text) then
+      Print((T("текст макроса «%s» скопирован.")):format(em.name))
+    else
+      ShowCopy(em.name, text)
+    end
   end)
   copy:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")

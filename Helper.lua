@@ -2435,6 +2435,33 @@ end
 --  игрок открывает её в браузере и нажимает Submit, автору приходит письмо.
 --  В ссылке: макрос, описание, класс и язык игры. Имени персонажа нет.
 -------------------------------------------------------------------------------
+-- Положить текст в буфер обмена. В части клиентов функция CopyToClipboard
+-- разрешена только интерфейсу игры: тогда игра сообщает о запрете событием
+-- ADDON_ACTION_FORBIDDEN. Запоминаем это и больше не пробуем - текст
+-- выделяется, копирует игрок по Ctrl+C. Вернёт true, если скопировано.
+local copyWatch = CreateFrame("Frame")
+local copyBlocked
+copyWatch:SetScript("OnEvent", function() copyBlocked = true end)
+function ns.TryCopy(text)
+  local db = UI.DB()
+  if not db or db.noClipboard or type(CopyToClipboard) ~= "function" or type(text) ~= "string" or text == "" then return false end
+  copyBlocked = false
+  copyWatch:RegisterEvent("ADDON_ACTION_FORBIDDEN")
+  copyWatch:RegisterEvent("ADDON_ACTION_BLOCKED")
+  local ok = pcall(CopyToClipboard, text)
+  copyWatch:UnregisterAllEvents()
+  if copyBlocked or not ok then
+    db.noClipboard = true
+    -- окно игры «аддон заблокирован» про эту попытку не нужно
+    if StaticPopup_Hide then
+      StaticPopup_Hide("ADDON_ACTION_FORBIDDEN")
+      StaticPopup_Hide("ADDON_ACTION_BLOCKED")
+    end
+    return false
+  end
+  return true
+end
+
 local SUGGEST_URL = "https://github.com/elrijk/MacroCoach/issues/new"
 local SUGGEST_W = 540
 local suggestWin
@@ -2561,11 +2588,20 @@ local function BuildSuggestWindow()
   linkTag:SetWidth(inner)
   linkTag:SetText(T("Ссылка для отправки:"))
   local link = TextBox(f, inner, 64)
-  local selBtn = Button(f, T("Выделить ссылку"), 170, function()
-    link.edit:SetFocus()
-    link.edit:HighlightText()
-  end)
   local info = Small(f, LIGHT)
+  local selBtn
+  selBtn = Button(f, T("Скопировать ссылку"), 190, function()
+    local text = link.edit:GetText() or ""
+    if text == "" then return end
+    if ns.TryCopy(text) then
+      info:SetText(GREEN .. T("Скопировано. Вставь ссылку в адресную строку браузера и нажми Submit.") .. "|r")
+    else
+      -- игра не дала скопировать самому аддону: выделяем под Ctrl+C
+      link.edit:SetFocus()
+      link.edit:HighlightText()
+      info:SetText(YELLOW .. T("Ссылка выделена: нажми Ctrl+C.") .. "|r")
+    end
+  end)
   info:SetWidth(inner)
   local how = Small(f)
   how:SetWidth(inner)
@@ -2624,7 +2660,7 @@ local function BuildSuggestWindow()
     MakeLink()
     selBtn:ClearAllPoints()
     selBtn:SetPoint("TOPLEFT", 20, -y)
-    info:SetWidth(inner - 170 - 12)
+    info:SetWidth(inner - 190 - 12)
     info:ClearAllPoints()
     info:SetPoint("TOPLEFT", selBtn, "TOPRIGHT", 12, -4)
     y = y + 22 + 14

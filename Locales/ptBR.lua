@@ -1791,4 +1791,7 @@ ns.LOCALES.ptBR = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "O texto tem números de feitiços em vez de nomes: o jogo não os entende. O botão abaixo troca por nomes.",
  ["To fix: %d."] = "Para corrigir: %d.",
  ["It also lists macros that have a spell's number instead of its name."] = "Aqui também aparecem as macros que têm o número do feitiço em vez do nome.",
+ ["Copy the link"] = "Copiar o link",
+ ["The link is selected: press Ctrl+C."] = "O link está selecionado: pressione Ctrl+C.",
+ ["text of the macro \"%s\" copied."] = "texto da macro \"%s\" copiado.",
 } end

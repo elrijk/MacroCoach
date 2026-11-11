@@ -1859,4 +1859,7 @@ ns.LOCALES.koKR = function() return {
  ["The text has spell numbers instead of names: the game does not understand them. The button below replaces them with names."] = "내용에 주문 이름 대신 번호가 있습니다. 게임은 번호를 이해하지 못합니다. 아래 버튼으로 이름으로 바뀝니다.",
  ["To fix: %d."] = "고칠 것: %d개.",
  ["It also lists macros that have a spell's number instead of its name."] = "주문 이름 대신 번호가 들어 있는 매크로도 여기에 표시됩니다.",
+ ["Copy the link"] = "링크 복사",
+ ["The link is selected: press Ctrl+C."] = "링크가 선택되었습니다. Ctrl+C를 누르세요.",
+ ["text of the macro \"%s\" copied."] = "\"%s\" 매크로 내용을 복사했습니다.",
 } end
