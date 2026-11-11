@@ -1913,17 +1913,6 @@ local function BuildPage(class, list, key, rec, label)
         header = PageHeader(page, width)
         header:Set(class == "GENERAL" and T("Рекомендации для всех классов") or (T("Рекомендации: ") .. ClassName(class)),
             T("Самые полезные макросы для старта: какую проблему решает каждый, что делает и когда жать. Значок макроса перетащи на панель или нажми «Добавить»."))
-    elseif label and #list > 1 then
-        -- Набор вкладки (специализации): все её макросы одним нажатием.
-        header = PageHeader(page, width)
-        header:Set((T("Набор: %s")):format(T(label)),
-            T("Все макросы этой вкладки можно создать сразу. Они появятся в окне /macro - перетащи нужные на панель."))
-        local all = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
-        all:SetText((T("Добавить весь набор (%d)")):format(#list))
-        local fs = all:GetFontString()
-        all:SetSize(math.max(180, math.ceil((fs and fs:GetStringWidth() or 150) + 30)), 24)
-        all:SetScript("OnClick", function() if ns.AddSet then ns.AddSet(class, list, label) end end)
-        header.buttons[1] = all
     end
     for _, m in ipairs(list) do
         -- Общий макрос во вкладке «Рекомендации» класса остаётся общим (m.homeClass).

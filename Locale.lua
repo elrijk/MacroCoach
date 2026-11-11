@@ -1358,3 +1358,7 @@ for k, v in pairs({
     ["одной кнопкой на панель"] = "to your bar with one button",
     ["одну кнопку вместо трёх"] = "one button instead of three",
 }) do ns.EN[k] = v end
+
+-- 1.2: знакомство - вкладки специализаций
+ns.EN["Смотри свою специализацию"] = "Check your specialization"
+ns.EN["Вкладки сверху: макросы под то, как ты играешь."] = "Tabs on top: macros for the way you play."
