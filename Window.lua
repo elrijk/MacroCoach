@@ -966,9 +966,9 @@ local function BuildSettings()
   end)
   restoreChar:SetPoint("TOPLEFT", wipeChar, "BOTTOMLEFT", 0, -8)
 
-  -- Импорт и экспорт - той же страницей, что во вкладке «Свои макросы»
-  -- окна аддона. Строится при первом показе: к этому времени загружены все
-  -- файлы и известна ширина страницы.
+  -- Импорт и экспорт - простым блоком в два столбца (Helper.lua,
+  -- BuildShareCompact). Строится при первом показе: к этому времени
+  -- загружены все файлы и известна ширина страницы.
   local hostB = CreateFrame("Frame", nil, body)
   hostB:SetSize(600, 10)
   local sharePage
@@ -998,7 +998,7 @@ local function BuildSettings()
     restoreRows = backShared > 0 or backChar > 0
     bRestore:SetEnabled(ns.Backup.Info() ~= nil)
     hostB:ClearAllPoints()
-    hostB:SetPoint("TOPLEFT", restoreRows and restoreShared or wipeShared, "BOTTOMLEFT", -16, -16)
+    hostB:SetPoint("TOPLEFT", restoreRows and restoreShared or wipeShared, "BOTTOMLEFT", -16, -24)
   end
 
   -- команды чата
@@ -1014,7 +1014,7 @@ local function BuildSettings()
 
   local function LayoutHosted()
     Refresh()
-    local h2 = sharePage and sharePage:Layout() or 10
+    local h2 = sharePage and sharePage:Refresh() or 10
     hostB:SetHeight(h2)
     -- высота всей страницы: шапка, галочки, ползунок, кнопки, импорт и команды
     body:SetHeight(170 + #checks * 30 + 64 + (restoreRows and 3 or 2) * 30 + 16 + h2 + 20 + 24
@@ -1022,12 +1022,10 @@ local function BuildSettings()
   end
   panel:SetScript("OnShow", function()
     lang.Refresh()
-    if not sharePage and ns.BuildHelperPage then
-      Build() -- страница обращается к окну аддона
-      hostB:SetWidth(math.max(520, math.floor(body:GetWidth() or 600) - 4))
-      P.host = { child = hostB }
-      sharePage = ns.BuildHelperPage("share", "host:share")
-      P.host = nil
+    if not sharePage and ns.Helper and ns.Helper.BuildShareCompact then
+      local w = math.max(520, math.floor(body:GetWidth() or 600) - 4)
+      hostB:SetWidth(w)
+      sharePage = ns.Helper.BuildShareCompact(hostB, w)
     end
     P.hostRelayout = LayoutHosted
     LayoutHosted()

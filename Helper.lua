@@ -3585,6 +3585,136 @@ local BUILDERS = {
   share = BuildSharePage,
 }
 
+-- Импорт и экспорт для страницы аддона в настройках игры: без карточек,
+-- небольшой заголовок, два столбца - слева «Сохранить код», справа
+-- «Загрузить код». f:Refresh() обновляет подписи и возвращает высоту.
+function H.BuildShareCompact(parent, width)
+  local f = CreateFrame("Frame", nil, parent)
+  f:SetPoint("TOPLEFT")
+  f:SetSize(width, 10)
+  local PADX, GAP, BOX_H = 16, 18, 80
+  local colW = math.floor((width - PADX * 2 - GAP) / 2)
+  local st = {}
+  local head = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+  head:SetPoint("TOPLEFT", PADX, 0)
+  head:SetText(T("Импорт и экспорт"))
+
+  -- слева: сохранить
+  local eTag = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+  eTag:SetPoint("TOPLEFT", head, "BOTTOMLEFT", 0, -10)
+  eTag:SetText(T("Сохранить код"))
+  local exBox = TextBox(f, colW, BOX_H)
+  exBox:SetPoint("TOPLEFT", eTag, "BOTTOMLEFT", 0, -6)
+  local eInfo = Small(f, LIGHT)
+  eInfo:SetWidth(colW)
+  local eMake = Button(f, T("Копировать код"), 170, function()
+    local text, nc, ne = H.Export()
+    st.exported, st.copied = { nc = nc, ne = ne }, nil
+    if nc + ne == 0 then
+      -- сохранять нечего: пустой код только запутает
+      exBox.edit:SetText("")
+      exBox.edit:ClearFocus()
+    else
+      exBox.edit:SetText(text)
+      if ns.TryCopy and ns.TryCopy(text) then
+        st.copied = true
+      else
+        exBox.edit:SetFocus()
+        exBox.edit:HighlightText()
+      end
+    end
+    f:Refresh()
+  end, T("Свои макросы и правки готовых - одним кодом. Скопируй его в файл или отправь другу."))
+  eMake:SetPoint("TOPLEFT", exBox, "BOTTOMLEFT", 0, -8)
+  eInfo:SetPoint("TOPLEFT", eMake, "BOTTOMLEFT", 0, -6)
+  exBox.onCopy = function()
+    if strtrim(exBox.edit:GetText() or "") == "" then return end
+    st.copied = true
+    f:Refresh()
+  end
+  exBox.onChange = function(_, user) if user then st.copied = nil end end
+
+  -- справа: загрузить
+  local iTag = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+  iTag:SetPoint("TOPLEFT", eTag, "TOPLEFT", colW + GAP, 0)
+  iTag:SetText(T("Загрузить код"))
+  local iBox = TextBox(f, colW, BOX_H)
+  iBox:SetPoint("TOPLEFT", iTag, "BOTTOMLEFT", 0, -6)
+  local iInfo = Small(f, LIGHT)
+  iInfo:SetWidth(colW)
+  local IMPORT_TIP = T("Вставь код (Ctrl+V) и нажми «Загрузить». Макросы добавятся к твоим, такие же не повторятся.")
+  -- «Вставить»: пустое поле в фокусе - остаётся нажать Ctrl+V
+  local iPaste = Button(f, T("Вставить"), 120, function()
+    iBox.edit:SetText("")
+    iBox.edit:SetFocus()
+    st.imported = YELLOW .. T("Нажми Ctrl+V.") .. "|r"
+    f:Refresh()
+  end, IMPORT_TIP)
+  iPaste:SetPoint("TOPLEFT", iBox, "BOTTOMLEFT", 0, -8)
+  local iGo = Button(f, T("Загрузить"), 150, function()
+    local text = strtrim(iBox.edit:GetText() or "")
+    if text == "" then
+      st.imported = YELLOW .. T("Сначала вставь код в поле выше (Ctrl+V).") .. "|r"
+      f:Refresh()
+      return
+    end
+    local nc, ne, bad, same, headOk = H.Import(text)
+    local msg
+    if nc + ne + same == 0 and not headOk then
+      msg = RED .. T("Это не код MacroCoach: скопируй его целиком, вместе с первой строкой.") .. "|r"
+    else
+      msg = (T("Добавлено своих макросов: %d, правок готовых: %d.")):format(nc, ne)
+      if same > 0 then msg = msg .. " " .. (T("Уже были: %d.")):format(same) end
+      if bad > 0 then msg = msg .. " " .. RED .. (T("Не распознано строк: %d.")):format(bad) .. "|r" end
+      Print(msg)
+      -- загружено без ошибок - поле очистить, чтобы не загрузить дважды
+      if bad == 0 then
+        iBox.edit:SetText("")
+        iBox.edit:ClearFocus()
+      end
+    end
+    st.imported = msg
+    if nc > 0 then UI.RefreshCustom(true) end
+    f:Refresh()
+  end, IMPORT_TIP)
+  iGo:SetPoint("LEFT", iPaste, "RIGHT", 8, 0)
+  iGo:SetEnabled(false)
+  iInfo:SetPoint("TOPLEFT", iPaste, "BOTTOMLEFT", 0, -6)
+  iBox.onChange = function(text, user)
+    local has = strtrim(text) ~= ""
+    iGo:SetEnabled(has)
+    -- вставили код целиком - подсказать следующий шаг
+    if user and has and text:find("MacroCoach:", 1, true) and not st.pasted then
+      st.pasted = true
+      st.imported = GREEN .. T("Код вставлен: нажми «Загрузить».") .. "|r"
+      f:Refresh()
+    elseif not has then
+      st.pasted = nil
+    end
+  end
+
+  function f:Refresh()
+    if st.exported and st.exported.nc + st.exported.ne == 0 then
+      eInfo:SetText(YELLOW .. T("Пока нечего сохранять: своих макросов и правок готовых нет.") .. "|r")
+    elseif st.exported and st.copied then
+      eInfo:SetText(GREEN .. T("Скопировано. Вставь код в файл или в сообщение другу.") .. "|r")
+    elseif st.exported then
+      eInfo:SetText(YELLOW .. T("Код выделен: нажми Ctrl+C.") .. "|r")
+    else
+      local nEdits = 0
+      for _ in pairs(UI.DB().edits) do nEdits = nEdits + 1 end
+      eInfo:SetText((T("Своих макросов: %d, правок готовых: %d.")):format(#UI.CustomList(), nEdits))
+    end
+    iInfo:SetText(st.imported or "")
+    local h = (head:GetStringHeight() or 14) + 10 + (eTag:GetStringHeight() or 14) + 6 + BOX_H + 8 + 22 + 6
+      + math.max(eInfo:GetStringHeight() or 12, iInfo:GetStringHeight() or 12, 12) + 6
+    self:SetHeight(h)
+    return h
+  end
+  f:Refresh()
+  return f
+end
+
 function ns.BuildHelperPage(kind, key)
   local f = BUILDERS[kind]
   return f and f(key)
