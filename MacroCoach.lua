@@ -642,8 +642,41 @@ local function ItemCount(id)
     return ok and n or 0
 end
 
+-- Макросы-списки («зелье лечения»: лучшее из того, что есть) - тоже умные,
+-- но по-своему (best = "show"): все строки /use остаются, чтобы в бою
+-- сработал следующий предмет, когда лучший кончился, а первая строка
+-- «#showtooltip item:ID» показывает на кнопке тот предмет, что есть в
+-- сумках: настоящий значок и счёт вместо тёмной кнопки с нулём.
+-- Такими становятся все готовые макросы из одного «#showtooltip» и двух и
+-- более строк «/use item:ID».
+for _, groups in pairs(ns.MACROS) do
+    for _, g in ipairs(groups) do
+        for _, m in ipairs(g.list or {}) do
+            if m.best == nil and type(m.body) == "string" then
+                local rest = m.body:match("^#showtooltip\n(.+)$")
+                if rest then
+                    local n, ok = 0, true
+                    for line in (rest .. "\n"):gmatch("(.-)\n") do
+                        if line:match("^/use item:%d+$") then n = n + 1 else ok = false end
+                    end
+                    if ok and n >= 2 then m.best = "show" end
+                end
+            end
+        end
+    end
+end
+
 local function BestBody(m)
     if not m.best then return m.body end
+    if m.best == "show" then
+        local rest = m.body:match("^#showtooltip[^\n]*\n(.+)$")
+        if rest then
+            for id in rest:gmatch("item:(%d+)") do
+                if ItemCount(tonumber(id)) > 0 then return "#showtooltip item:" .. id .. "\n" .. rest end
+            end
+        end
+        return m.body
+    end
     local head = m.body:match("^(#showtooltip[^\n]*\n)") or ""
     local first
     for id in m.body:gmatch("item:(%d+)") do
@@ -703,6 +736,11 @@ local function OursBody(body, m)
                 if body == (Render(H.SafeBody(m.body, heal, alt))) then return true end
             end
         end
+    end
+    if m.best == "show" then
+        -- тот же список, первая строка показывает любой предмет из него
+        local mine, theirs = m.body:match("^#showtooltip[^\n]*\n(.+)$"), body:match("^#showtooltip[^\n]*\n(.+)$")
+        return mine ~= nil and mine == theirs
     end
     if m.best then
         local id = body:match("^#showtooltip[^\n]*\n/use item:(%d+)%s*$") or body:match("^/use item:(%d+)%s*$")
