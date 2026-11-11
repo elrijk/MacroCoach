@@ -4235,14 +4235,17 @@ local function Toggle()
         frame:Hide()
         return
     end
+    -- Первое открытие аддона: сначала знакомство отдельным окном, само окно -
+    -- когда знакомство закроют (Intro.lua). Подробный рассказ остался на
+    -- вкладке «Зачем макросы».
+    if ns.IntroFirst and ns.IntroFirst(function()
+        if not frame:IsShown() then Toggle() end
+    end) then return end
     frame:Show()
-    -- Открываемся там, где были, или на своём классе. Знакомство с аддоном -
-    -- отдельным окном поверх, один раз (Intro.lua); подробный рассказ остался
-    -- на вкладке «Зачем макросы».
+    -- Открываемся там, где были, или на своём классе.
     DB().helperSeen = true
     local _, class = UnitClass("player")
     ShowClass(current or (ns.MACROS[class] and class) or "GENERAL", current and currentSpec or nil)
-    if ns.IntroOnce then ns.IntroOnce() end
 end
 ns.Toggle = Toggle
 

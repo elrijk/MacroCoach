@@ -207,19 +207,32 @@ local function show(f, n)
     end)
 end
 
-function ns.ShowIntro()
+-- after - что сделать, когда окно закроют (любым способом), один раз.
+function ns.ShowIntro(after)
     local main = UI.Frame()
-    if not win then win = build() end
+    if not win then
+        win = build()
+        win:SetScript("OnHide", function(s)
+            local fn = s.after
+            s.after = nil
+            if fn then pcall(fn) end
+        end)
+    end
+    local shown = main and main:IsShown()
     win:ClearAllPoints()
-    win:SetPoint("CENTER", (main and main:IsShown()) and main or UIParent, "CENTER", 0, 0)
+    win:SetPoint("CENTER", shown and main or UIParent, "CENTER", 0, shown and 0 or 40)
     UI.DB().onboarded = true
+    win.after = after
     local ok, err = pcall(show, win, 1)
     if not ok then UI.Print(tostring(err)) end
     win:Show()
     win:Raise()
 end
 
--- Первый раз окно MacroCoach открылось - показать знакомство само.
-function ns.IntroOnce()
-    if not UI.DB().onboarded then ns.ShowIntro() end
+-- Первое открытие аддона: сначала знакомство, само окно MacroCoach - когда
+-- знакомство закроют. Возвращает true, если окно открывать пока не надо.
+function ns.IntroFirst(openMain)
+    if UI.DB().onboarded then return false end
+    ns.ShowIntro(openMain)
+    return true
 end
