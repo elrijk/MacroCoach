@@ -1827,16 +1827,33 @@ end
 -- что в данных, только на месте каждого {s:ID} и {r:ID} стоит какое-то
 -- название. Сверяем со всеми вариантами настроек безопасного лечения.
 -- Так находятся и макросы, созданные до того, как аддон начал их записывать.
-local function Skeleton(tpl)
-    local pat = tpl:gsub("{[sr]:%d+}", "\0")
-    pat = pat:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
-    return "^" .. pat:gsub("%z", "(.-)") .. "$"
+local function SameShape(body, tpl)
+    local tp, bp = 1, 1
+    while true do
+        local a, b = tpl:find("{[sr]:%d+}", tp)
+        local lit = tpl:sub(tp, a and a - 1 or -1)
+        if tp == 1 then
+            -- начало текста - то же, что в данных
+            if body:sub(1, #lit) ~= lit then return false end
+            bp = #lit + 1
+            if not a then return #body == #lit end
+        elseif not a then
+            -- хвост после последнего названия - в самом конце текста
+            if lit == "" then return true end
+            return #body - #lit + 1 >= bp and body:sub(-#lit) == lit
+        elseif lit ~= "" then
+            local at = body:find(lit, bp, true)
+            if not at then return false end
+            bp = at + #lit
+        end
+        tp = b + 1
+    end
 end
 local function SameTemplate(body, m)
     if m.best or type(body) ~= "string" then return false end
     for _, heal in ipairs({ false, true }) do
         for _, alt in ipairs({ false, true }) do
-            local ok, hit = pcall(string.find, body, Skeleton(H.SafeBody(m.body, heal, alt)))
+            local ok, hit = pcall(SameShape, body, H.SafeBody(m.body, heal, alt))
             if ok and hit then return true end
         end
     end
