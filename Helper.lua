@@ -1210,7 +1210,7 @@ function H.CheckData(done)
   end)
 end
 
--- /coach данные: результат в чат.
+-- /mc данные: результат в чат.
 function H.PrintDataCheck()
   Print(T("проверка ID заклинаний в данных аддона..."))
   H.CheckData(function(missing, total, where)
@@ -1800,11 +1800,11 @@ local function OnSpellsChanged(initial)
       end
     end
     if #fresh > 3 then names[#names + 1] = (T("и ещё %d")):format(#fresh - 3) end
-    parts[#parts + 1] = (T("новые полезные макросы: %s (/coach советы)")):format(table.concat(names, ", "))
+    parts[#parts + 1] = (T("новые полезные макросы: %s (/mc советы)")):format(table.concat(names, ", "))
   end
   local old = InCombatLockdown() and 0 or #H.OldRanks()
   if old > 0 then
-    parts[#parts + 1] = (T("старых рангов на панелях: %d (/coach ранги)")):format(old)
+    parts[#parts + 1] = (T("старых рангов на панелях: %d (/mc ранги)")):format(old)
   end
   if #parts > 0 then Print(table.concat(parts, "; ") .. ".") end
 end
@@ -2056,7 +2056,7 @@ function H.LanguageScan()
 end
 
 -- force - не смотреть, менялся ли язык, и написать в чат, что не тронуто и
--- почему (/coach lang); "ui" - кнопка во вкладке «Проверка»: без этих строк.
+-- почему (/mc lang); "ui" - кнопка во вкладке «Проверка»: без этих строк.
 -- after - что сделать, когда закончили (обновить страницу).
 function H.ResyncLanguage(retry, force, after)
   local db = UI.DB()

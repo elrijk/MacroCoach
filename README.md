@@ -19,8 +19,8 @@ read in plain words what it does, press Add, and drop it on your action bar.
 
 ## Commands
 
-`/coach` opens the window. `/coach commands` lists the rest. The window also
-opens by itself beside the game's `/macro` window (`/coach beside` turns this
+`/mc` opens the window. `/mc commands` lists the rest. The window also
+opens by itself beside the game's `/macro` window (`/mc beside` turns this
 off).
 
 ## Suggest a macro
@@ -58,4 +58,4 @@ please open an issue with the correct text.
 - **Умные расходники**: кнопка показывает то зелье и те бинты, что есть в сумках.
 - **Резервная копия** всех макросов игры с восстановлением.
 
-Команда: `/coach` или `/макросы`. Лицензия MIT.
+Команда: `/mc`. Лицензия MIT.

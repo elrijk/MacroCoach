@@ -92,7 +92,7 @@ function B.Restore()
 end
 
 -- После тренера: высшие ранги на панели и готовые макросы под новые
--- заклинания - одним действием (/coach update).
+-- заклинания - одним действием (/mc update).
 function ns.UpdateAll()
   local H = ns.Helper
   if not H then return end

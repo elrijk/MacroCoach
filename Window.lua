@@ -90,7 +90,6 @@ P.ShowClass = function(class, spec)
   for k, p in pairs(pages) do p:SetShown(k == key) end
   local tab = tabs[spec]
   local page = pages[key] or (tab and tab.custom and BuildCustomPage(key)) or (tab and tab.guide and BuildGuidePage(key))
-    or (tab and tab.options and P.BuildOptionsPage(key))
     or (tab and tab.helper and ns.BuildHelperPage and ns.BuildHelperPage(tab.helper, key))
     or BuildPage(class, tab and tab.list or {}, key, tab and tab.rec, tab and tab.label)
   page:Show()
@@ -761,19 +760,19 @@ local function LanguageDropdown(parent)
   return box
 end
 
--- Команды чата: список в настройках и по /coach commands (описания
+-- Команды чата: список в настройках и по /mc commands (описания
 -- по-русски, переводятся при показе).
 local COMMANDS = {
-  { "/coach", "открыть или закрыть окно" },
-  { "/coach help", "зачем макросы: короткое знакомство" },
-  { "/coach tips", "рекомендуемые макросы для твоего класса" },
-  { "/coach check", "проверить ранги и макросы на панелях" },
-  { "/coach update", "обновить ранги на панелях и готовые макросы" },
-  { "/coach translate", "перевести макрос с английского" },
-  { "/coach share", "импорт и экспорт макросов" },
-  { "/coach options", "открыть настройки" },
-  { "/coach minimap", "показать или скрыть кнопку у миникарты" },
-  { "/coach commands", "этот список в чат" },
+  { "/mc", "открыть или закрыть окно" },
+  { "/mc help", "зачем макросы: короткое знакомство" },
+  { "/mc tips", "рекомендуемые макросы для твоего класса" },
+  { "/mc check", "проверить ранги и макросы на панелях" },
+  { "/mc update", "обновить ранги на панелях и готовые макросы" },
+  { "/mc translate", "перевести макрос с английского" },
+  { "/mc share", "импорт и экспорт макросов" },
+  { "/mc options", "открыть настройки" },
+  { "/mc minimap", "показать или скрыть кнопку у миникарты" },
+  { "/mc commands", "этот список в чат" },
 }
 
 local function CommandLines()
@@ -844,26 +843,163 @@ local function BuildSettings()
     P.frame:Raise()
   end)
 
-  local mm = CreateFrame("CheckButton", nil, body, "UICheckButtonTemplate")
-  mm:SetPoint("TOPLEFT", open, "BOTTOMLEFT", -2, -14)
-  mm.label = mm:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-  mm.label:SetPoint("LEFT", mm, "RIGHT", 4, 0)
-  mm.label:SetText(T("Показывать кнопку у миникарты"))
-  mm:SetScript("OnShow", function(self) self:SetChecked(not DB().minimap.hide) end)
-  mm:SetScript("OnClick", function(self) P.SetMinimapHidden(not self:GetChecked()) end)
-  -- Состояние ставим сразу: страница видима с создания, и при первом
-  -- открытии настроек OnShow может не сработать.
-  mm:SetChecked(not DB().minimap.hide)
-  -- Настройки макросов и импорт/экспорт - прямо здесь, теми же страницами,
-  -- что были в окне аддона. Строятся при первом показе: к этому времени
-  -- загружены все файлы и известна ширина страницы.
-  local hostA = CreateFrame("Frame", nil, body)
-  hostA:SetPoint("TOPLEFT", mm, "BOTTOMLEFT", -14, -10)
-  hostA:SetSize(600, 10)
+  -- Настройки - простым списком, как у EasyCraft: галочки (что это - в
+  -- подсказке при наведении), ползунок размера подписей и кнопки.
+  local CHECKS = {
+    { label = "Показывать кнопку у миникарты",
+      get = function() return not DB().minimap.hide end,
+      set = function(v) P.SetMinimapHidden(not v) end },
+    { label = "Скрыть названия макросов",
+      note = "Подпись под значком макроса на всех панелях. Работает и с Bartender, ElvUI и похожими панелями.",
+      get = function() return DB().barNames.hide and true or false end,
+      set = function(v)
+        DB().barNames.hide = v or nil
+        ns.ApplyBarNames()
+      end },
+  }
+  for _, o in ipairs(P.HELP_OPTS or {}) do
+    CHECKS[#CHECKS + 1] = { label = o.label, note = o.note, learn = o.key == "learn",
+      get = function() return ns.Helper and ns.Helper.Opt(o.key) and true or false end,
+      set = function(v)
+        if not ns.Helper then return end
+        ns.Helper.SetOpt(o.key, v)
+        if o.resync then ns.Helper.ResyncReady() end
+      end }
+  end
+  local checks, prev = {}, open
+  for i, o in ipairs(CHECKS) do
+    local c = CreateFrame("CheckButton", nil, body, "UICheckButtonTemplate")
+    c:SetSize(26, 26)
+    c:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", i == 1 and -2 or 0, i == 1 and -14 or -4)
+    c.label = c:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    c.label:SetPoint("LEFT", c, "RIGHT", 4, 0)
+    c.label:SetText(T(o.label))
+    -- наведение и щелчок - и по подписи тоже
+    c:SetHitRectInsets(0, -math.min(420, math.ceil(c.label:GetStringWidth() or 0) + 6), 0, 0)
+    c:SetScript("OnClick", function(self) o.set(self:GetChecked() and true or false) end)
+    if o.note then
+      c:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+        GameTooltip:SetText(T(o.label), 1, 0.82, 0)
+        GameTooltip:AddLine(T(o.note) .. (o.learn and (" " .. T("То же - в подсказке, когда наводишь на макрос на панели.")) or ""), 1, 1, 1, true)
+        GameTooltip:Show()
+      end)
+      c:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    end
+    c.opt = o
+    checks[i] = c
+    prev = c
+  end
+
+  local Refresh
+  -- размер подписей макросов на панелях
+  local okS, sl = pcall(CreateFrame, "Slider", "MacroCoachNameSizeSlider", body, "OptionsSliderTemplate")
+  if not okS then sl = nil end
+  local slText, slSetting
+  if sl then
+    sl:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 6, -28)
+    sl:SetWidth(220)
+    sl:SetMinMaxValues(6, 20)
+    sl:SetValueStep(1)
+    if sl.SetObeyStepOnDrag then sl:SetObeyStepOnDrag(true) end
+    slText = sl.Text or _G[sl:GetName() .. "Text"]
+    local low, high = sl.Low or _G[sl:GetName() .. "Low"], sl.High or _G[sl:GetName() .. "High"]
+    if type(low) == "table" and low.SetText then low:SetText("6") end
+    if type(high) == "table" and high.SetText then high:SetText("20") end
+    sl:SetScript("OnValueChanged", function(_, v)
+      if slSetting then return end -- значение ставит сама страница
+      DB().barNames.size = math.floor(v + 0.5)
+      ns.ApplyBarNames()
+      Refresh()
+    end)
+  end
+  local function PlainButton(text, width, onClick, tip)
+    local b = CreateFrame("Button", nil, body, "UIPanelButtonTemplate")
+    b:SetSize(width, 22)
+    b:SetText(text)
+    b:SetScript("OnClick", onClick)
+    if b.SetMotionScriptsWhileDisabled then b:SetMotionScriptsWhileDisabled(true) end
+    b:SetScript("OnEnter", function(self)
+      local text2 = type(tip) == "function" and tip() or tip
+      if not text2 then return end
+      GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+      GameTooltip:SetText(self:GetText() or "", 1, 0.82, 0)
+      GameTooltip:AddLine(text2, 1, 1, 1, true)
+      GameTooltip:Show()
+    end)
+    b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    return b
+  end
+  local sizeReset = PlainButton(T("Как в игре"), 120, function()
+    DB().barNames.size = nil
+    ns.ApplyBarNames()
+    Refresh()
+  end)
+  if sl then sizeReset:SetPoint("LEFT", sl, "RIGHT", 18, 0) else sizeReset:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 2, -14) end
+
+  -- резервная копия и очистка макросов игры
+  local function BackupTip()
+    local when, saved = ns.Backup.Info()
+    return T("Сохраняет все макросы из окна /macro: общие и этого персонажа. Из копии можно вернуть текст изменённых макросов и удалённые макросы.")
+      .. "\n" .. (when and (T("Копия от %s: макросов %d.")):format(date("%d.%m.%Y %H:%M", when), saved) or T("Копии пока нет."))
+  end
+  local WIPE_TIP = T("Удаляет макросы из окна /macro: общие (видны всем персонажам) или только этого персонажа. Готовые и свои макросы в аддоне останутся, их можно добавить снова.")
+  local bSave = PlainButton(T("Сохранить копию"), 240, function()
+    ns.Backup.Save()
+    Refresh()
+  end, BackupTip)
+  if sl then bSave:SetPoint("TOPLEFT", sl, "BOTTOMLEFT", -4, -30) else bSave:SetPoint("TOPLEFT", sizeReset, "BOTTOMLEFT", 0, -14) end
+  local bRestore = PlainButton(T("Вернуть из копии"), 240, function() ns.Backup.Restore() end, BackupTip)
+  bRestore:SetPoint("LEFT", bSave, "RIGHT", 10, 0)
+  local wipeShared = PlainButton("", 240, function() ns.AskWipe(false) end, WIPE_TIP)
+  wipeShared:SetPoint("TOPLEFT", bSave, "BOTTOMLEFT", 0, -8)
+  local wipeChar = PlainButton("", 240, function() ns.AskWipe(true) end, WIPE_TIP)
+  wipeChar:SetPoint("LEFT", wipeShared, "RIGHT", 10, 0)
+  local restoreShared = PlainButton("", 240, function()
+    ns.RestoreWiped(false)
+    Refresh()
+  end)
+  restoreShared:SetPoint("TOPLEFT", wipeShared, "BOTTOMLEFT", 0, -8)
+  local restoreChar = PlainButton("", 240, function()
+    ns.RestoreWiped(true)
+    Refresh()
+  end)
+  restoreChar:SetPoint("TOPLEFT", wipeChar, "BOTTOMLEFT", 0, -8)
+
+  -- Импорт и экспорт - той же страницей, что во вкладке «Свои макросы»
+  -- окна аддона. Строится при первом показе: к этому времени загружены все
+  -- файлы и известна ширина страницы.
   local hostB = CreateFrame("Frame", nil, body)
-  hostB:SetPoint("TOPLEFT", hostA, "BOTTOMLEFT", 0, -6)
   hostB:SetSize(600, 10)
-  local optPage, sharePage
+  local sharePage
+  local restoreRows = false
+
+  Refresh = function()
+    for _, c in ipairs(checks) do c:SetChecked(c.opt.get() and true or false) end
+    local cfg = DB().barNames
+    local size = cfg.size or ns.DefaultNameSize()
+    if sl then
+      slSetting = true
+      sl:SetValue(size)
+      slSetting = nil
+      if slText then slText:SetText(T("Размер шрифта:") .. " " .. size) end
+    end
+    sizeReset:SetEnabled(cfg.size ~= nil)
+    local general, char = GetNumMacros()
+    wipeShared:SetText((T("Удалить общие (%d)")):format(general or 0))
+    wipeChar:SetText((T("Удалить персонажа (%d)")):format(char or 0))
+    wipeShared:SetEnabled((general or 0) > 0)
+    wipeChar:SetEnabled((char or 0) > 0)
+    local backShared, backChar = ns.WipedCount(false), ns.WipedCount(true)
+    restoreShared:SetText((T("Вернуть удалённые (%d)")):format(backShared))
+    restoreChar:SetText((T("Вернуть удалённые (%d)")):format(backChar))
+    restoreShared:SetShown(backShared > 0)
+    restoreChar:SetShown(backChar > 0)
+    restoreRows = backShared > 0 or backChar > 0
+    bRestore:SetEnabled(ns.Backup.Info() ~= nil)
+    hostB:ClearAllPoints()
+    hostB:SetPoint("TOPLEFT", restoreRows and restoreShared or wipeShared, "BOTTOMLEFT", -16, -16)
+  end
 
   -- команды чата
   local cmdHead = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -874,34 +1010,26 @@ local function BuildSettings()
   cmds:SetWidth(560)
   cmds:SetJustifyH("LEFT")
   if cmds.SetSpacing then cmds:SetSpacing(4) end
-  cmds:SetText(table.concat(CommandLines(), "\n") .. "\n|cff9d9d9d" .. T("То же по-русски: /макросы, /coach помощь, /coach советы, /coach проверка.") .. "|r")
+  cmds:SetText(table.concat(CommandLines(), "\n"))
 
   local function LayoutHosted()
-    if not optPage then return end
-    local h1 = optPage:Layout()
-    hostA:SetHeight(h1)
+    Refresh()
     local h2 = sharePage and sharePage:Layout() or 10
     hostB:SetHeight(h2)
-    -- высота всей страницы: шапка с кнопками, обе части и команды
-    body:SetHeight(190 + h1 + 6 + h2 + 20 + 24 + (cmds:GetStringHeight() or 200) + 30)
+    -- высота всей страницы: шапка, галочки, ползунок, кнопки, импорт и команды
+    body:SetHeight(170 + #checks * 30 + 64 + (restoreRows and 3 or 2) * 30 + 16 + h2 + 20 + 24
+      + (cmds:GetStringHeight() or 200) + 30)
   end
   panel:SetScript("OnShow", function()
-    mm:SetChecked(not DB().minimap.hide)
     lang.Refresh()
-    if not optPage then
-      Build() -- страницы обращаются к окну аддона
-      local w = math.max(520, math.floor(body:GetWidth() or 600) - 4)
-      hostA:SetWidth(w)
-      hostB:SetWidth(w)
-      P.host = { child = hostA }
-      optPage = P.BuildOptionsPage("host:options")
-      if ns.BuildHelperPage then
-        P.host = { child = hostB }
-        sharePage = ns.BuildHelperPage("share", "host:share")
-      end
+    if not sharePage and ns.BuildHelperPage then
+      Build() -- страница обращается к окну аддона
+      hostB:SetWidth(math.max(520, math.floor(body:GetWidth() or 600) - 4))
+      P.host = { child = hostB }
+      sharePage = ns.BuildHelperPage("share", "host:share")
       P.host = nil
-      P.hostRelayout = LayoutHosted
     end
+    P.hostRelayout = LayoutHosted
     LayoutHosted()
   end)
   panel:Hide()
@@ -926,43 +1054,43 @@ function MacroCoach_OnAddonCompartmentClick(_, mouseButton)
   if mouseButton == "RightButton" then ns.OpenSettings() else ns.Toggle() end
 end
 
-SLASH_MACROCOACH1 = "/coach"
-SLASH_MACROCOACH2 = "/макросы"
+SLASH_MACROCOACH1 = "/mc"
+SLASH_MACROCOACH2 = "/coach" -- прежняя команда: работает и дальше
 SLASH_MACROCOACH3 = "/macrocoach"
 SlashCmdList.MACROCOACH = function(msg)
   msg = strtrim((msg or ""):lower())
-  if msg == "minimap" or msg == "миникарта" then
+  if msg == "minimap" then
     P.SetMinimapHidden(not DB().minimap.hide)
-    Print(DB().minimap.hide and T("кнопка у миникарты скрыта (вернуть: /coach minimap).") or T("кнопка у миникарты показана."))
-  elseif msg == "help" or msg == "помощь" or msg == "start" then
+    Print(DB().minimap.hide and T("кнопка у миникарты скрыта (вернуть: /mc minimap).") or T("кнопка у миникарты показана."))
+  elseif msg == "help" or msg == "start" then
     Open("HELPER", 1)
-  elseif msg == "tips" or msg == "советы" or msg == "рекомендации" then
+  elseif msg == "tips" then
     local _, class = UnitClass("player")
     class = ns.MACROS[class] and class or "GENERAL"
     Open(class, ns.UI.TabIndex(class, "Рекомендации") or 1)
-  elseif msg == "check" or msg == "проверка" or msg == "ranks" or msg == "ранги" then
+  elseif msg == "check" or msg == "ranks" then
     Open("HELPER", 2)
-  elseif msg == "update" or msg == "обновить" then
+  elseif msg == "update" then
     ns.UpdateAll()
-  elseif msg == "translate" or msg == "перевод" then
+  elseif msg == "translate" then
     Open("CUSTOM", 1)
     P.OpenCustomText(nil, B.New())
-  elseif msg == "intro" or msg == "знакомство" then
+  elseif msg == "intro" then
     Open(P.current or "HELPER")
     if ns.ShowIntro then ns.ShowIntro() end
-  elseif msg == "lang" or msg == "язык" then
+  elseif msg == "lang" then
     -- перевести готовые макросы в игре на нынешний язык и сказать, что не тронуто
     if ns.Helper and ns.Helper.ResyncLanguage then ns.Helper.ResyncLanguage(0, true) end
-  elseif msg == "beside" or msg == "рядом" then
+  elseif msg == "beside" then
     local db = DB()
     db.besideMacro = db.besideMacro == false
     Print(db.besideMacro and T("окно будет открываться рядом с окном макросов игры.")
       or T("окно больше не открывается само рядом с окном макросов игры."))
-  elseif msg == "share" or msg == "обмен" or msg == "export" or msg == "экспорт" then
+  elseif msg == "share" or msg == "export" then
     Open("CUSTOM", 3)
-  elseif msg == "data" or msg == "данные" then
+  elseif msg == "data" then
     if ns.Helper then ns.Helper.PrintDataCheck() end
-  elseif msg == "options" or msg == "config" or msg == "настройки" then
+  elseif msg == "options" or msg == "config" then
     ns.OpenSettings()
   elseif msg == "" then
     Toggle()
@@ -989,7 +1117,7 @@ local function AddMacroFrameTab()
   end)
   ns.macroTab = tab
   -- Окно макросов игры открыли - MacroCoach сам встаёт рядом, закрыли -
-  -- уходит вместе с ним (если открылся сам). Выключить: /coach beside.
+  -- уходит вместе с ним (если открылся сам). Выключить: /mc beside.
   MacroFrame:HookScript("OnShow", function()
     if DB().besideMacro == false then return end
     if InCombatLockdown and InCombatLockdown() then return end
