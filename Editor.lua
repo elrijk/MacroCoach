@@ -467,7 +467,7 @@ local function Setup(d, generator, text)
   if text and d.OverrideText then d:OverrideText(text) end
 end
 
--- Меню типов строк: группы как в EllesmereUI.
+-- Line type menu, grouped.
 local function KindMenu(root, onPick)
   local sub
   for _, k in ipairs(B.KINDS) do

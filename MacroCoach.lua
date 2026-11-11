@@ -931,8 +931,7 @@ local function OnBars(m)
   return name ~= nil and BarMacroNames()[name] == true
 end
 
--- Кнопки панелей с названием макроса: панели игры, EllesmereUI и
--- LibActionButton (Bartender, ElvUI и подобные).
+-- Action bar buttons that show a macro name: the game's own bars.
 local BAR_PREFIXES = { "ActionButton", "MultiBarBottomLeftButton", "MultiBarBottomRightButton", "MultiBarRightButton",
   "MultiBarLeftButton", "MultiBar5Button", "MultiBar6Button", "MultiBar7Button" }
 local function ForEachBarButton(fn)
@@ -950,14 +949,6 @@ local function ForEachBarButton(fn)
   for _, prefix in ipairs(BAR_PREFIXES) do
     for i = 1, 12 do visit(_G[prefix .. i]) end
   end
-  for i = 1, MAX_ACTION_SLOT do
-    visit(_G["EABButton" .. i]) -- EllesmereUI
-    visit(_G["BT4Button" .. i]) -- Bartender
-  end
-  local LAB = LibStub and LibStub("LibActionButton-1.0", true)
-  if LAB and type(LAB.buttonRegistry) == "table" then
-    for b in pairs(LAB.buttonRegistry) do visit(b) end
-  end
 end
 
 -- Обычный размер названий на кнопках (как было до аддона).
@@ -971,7 +962,7 @@ function ns.DefaultNameSize()
   return math.floor((size or 10) + 0.5)
 end
 
--- Наши настройки сильнее, чем у панелей: если панель (например, EllesmereUI)
+-- Our settings win over the bar's own: if a bar
 -- снова ставит свой шрифт или показывает название, сразу возвращаем своё.
 local applying
 local function Enforce(fs)
