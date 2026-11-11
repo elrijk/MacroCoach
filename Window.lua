@@ -916,7 +916,7 @@ local function BuildSettings()
   ------------------------------------------- Названия макросов на панелях
   local hNames = NewHeader(T("Названия макросов на панелях"))
   local cHide = NewCheck({ label = "Скрыть названия макросов",
-    note = "Подпись под значком макроса на всех панелях. Работает и с Bartender, ElvUI и похожими панелями.",
+    note = "Подпись под значком макроса на всех панелях.",
     get = function() return DB().barNames.hide and true or false end,
     set = function(v)
       DB().barNames.hide = v or nil
