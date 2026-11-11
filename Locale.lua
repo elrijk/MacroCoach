@@ -1351,3 +1351,10 @@ for k, v in pairs({
     ["Назад"] = "Back",
     ["Подробнее с примерами"] = "More, with examples",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: подписи под значками первой страницы знакомства
+for k, v in pairs({
+    ["готовый макрос своего класса"] = "a ready-made macro for your class",
+    ["одной кнопкой на панель"] = "to your bar with one button",
+    ["одну кнопку вместо трёх"] = "one button instead of three",
+}) do ns.EN[k] = v end
