@@ -32,7 +32,7 @@ local function SpellNames()
 end
 
 local function ItemSpellName(id)
-    local f = (C_Item and C_Item.GetItemSpell) or GetItemSpell
+    local f = C_Item.GetItemSpell
     if not f then return nil end
     local ok, name = pcall(f, id)
     return ok and name or nil
@@ -75,7 +75,7 @@ local facts = {}
 function Food.Facts(id)
     local f = facts[id]
     if f then return f.kind or nil, f.conj, true end
-    local inst = (C_Item and C_Item.GetItemInfoInstant) or GetItemInfoInstant
+    local inst = C_Item.GetItemInfoInstant
     local classID = inst and select(6, inst(id))
     if classID and classID ~= 0 then
         facts[id] = { kind = false }
@@ -115,8 +115,8 @@ end
 
 local function BagItems()
     local C = C_Container
-    local slots = (C and C.GetContainerNumSlots) or GetContainerNumSlots
-    local itemAt = (C and C.GetContainerItemID) or GetContainerItemID
+    local slots = C.GetContainerNumSlots
+    local itemAt = C.GetContainerItemID
     if not slots or not itemAt then return nil end
     local list, seen = {}, {}
     for bag = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS or NUM_BAG_SLOTS or 4 do

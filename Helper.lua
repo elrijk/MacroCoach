@@ -767,19 +767,6 @@ local function ForEachBookSpell(fn)
         end
         return
     end
-    if GetNumSpellTabs and GetSpellTabInfo and GetSpellBookItemInfo then
-        local book = BOOKTYPE_SPELL or "spell"
-        for i = 1, GetNumSpellTabs() do
-            local _, _, offset, num = GetSpellTabInfo(i)
-            for slot = (offset or 0) + 1, (offset or 0) + (num or 0) do
-                local kind, id = GetSpellBookItemInfo(slot, book)
-                if kind == "SPELL" and id then
-                    local name, rank = GetSpellBookItemName(slot, book)
-                    fn(id, name, rank)
-                end
-            end
-        end
-    end
 end
 
 -- Снимок книги: byID[id] = true, byName[название] = { id, rank } (высший ранг),
@@ -840,10 +827,6 @@ local function SpellByName(name)
     if C_Spell.GetSpellInfo then
         local ok, info = pcall(C_Spell.GetSpellInfo, name)
         if ok and type(info) == "table" and info.spellID then return info.spellID end
-    end
-    if GetSpellInfo then
-        local ok, _, _, _, _, _, _, id = pcall(GetSpellInfo, name)
-        if ok and id then return id end
     end
     local b = Book().byName[name]
     return b and b.id
@@ -1269,7 +1252,7 @@ function H.OldRanks()
 end
 
 local function PlaceSpell(slot, spellID)
-    local pick = (C_Spell and C_Spell.PickupSpell) or PickupSpell
+    local pick = C_Spell.PickupSpell
     if not (pick and PlaceAction) then return false end
     ClearCursor()
     local ok = pcall(pick, spellID)
@@ -1350,7 +1333,7 @@ function H.Tips(class)
 end
 
 local function ItemCount(id)
-    local f = (C_Item and C_Item.GetItemCount) or GetItemCount
+    local f = C_Item.GetItemCount
     if not f then return 0 end
     local ok, n = pcall(f, id)
     return ok and n or 0

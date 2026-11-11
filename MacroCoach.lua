@@ -637,7 +637,7 @@ end
 -- Еда и питьё: в макросе остаётся одна строка с лучшим предметом, который
 -- сейчас есть в сумках (иначе несколько разных предметов съедятся разом).
 local function ItemCount(id)
-    local f = (C_Item and C_Item.GetItemCount) or GetItemCount
+    local f = C_Item.GetItemCount
     local ok, n = pcall(f, id)
     return ok and n or 0
 end
@@ -4578,9 +4578,6 @@ local function BuildSettings()
     if Settings and Settings.RegisterCanvasLayoutCategory then
         settingsCategory = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
         Settings.RegisterAddOnCategory(settingsCategory)
-    elseif InterfaceOptions_AddCategory then
-        InterfaceOptions_AddCategory(panel)
-        settingsCategory = panel
     end
 end
 
@@ -4591,9 +4588,6 @@ function ns.OpenSettings()
     end
     if Settings and Settings.OpenToCategory and settingsCategory.GetID then
         Settings.OpenToCategory(settingsCategory:GetID())
-    elseif InterfaceOptionsFrame_OpenToCategory then
-        InterfaceOptionsFrame_OpenToCategory(settingsCategory)
-        InterfaceOptionsFrame_OpenToCategory(settingsCategory)
     end
 end
 
