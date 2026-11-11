@@ -231,8 +231,17 @@ end
 
 -- Первое открытие аддона: сначала знакомство, само окно MacroCoach - когда
 -- знакомство закроют. Возвращает true, если окно открывать пока не надо.
+-- ВРЕМЕННО, ДЛЯ ПРОВЕРКИ: знакомство показывается при каждом открытии
+-- аддона. Перед релизом поставить false.
+local TEST_ALWAYS = true
+
 function ns.IntroFirst(openMain)
-    if UI.DB().onboarded then return false end
-    ns.ShowIntro(openMain)
+    if ns.skipIntro then ns.skipIntro = nil; return false end -- открываем окно после знакомства
+    if UI.DB().onboarded and not TEST_ALWAYS then return false end
+    ns.ShowIntro(function()
+        ns.skipIntro = true
+        openMain()
+        ns.skipIntro = nil
+    end)
     return true
 end
