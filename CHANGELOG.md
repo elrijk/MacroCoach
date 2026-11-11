@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+- Macro name settings (hide, font size) apply to the game's own action bars.
+- One wording everywhere: "Ready-made macros".
+- Lighter: about 150 unused translation strings are removed.
+
 ## 1.2.0
 
 - **Language change**: switch the game language and MacroCoach macros already on your bars switch to it by themselves, both ways - ready-made ones, the ones you edited, and your own.
