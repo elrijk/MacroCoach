@@ -1310,3 +1310,6 @@ for k, v in pairs({
     ["не получилось прочитать макрос из ссылки."] = "could not read the macro from the link.",
     ["Добавить макрос «%s» из чата в «Мои макросы»?"] = "Add the macro \"%s\" from chat to \"My macros\"?",
 }) do ns.EN[k] = v end
+
+-- 1.2: смена языка игры - макросы аддона переводятся на новый язык
+ns.EN["язык сменился: макросов переведено на новый язык - %d. На панелях они остались на своих местах."] = "the language changed: %d macros were switched to the new language. They stay where they were on your bars."

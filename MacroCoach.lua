@@ -439,13 +439,18 @@ local function Key(class, m) return class .. "/" .. m.name end
 
 -- Название, заголовок и описание готового макроса на выбранном языке.
 -- В данных они русские, перевод лежит в ns.EN_MACROS["КЛАСС/имя"].
+local CLIENT_RU = GetLocale() == "ruRU"
 local function Loc(class, m)
-    local en = ns.lang ~= "ruRU" and ns.EN_MACROS and ns.EN_MACROS[class .. "/" .. m.name]
-    if en then
+    local en = ns.EN_MACROS and ns.EN_MACROS[class .. "/" .. m.name]
+    if en and ns.lang ~= "ruRU" then
         local TE = ns.TE
         local name = en.name and TE(en.name) or m.name
         return name, (en.title and TE(en.title)) or (en.name and name) or m.title or m.name, en.desc and TE(en.desc) or m.desc
     end
+    -- Русский язык аддона на нерусском клиенте: шрифт панелей не знает
+    -- кириллицу (вместо букв квадратики), поэтому название макроса в игре -
+    -- английское. Заголовок и описание карточки остаются русскими.
+    if en and en.name and not CLIENT_RU then return en.name, m.title or m.name, m.desc end
     return m.name, m.title or m.name, m.desc
 end
 ns.Loc = Loc
@@ -458,7 +463,7 @@ local function Effective(class, m)
     local e = DB().edits[Key(class, m)]
     -- Безопасное лечение и «Alt - на себя» (настройки, Helper.lua).
     local body = (not e and ns.SafeBody) and ns.SafeBody(m.body) or m.body
-    if not e and ns.lang == "ruRU" and body == m.body then return m end
+    if not e and ns.lang == "ruRU" and CLIENT_RU and body == m.body then return m end
     local name, title, desc = Loc(class, m)
     if not e then return { name = name, title = title, desc = desc, body = body, icon = m.icon, best = m.best, scan = m.scan, base = m } end
     -- Старые правки хранят исходное русское имя: это не переименование.

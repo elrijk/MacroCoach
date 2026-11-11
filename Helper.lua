@@ -1809,6 +1809,74 @@ local function ResyncOnce()
     H.ResyncReady()
 end
 
+-- Сменился язык игры или аддона: готовые макросы, созданные аддоном раньше,
+-- остались со старым названием и старыми названиями заклинаний (на
+-- английском клиенте русское название - квадратики, а макрос не работает).
+-- Пересоздаём их на месте (панели не трогаются): название и текст - на
+-- нынешнем языке. Только те, что записаны в MacroCoachDB.own слово в слово.
+local function OldNames(class, m, em)
+    local names, seen = {}, {}
+    local en = ns.EN_MACROS and ns.EN_MACROS[class .. "/" .. m.name]
+    for _, n in ipairs({ em.name, m.name, en and en.name or false, en and en.name and ns.TE(en.name) or false }) do
+        if n and not seen[n] then seen[n] = true; names[#names + 1] = n end
+    end
+    return names
+end
+
+function H.ResyncLanguage(retry)
+    local db = UI.DB()
+    local h = db.helper
+    local sig = (GetLocale() or "") .. "/" .. (ns.lang or "")
+    if h.langSig == sig or not db.own or not next(db.own) then
+        h.langSig = sig
+        return
+    end
+    if InCombatLockdown() then
+        UI.AfterCombat("resyncLang", H.ResyncLanguage)
+        return
+    end
+    local done, waiting = 0, false
+    for class, groups in pairs(ns.MACROS) do
+        for _, g in ipairs(groups) do
+            for _, m in ipairs(g.list or {}) do
+                if not db.edits[UI.Key(class, m)] then
+                    local em = UI.Effective(class, m)
+                    for _, old in ipairs(OldNames(class, m, em)) do
+                        local index = GetMacroIndexByName(old)
+                        local body = db.own[old]
+                        if index and index > 0 and body then
+                            local name, icon, now = GetMacroInfo(index)
+                            if name == old and now == body then
+                                -- еда и вода: в тексте только id предметов, меняется одно название
+                                local want, missing = body, nil
+                                if not m.best then want, missing = UI.Render(em.body) end
+                                local taken = old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0
+                                if missing then
+                                    UI.RequestSpells(em.body)
+                                    waiting = true
+                                elseif not taken and (old ~= em.name or want ~= body) and UI.CharCount(want) <= UI.MAX_CHARS then
+                                    EditMacro(index, em.name, icon, want)
+                                    db.own[old] = nil
+                                    db.own[em.name] = want
+                                    done = done + 1
+                                end
+                            end
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if done > 0 then Print((T("язык сменился: макросов переведено на новый язык - %d. На панелях они остались на своих местах.")):format(done)) end
+    if waiting and not retry then
+        -- названия заклинаний ещё грузятся: одна повторная попытка
+        C_Timer.After(3, function() pcall(H.ResyncLanguage, true) end)
+        return
+    end
+    h.langSig = sig
+end
+
 local spellWatch = CreateFrame("Frame")
 spellWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
 spellWatch:RegisterEvent("SPELLS_CHANGED")
@@ -1830,6 +1898,7 @@ spellWatch:SetScript("OnEvent", function(_, event)
                 watchReady = true
                 pcall(OnSpellsChanged, true)
                 pcall(ResyncOnce)
+                pcall(H.ResyncLanguage)
             end)
         end
         return
