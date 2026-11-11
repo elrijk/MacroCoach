@@ -2020,9 +2020,15 @@ function H.MacroArt(parent)
         self.arrow:SetShown(n > 0)
         self.bTag:SetShown(n > 0)
         self.after:ClearAllPoints()
+        -- длинная подпись слева не наезжает на подпись справа: значок
+        -- «стало» отодвигается на столько, на сколько она не помещается
+        local extra = 0
         if n > 0 then
+            local afterCenter = (n - 1) * 38 + 30 + 6 + 28 + 6 + 20
+            local room = afterCenter - self.aTag:GetStringWidth() / 2 - 6
+            extra = math.max(0, math.ceil(self.bTag:GetStringWidth() - room))
             self.arrow:ClearAllPoints()
-            self.arrow:SetPoint("LEFT", self.before[n], "RIGHT", 6, 0)
+            self.arrow:SetPoint("LEFT", self.before[n], "RIGHT", 6 + extra, 0)
             self.after:SetPoint("LEFT", self.arrow, "RIGHT", 6, 0)
             self.bTag:ClearAllPoints()
             self.bTag:SetPoint("TOPLEFT", self.before[1], "BOTTOMLEFT", -2, -8)
@@ -2034,7 +2040,7 @@ function H.MacroArt(parent)
         self.after:SetMark(mark)
         self.aTag:ClearAllPoints()
         self.aTag:SetPoint("TOP", self.after, "BOTTOM", 0, -6)
-        return w + 4
+        return w + 4 + extra
     end
     return art
 end
