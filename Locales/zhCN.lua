@@ -1865,4 +1865,8 @@ ns.LOCALES.zhCN = function() return {
  ["The link is selected: press Ctrl+C."] = "链接已选中：按 Ctrl+C。",
  ["text of the macro \"%s\" copied."] = "已复制宏“%s”的内容。",
  ["The same appears in the tooltip when you hover a macro on your action bar."] = "把鼠标移到动作条上的宏时，提示里也会显示同样的说明。",
+ ["macros fixed: %d."] = "已修正宏：%d 个。",
+ ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "有一行被拆开了：法术名称单独成了一行，宏无法使用。下面的按钮会把两行合并。",
+ ["restored as they were, macros: %d."] = "已恢复原样，宏：%d 个。",
+ ["Restores the macros' text and names as they were before the last fix."] = "把宏的内容和名称恢复到上次修正之前的样子。",
 } end

@@ -1833,4 +1833,8 @@ ns.LOCALES.frFR = function() return {
  ["The link is selected: press Ctrl+C."] = "Le lien est sélectionné : appuyez sur Ctrl+C.",
  ["text of the macro \"%s\" copied."] = "texte de la macro « %s » copié.",
  ["The same appears in the tooltip when you hover a macro on your action bar."] = "La même chose s'affiche dans l'infobulle quand vous survolez une macro dans la barre.",
+ ["macros fixed: %d."] = "macros corrigées : %d.",
+ ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Une ligne est coupée : le nom du sort se retrouve seul sur une ligne et la macro ne fonctionne pas. Le bouton ci-dessous réunit les lignes.",
+ ["restored as they were, macros: %d."] = "rétablies comme avant, macros : %d.",
+ ["Restores the macros' text and names as they were before the last fix."] = "Rend aux macros le texte et les noms qu'elles avaient avant la dernière correction.",
 } end

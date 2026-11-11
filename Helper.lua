@@ -1870,6 +1870,41 @@ local function SameTemplate(body, m)
   return false
 end
 
+-- Журнал для кнопки «Вернуть как было» (вкладка «Проверка»): что было у
+-- макроса до того, как аддон его переписал. Пишется, только пока журнал
+-- открыт (H.BeginLangUndo).
+local undoLog
+local function LogUndo(newName, oldName, icon, body)
+  if undoLog then undoLog[#undoLog + 1] = { new = newName, old = oldName, icon = icon, body = body } end
+end
+function H.BeginLangUndo() undoLog = {} end
+function H.EndLangUndo()
+  if undoLog and #undoLog > 0 then H.lastLangUndo = undoLog end
+  undoLog = nil
+end
+-- Вернуть макросам текст и названия, какими они были до исправления.
+function H.UndoLangFix(after)
+  local log = H.lastLangUndo
+  if not log or InCombatLockdown() then return end
+  local db = UI.DB()
+  local done = 0
+  for i = #log, 1, -1 do
+    local e = log[i]
+    local index = GetMacroIndexByName(e.new)
+    if index and index > 0 then
+      EditMacro(index, e.old, e.icon, e.body)
+      if db.own and db.own[e.new] then
+        db.own[e.new] = nil
+        db.own[e.old] = e.body
+      end
+      done = done + 1
+    end
+  end
+  H.lastLangUndo = nil
+  if done > 0 then Print((T("возвращено как было, макросов: %d.")):format(done)) end
+  if after then after() end
+end
+
 -- Один готовый макрос: найти его в игре под любым из названий и перевести.
 -- Изменённый игроком готовый макрос сверяется со своим изменённым текстом.
 -- dry - ничего не менять, только сказать, что будет.
@@ -1916,6 +1951,7 @@ local function ResyncOne(db, class, m, dry)
       if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name, index, old end
       if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, old end
       if dry then return "todo", nil, index, old end
+      LogUndo(em.name, old, icon, now)
       EditMacro(index, em.name, icon, want)
       db.own[old] = nil
       db.own[em.name] = want
@@ -1947,6 +1983,7 @@ local function ResyncCustom(db, entry, dry)
   if want == now or want == body then return nil, nil, index, name end
   if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, name end
   if dry then return "todo", nil, index, name end
+  LogUndo(name, name, icon, now)
   EditMacro(index, name, icon, want)
   if db.own[name] then db.own[name] = want end
   return "done", nil, index, name
@@ -1981,6 +2018,81 @@ local function IdsToNames(body)
   return want, missing
 end
 
+-- Разорванная строка: «/cast [условия]» осталась без названия, а название
+-- ушло на следующую строку (бывает и с «/» в начале, если её дописали
+-- руками). Игра такое не выполнит - склеиваем обратно. Строку с «/»
+-- склеиваем, только если после «/» стоит известное заклинание или предмет,
+-- а не настоящая команда. Вернёт исправленный текст или nil.
+local REAL_CMDS = {}
+for _, c in ipairs({ "cast", "use", "castsequence", "castrandom", "userandom", "startattack", "stopattack", "stopcasting",
+  "stopmacro", "cancelaura", "cancelform", "dismount", "equip", "equipslot", "target", "tar", "targetenemy", "targetfriend",
+  "targetlasttarget", "targetlastenemy", "cleartarget", "assist", "focus", "clearfocus", "petattack", "petfollow", "petstay",
+  "petpassive", "petdefensive", "petaggressive", "petautocaston", "petautocastoff", "petautocasttoggle", "click", "run",
+  "script", "console", "say", "s", "yell", "y", "party", "p", "raid", "ra", "rw", "guild", "g", "whisper", "w", "tell",
+  "emote", "e", "em", "me", "in", "changeactionbar", "swapactionbar", "follow", "f", "roll", "random", "macro", "reload" }) do
+  REAL_CMDS["/" .. c] = true
+end
+-- Строка начинается с настоящей команды игры или аддона?
+local function IsRealCommand(line)
+  local word = line:match("^(/%S+)")
+  if not word then return false end
+  if REAL_CMDS[word:lower()] then return true end
+  local up = word:upper()
+  return (type(hash_SlashCmdList) == "table" and hash_SlashCmdList[up] ~= nil)
+    or (type(hash_SecureCmdList) == "table" and hash_SecureCmdList[up] ~= nil)
+    or (type(hash_EmoteTokenList) == "table" and hash_EmoteTokenList[up] ~= nil)
+end
+
+local function RepairBody(body)
+  local lines = {}
+  for line in (body:gsub("\r", "") .. "\n"):gmatch("(.-)\n") do lines[#lines + 1] = line end
+  local out, i, fixed = {}, 1, false
+  while i <= #lines do
+    local line, after = lines[i], lines[i + 1]
+    local joined
+    if after and strtrim(after) ~= "" then
+      local p = H.ParseLine(line)
+      if NAME_CMDS[p.cmd] and p.cmd:sub(1, 1) == "/" then
+        local empty = true
+        for _, v in ipairs(p.variants) do
+          if strtrim(v.arg or "") ~= "" then empty = false end
+        end
+        if empty then
+          local cand = strtrim(after)
+          local first = cand:sub(1, 1)
+          local bare = (cand:gsub("^/", ""))
+          local name = (bare:gsub("%s*%(.-%)$", ""))
+          local known = SpellByName(name) or LocalNameID(name) or EnglishID(name) or ItemByName(name)
+          if (first ~= "/" and first ~= "#") or (first == "/" and known and not IsRealCommand(cand)) then
+            joined = (line:gsub("%s+$", "")) .. " " .. bare
+          end
+        end
+      end
+    end
+    if joined then
+      out[#out + 1] = joined
+      i = i + 2
+      fixed = true
+    else
+      out[#out + 1] = line
+      i = i + 1
+    end
+  end
+  if not fixed then return nil end
+  return table.concat(out, "\n")
+end
+
+-- Всё, что аддон умеет починить в тексте макроса игры сам: разорванная
+-- строка и номера вместо названий. Вернёт новый текст, true - если названия
+-- ещё не загружены, и что было не так ("broken" или "ids"); nil - чинить нечего.
+local function FixBody(body)
+  if type(body) ~= "string" then return nil end
+  local repaired = RepairBody(body)
+  local want, missing = IdsToNames(repaired or body)
+  if want then return want, missing, repaired and "broken" or "ids" end
+  if repaired then return repaired, false, "broken" end
+end
+
 -- Все макросы игры: общие и этого персонажа.
 local function GameMacroIndexes()
   local general, char = GetNumMacros()
@@ -1991,25 +2103,26 @@ local function GameMacroIndexes()
   return list
 end
 
--- Заменить номера названиями во всех макросах игры; вернёт, сколько исправлено.
+-- Починить все макросы игры (FixBody); вернёт, сколько исправлено.
 function H.FixSpellIDs()
   if InCombatLockdown() then return 0 end
   local done = 0
   for _, index in ipairs(GameMacroIndexes()) do
     local name, icon, body = GetMacroInfo(index)
-    local want, missing = IdsToNames(body)
+    local want, missing = FixBody(body)
     if name and want and not missing and UI.CharCount(want) <= UI.MAX_CHARS then
+      LogUndo(name, name, icon, body)
       EditMacro(index, name, icon, want)
       done = done + 1
     end
   end
-  if done > 0 then Print((T("номера заклинаний заменены названиями, макросов: %d.")):format(done)) end
+  if done > 0 then Print((T("исправлено макросов: %d.")):format(done)) end
   return done
 end
 
 -- Для вкладки «Проверка»: какие макросы аддона в игре не на языке игры и в
 -- каких макросах игры вместо названий стоят номера заклинаний.
--- { { index, name, icon, state = "todo" | "ids" | "wait" | "blocked" | "changed", why } }
+-- { { index, name, icon, state = "todo" | "ids" | "broken" | "wait" | "blocked" | "changed", why } }
 local LANG_RANK = { ok = 5, todo = 4, wait = 3, blocked = 2, changed = 1 }
 function H.LanguageScan()
   local db = UI.DB()
@@ -2034,9 +2147,9 @@ function H.LanguageScan()
     local cur = byIndex[index]
     if not (cur and cur.state == "todo") then
       local name, _, body = GetMacroInfo(index)
-      local want, missing = IdsToNames(body)
+      local want, missing, kind = FixBody(body)
       if want then
-        local state, why = "ids", nil
+        local state, why = kind, nil
         if missing then state = "wait"
         elseif UI.CharCount(want) > UI.MAX_CHARS then state, why = "blocked", "too long" end
         byIndex[index] = { index = index, name = name, state = state, why = why }
@@ -3125,12 +3238,20 @@ local function BuildCheckPage(key)
     { T("Другой язык"), T("Язык игры") })
   local lRows = {}
   local lFix = Button(lang, "", 220, function()
+    H.BeginLangUndo()
     H.FixSpellIDs()
-    H.ResyncLanguage(nil, "ui", function() Refresh() end)
+    H.ResyncLanguage(nil, "ui", function()
+      H.EndLangUndo()
+      Refresh()
+    end)
   end, T("Переведёт название и текст на язык игры. На панелях макросы останутся на своих местах."))
+  local lUndo = Button(lang, T("Вернуть как было"), 170, function() H.UndoLangFix(Refresh) end,
+    T("Вернёт макросам текст и названия, какими они были до последнего исправления."))
+  local FIXABLE = { todo = true, ids = true, broken = true } -- исправляется кнопкой
   local LANG_WHY = {
     todo = T("На другом языке: переведётся кнопкой ниже."),
     ids = T("В тексте номера заклинаний вместо названий: игра их не понимает. Кнопка ниже заменит их названиями."),
+    broken = T("Строка разорвана: название заклинания оказалось на отдельной строке, и макрос не работает. Кнопка ниже соединит строки."),
     wait = T("Названия заклинаний ещё загружаются: нажми «Проверить снова»."),
     changed = T("Название готового макроса на другом языке, а текст меняли руками: аддон его не трогает."),
     long = T("Не переведён: на языке игры текст длиннее 255 знаков."),
@@ -3200,7 +3321,7 @@ local function BuildCheckPage(key)
     lang:ClearAllPoints()
     lang:SetPoint("TOPLEFT", 10, y)
     local todo = 0
-    for _, e in ipairs(page.lang) do if e.state == "todo" or e.state == "ids" then todo = todo + 1 end end
+    for _, e in ipairs(page.lang) do if FIXABLE[e.state] then todo = todo + 1 end end
     if #page.lang == 0 then
       lang.status:SetText(StatusText(true, T("Все макросы MacroCoach - на языке игры.")))
     else
@@ -3219,7 +3340,7 @@ local function BuildCheckPage(key)
         local taken = tostring(e.why or ""):match("^name taken: (.+)$")
         why = taken and LANG_WHY.taken:format(taken) or LANG_WHY.long
       end
-      r.why:SetText(((e.state == "todo" or e.state == "ids") and YELLOW or RED) .. "- " .. (why or "") .. "|r")
+      r.why:SetText((FIXABLE[e.state] and YELLOW or RED) .. "- " .. (why or "") .. "|r")
       local h = math.max(18 + r.why:GetStringHeight() + 4, ROW_ICON + rowPad * 2)
       r:SetHeight(h)
       r:ClearAllPoints()
@@ -3229,7 +3350,8 @@ local function BuildCheckPage(key)
     end
     lFix:SetText((T("Перевести все (%d)")):format(todo))
     lFix:SetShown(todo > 0)
-    ly = ButtonRow(lang, { lFix }, ly)
+    lUndo:SetShown(H.lastLangUndo ~= nil)
+    ly = ButtonRow(lang, { lFix, lUndo }, ly)
     lang:SetHeight(ly + 4)
     y = y - ly - 4 - 10
 

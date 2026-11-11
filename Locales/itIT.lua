@@ -1787,4 +1787,8 @@ ns.LOCALES.itIT = function() return {
  ["The link is selected: press Ctrl+C."] = "Il link è selezionato: premi Ctrl+C.",
  ["text of the macro \"%s\" copied."] = "testo della macro «%s» copiato.",
  ["The same appears in the tooltip when you hover a macro on your action bar."] = "Lo stesso compare nel tooltip quando passi il mouse su una macro nella barra.",
+ ["macros fixed: %d."] = "macro corrette: %d.",
+ ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "Una riga è spezzata: il nome dell'incantesimo è finito su una riga a parte e la macro non funziona. Il pulsante qui sotto unisce le righe.",
+ ["restored as they were, macros: %d."] = "ripristinate com'erano, macro: %d.",
+ ["Restores the macros' text and names as they were before the last fix."] = "Riporta testo e nomi delle macro a com'erano prima dell'ultima correzione.",
 } end

@@ -1863,4 +1863,8 @@ ns.LOCALES.koKR = function() return {
  ["The link is selected: press Ctrl+C."] = "링크가 선택되었습니다. Ctrl+C를 누르세요.",
  ["text of the macro \"%s\" copied."] = "\"%s\" 매크로 내용을 복사했습니다.",
  ["The same appears in the tooltip when you hover a macro on your action bar."] = "행동 단축바의 매크로에 마우스를 올리면 툴팁에도 같은 설명이 나옵니다.",
+ ["macros fixed: %d."] = "고친 매크로: %d개.",
+ ["A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines."] = "줄이 끊겼습니다. 주문 이름이 따로 한 줄에 있어서 매크로가 작동하지 않습니다. 아래 버튼으로 줄을 합칩니다.",
+ ["restored as they were, macros: %d."] = "원래대로 되돌렸습니다. 매크로: %d개.",
+ ["Restores the macros' text and names as they were before the last fix."] = "매크로의 내용과 이름을 마지막 수정 전 상태로 되돌립니다.",
 } end

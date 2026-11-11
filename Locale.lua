@@ -1463,3 +1463,15 @@ for k, v in pairs({
 for k, v in pairs({
     ["То же - в подсказке, когда наводишь на макрос на панели."] = "The same appears in the tooltip when you hover a macro on your action bar.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: починка разорванной строки макроса
+for k, v in pairs({
+    ["исправлено макросов: %d."] = "macros fixed: %d.",
+    ["Строка разорвана: название заклинания оказалось на отдельной строке, и макрос не работает. Кнопка ниже соединит строки."] = "A line is split: the spell name ended up on a line of its own and the macro does not work. The button below joins the lines.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: «Вернуть как было» после исправления макросов
+for k, v in pairs({
+    ["возвращено как было, макросов: %d."] = "restored as they were, macros: %d.",
+    ["Вернёт макросам текст и названия, какими они были до последнего исправления."] = "Restores the macros' text and names as they were before the last fix.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end
