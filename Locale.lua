@@ -1362,3 +1362,23 @@ for k, v in pairs({
 -- 1.2: знакомство - вкладки специализаций
 ns.EN["Смотри свою специализацию"] = "Check your specialization"
 ns.EN["Вкладки сверху: макросы под то, как ты играешь."] = "Tabs on top: macros for the way you play."
+
+-- 1.2: знакомство одним экраном
+for k, v in pairs({
+    ["MacroCoach: готовые макросы без кода"] = "MacroCoach: ready-made macros, no code",
+    ["294 для всех классов"] = "294 for every class",
+    ["Одна кнопка"] = "One button",
+    ["«Добавить» - и на панель"] = "\"Add\" - and onto your bar",
+    ["Находит старые ранги и ошибки"] = "Finds old ranks and mistakes",
+    ["И ещё"] = "And more",
+    ["Свой макрос из готовых строк - код писать не нужно."] = "Your own macro from ready-made lines - no code to write.",
+    ["Значок на карточке: друг с MacroCoach откроет макрос щелчком."] = "The icon on a card: a friend with MacroCoach opens the macro with a click.",
+    ["Импорт и экспорт"] = "Import and export",
+    ["Все свои макросы - одним кодом."] = "All your macros as one code.",
+    ["Смена языка"] = "Language change",
+    ["Умные расходники"] = "Smart consumables",
+    ["Кнопка показывает то зелье и те бинты, что есть в сумках."] = "The button shows the potion and bandage you actually have.",
+    ["Объяснение"] = "Explanation",
+    ["«?» на карточке: что делает каждая строка макроса."] = "\"?\" on a card: what each macro line does.",
+    ["Поехали"] = "Let's go",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

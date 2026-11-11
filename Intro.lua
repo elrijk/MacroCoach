@@ -1,56 +1,41 @@
 local _, ns = ...
 local T = ns.T
 local UI = ns.UI
-local S = ns.S
-local floor, min, max = math.floor, math.min, math.max
+local floor, max = math.floor, math.max
 
 -------------------------------------------------------------------------------
---  Знакомство с аддоном: отдельное окно, тот же вид, что в EasyCraft.
+--  Знакомство с аддоном: одно окно, один экран (тот же вид - в EasyCraft).
+--    заголовок - что это за аддон;
+--    три главные возможности - крупными блоками в золотой рамке: большой
+--    значок, два-три слова и одна короткая строка;
+--    «И ещё» - остальное значками в один ряд, что это - в подсказке;
+--    одна кнопка, которая закрывает окно.
 --  Показывается при первом открытии MacroCoach раньше самого окна; дальше -
---  по кнопке «?» у крестика окна и по /coach intro.
---  Заголовок по центру, золотая линия, строка пояснения; ниже шаги
---  карточками в один ряд - номер, крупный значок, что сделать (золотом),
---  строка пояснения. Высота окна - по содержимому, внизу точки-страницы.
---  Первая страница - что делает аддон: выбери -> добавь -> жми.
---  Подробный рассказ остался на вкладке «Зачем макросы».
+--  по кнопке «?» у крестика окна и по /coach intro. Подробный рассказ с
+--  примерами остался на вкладке «Зачем макросы».
 -------------------------------------------------------------------------------
-local WIDTH = 720
+local WIDTH = 760
 local SIDE = 28 -- поля окна слева и справа
-local GAP = 12 -- между карточками шагов
+local GAP = 12 -- между блоками
+local COLS = 3
 local ICONS = "Interface\\Icons\\"
-local ARROW = "Interface\\ChatFrame\\ChatFrameExpandArrow"
 
-local PAGES = {
-    { title = "Одна кнопка вместо трёх",
-      text = "Макрос собирает несколько действий в одну кнопку. Здесь они готовые, и про каждый понятно, что он делает.",
-      flow = {
-        { "INV_Misc_Book_09", "Выбери", "готовый макрос своего класса" },
-        { "INV_Misc_Note_01", "Добавь", "одной кнопкой на панель" },
-        { "Ability_DualWield", "Жми", "одну кнопку вместо трёх" },
-      } },
-    { title = "Готовые макросы",
-      text = "Вкладки справа - классы, сверху - специализации.",
-      rows = {
-        { "Ability_Rogue_Sprint", "Начни с «Рекомендаций»", "Самые полезные макросы твоего класса: что решает каждый и когда жать." },
-        { "INV_Misc_Bag_08", "Смотри свою специализацию", "Вкладки сверху: макросы под то, как ты играешь." },
-        { "Ability_Hunter_SniperShot", "Положи на панель", "«Добавить» берёт макрос на курсор: щёлкни по ячейке панели." },
-      } },
-    { title = "Свои макросы",
-      text = "Собираются из готовых строк - код писать не нужно.",
-      rows = {
-        { "INV_Misc_Gear_01", "Конструктор", "Команда, условие, заклинание - из списков. Аддон сам проверит текст." },
-        { "INV_Letter_15", "Поделись", "Кнопка «В чат» даёт ссылку: друг с MacroCoach откроет макрос щелчком." },
-        { "INV_Misc_Note_06", "Сохрани кодом", "Все свои макросы - одним кодом: на случай переустановки игры." },
-      } },
-    { title = "Проверка",
-      text = "Аддон сам находит, что сломалось.",
-      rows = {
-        { "Spell_Holy_HolyBolt", "Старые ранги", "Заклинания низкого ранга на панелях заменит высшими одной кнопкой." },
-        { "INV_Misc_QuestionMark", "Ошибки в макросах", "Опечатки, неизвестные заклинания и то, чего нет в WoW Forever." },
-        { "INV_Misc_Book_11", "Смена языка игры", "Свои готовые макросы аддон переведёт на новый язык сам." },
-      } },
+local TITLE = "MacroCoach: готовые макросы без кода"
+local KILLER = {
+    { "INV_Misc_Book_09", "Готовые макросы", "294 для всех классов" },
+    { "Ability_Hunter_SniperShot", "Одна кнопка", "«Добавить» - и на панель" },
+    { "Spell_Holy_HolyBolt", "Проверка", "Находит старые ранги и ошибки" },
 }
-local MAX_TILES = 3
+local MORE_HEAD = "И ещё"
+local MORE = {
+    { "INV_Misc_Gear_01", "Конструктор", "Свой макрос из готовых строк - код писать не нужно." },
+    { "INV_Letter_15", "Ссылка в чат", "Значок на карточке: друг с MacroCoach откроет макрос щелчком." },
+    { "INV_Misc_Note_06", "Импорт и экспорт", "Все свои макросы - одним кодом." },
+    { "INV_Misc_Book_11", "Смена языка", "Свои готовые макросы аддон переведёт на новый язык сам." },
+    { "INV_Potion_51", "Умные расходники", "Кнопка показывает то зелье и те бинты, что есть в сумках." },
+    { "INV_Misc_QuestionMark", "Объяснение", "«?» на карточке: что делает каждая строка макроса." },
+}
+local BUTTON = "Поехали"
 
 local win
 
@@ -71,15 +56,16 @@ local function ring(parent, size)
     return f
 end
 
-local function button(parent, w, h)
-    local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
-    b:SetSize(w, h)
-    return b
-end
-
 local function centered(fs, width)
     fs:SetJustifyH("CENTER")
     fs:SetWidth(width)
+end
+
+local function rule(parent, w, a)
+    local t = parent:CreateTexture(nil, "ARTWORK")
+    t:SetSize(w, 1)
+    t:SetColorTexture(0.85, 0.68, 0.3, a or 0.8)
+    return t
 end
 
 local function build()
@@ -97,7 +83,7 @@ local function build()
     f:SetBackdropColor(0.04, 0.03, 0.02, 1)
     f:SetBackdropBorderColor(0.75, 0.6, 0.3, 1)
     tinsert(UISpecialFrames, "MacroCoachIntroFrame")
-    -- фон не плоский: сверху тёплый коричневый, книзу уходит в чёрный
+    -- фон: сверху тёплый коричневый, книзу уходит в чёрный
     local bg = f:CreateTexture(nil, "BORDER")
     bg:SetPoint("TOPLEFT", 4, -4)
     bg:SetPoint("BOTTOMRIGHT", -4, 4)
@@ -107,163 +93,121 @@ local function build()
     local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", 0, 0)
 
-    -- шапка: заголовок по центру, золотая линия, строка пояснения
+    -- шапка: что за аддон
     f.title = UI.Text(f, "SystemFont_Huge1", "GameFontNormalHuge", UI.GOLD, true)
     centered(f.title, WIDTH - SIDE * 2 - 40)
     f.title:SetPoint("TOP", 0, -26)
     local file, _, flags = f.title:GetFont()
     if file then f.title:SetFont(file, 24, flags) end
-    f.rule = f:CreateTexture(nil, "ARTWORK")
-    f.rule:SetSize(320, 1)
-    f.rule:SetColorTexture(0.85, 0.68, 0.3, 0.8)
+    f.rule = rule(f, 360)
     f.rule:SetPoint("TOP", f.title, "BOTTOM", 0, -10)
-    f.text = UI.Text(f, "SystemFont_Med2", "GameFontHighlight", { 0.9, 0.87, 0.8 }, true)
-    centered(f.text, WIDTH - SIDE * 2 - 60)
-    f.text:SetPoint("TOP", f.rule, "BOTTOM", 0, -10)
 
-    -- первая страница: три крупных значка со стрелками
-    f.flow, f.arrows = {}, {}
-    for i = 1, 3 do
-        local c = CreateFrame("Frame", nil, f)
-        c:SetSize(190, 150)
-        c.icon = ring(c, 64)
-        c.icon:SetPoint("TOP", 0, -4)
-        c.label = UI.Text(c, "SystemFont_Large", "GameFontNormalLarge", UI.GOLD)
-        centered(c.label, 190)
-        c.label:SetPoint("TOP", c.icon, "BOTTOM", 0, -14)
-        c.sub = UI.Text(c, "SystemFont_Med2", "GameFontHighlight", { 0.8, 0.77, 0.7 }, true)
-        centered(c.sub, 180)
-        c.sub:SetPoint("TOP", c.label, "BOTTOM", 0, -4)
-        f.flow[i] = c
-        if i > 1 then
-            local a = f:CreateTexture(nil, "ARTWORK")
-            a:SetSize(32, 32)
-            a:SetTexture(ARROW)
-            a:SetVertexColor(1, 0.82, 0)
-            f.arrows[i - 1] = a
-        end
-    end
-
-    -- шаги раздела: карточки в один ряд
-    f.tiles = {}
-    for i = 1, MAX_TILES do
+    -- три главные возможности: крупные блоки в золотой рамке
+    f.killer = {}
+    for i = 1, #KILLER do
         local c = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate" or nil)
         UI.Card(c)
-        c:SetBackdropColor(0, 0, 0, 0.45)
-        c:SetBackdropBorderColor(0.6, 0.48, 0.25, 0.9)
-        c.num = UI.Text(c, "SystemFont_Med3", "GameFontNormal", { 0.75, 0.6, 0.3 })
-        c.num:SetPoint("TOPLEFT", 10, -8)
-        c.icon = ring(c, 44)
-        c.icon:SetPoint("TOP", 0, -22)
-        c.head = UI.Text(c, "SystemFont_Med3", "GameFontNormal", UI.GOLD, true)
+        c:SetBackdropColor(0.2, 0.14, 0.05, 0.9)
+        c:SetBackdropBorderColor(1, 0.82, 0, 1)
+        c.icon = ring(c, 72)
+        c.icon:SetPoint("TOP", 0, -24)
+        c.head = UI.Text(c, "SystemFont_Large", "GameFontNormalLarge", UI.GOLD, true)
         c.head:SetJustifyH("CENTER")
-        c.head:SetPoint("TOP", c.icon, "BOTTOM", 0, -14)
-        c.text = UI.Text(c, "SystemFont_Med1", "GameFontHighlightSmall", { 0.9, 0.87, 0.8 }, true)
+        c.head:SetPoint("TOP", c.icon, "BOTTOM", 0, -16)
+        c.text = UI.Text(c, "SystemFont_Med2", "GameFontHighlight", { 0.92, 0.9, 0.84 }, true)
         c.text:SetJustifyH("CENTER")
         c.text:SetPoint("TOP", c.head, "BOTTOM", 0, -8)
-        f.tiles[i] = c
+        f.killer[i] = c
     end
 
-    -- низ: точки-страницы по центру, кнопки по краям
-    f.dots = {}
-    for i = 1, #PAGES do
-        local d = f:CreateTexture(nil, "ARTWORK")
-        d:SetSize(8, 8)
-        f.dots[i] = d
+    -- «И ещё»: подзаголовок с линиями по бокам
+    f.moreHead = UI.Text(f, "SystemFont_Med3", "GameFontNormal", UI.GOLD)
+    f.moreHead:SetJustifyH("CENTER")
+    f.moreL, f.moreR = rule(f, 10, 0.5), rule(f, 10, 0.5)
+
+    -- остальное: значок и название под ним, в один ряд; что это - в подсказке
+    f.more = {}
+    for i = 1, #MORE do
+        local c = CreateFrame("Frame", nil, f)
+        c:EnableMouse(true)
+        c.icon = ring(c, 40)
+        c.icon:SetPoint("TOP", 0, -4)
+        c.head = UI.Text(c, "SystemFont_Med2", "GameFontHighlight", UI.GOLD, true)
+        c.head:SetJustifyH("CENTER")
+        c.head:SetPoint("TOP", c.icon, "BOTTOM", 0, -10)
+        c:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_TOP")
+            GameTooltip:SetText(T(MORE[i][2]), 1, 0.82, 0)
+            GameTooltip:AddLine(T(MORE[i][3]), 1, 1, 1, true)
+            GameTooltip:Show()
+        end)
+        c:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        f.more[i] = c
     end
-    f.next = button(f, 140, S.btnBig)
-    f.next:SetPoint("BOTTOMRIGHT", -SIDE, 20)
-    f.back = button(f, 110, S.btn)
-    f.back:SetPoint("BOTTOMLEFT", SIDE, 22)
-    f.more = button(f, 190, S.btn)
-    f.more:SetPoint("BOTTOMLEFT", SIDE, 22)
+
+    -- одна кнопка
+    f.go = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    f.go:SetSize(220, 32)
+    f.go:SetPoint("BOTTOM", 0, 22)
+    f.go:SetScript("OnClick", function() f:Hide() end)
     f:Hide()
     return f
 end
 
-local function show(f, n)
-    n = max(1, min(n, #PAGES))
-    local p = PAGES[n]
-    f.title:SetText(T(p.title))
-    f.text:SetText(T(p.text))
-    local top = 26 + f.title:GetStringHeight() + 10 + 1 + 10 + f.text:GetStringHeight() + 26
-    local bottom = top
+local function show(f)
+    f.title:SetText(T(TITLE))
+    local y = 26 + f.title:GetStringHeight() + 10 + 1 + 24
 
-    local flow = p.flow
-    for _, c in ipairs(f.flow) do c:SetShown(flow ~= nil) end
-    for _, a in ipairs(f.arrows) do a:SetShown(flow ~= nil) end
-    if flow then
-        local step = 220
-        local x0 = floor((WIDTH - step * 2 - 190) / 2)
-        local h = 0
-        for i, c in ipairs(f.flow) do
-            c:ClearAllPoints()
-            c:SetPoint("TOPLEFT", x0 + (i - 1) * step, -top)
-            c.icon.icon:SetTexture(ICONS .. flow[i][1])
-            c.label:SetText(T(flow[i][2]))
-            c.sub:SetText(T(flow[i][3]))
-            h = max(h, 4 + 64 + 14 + c.label:GetStringHeight() + 4 + c.sub:GetStringHeight())
-            if i > 1 then
-                f.arrows[i - 1]:ClearAllPoints()
-                f.arrows[i - 1]:SetPoint("CENTER", f, "TOPLEFT", x0 + (i - 1) * step - 15, -(top + 36))
-            end
-        end
-        bottom = top + h
+    -- главные возможности
+    local colW = floor((WIDTH - SIDE * 2 - GAP * (COLS - 1)) / COLS)
+    local h = 0
+    for i, c in ipairs(f.killer) do
+        local d = KILLER[i]
+        c.icon.icon:SetTexture(ICONS .. d[1])
+        c.head:SetWidth(colW - 24)
+        c.head:SetText(T(d[2]))
+        c.text:SetWidth(colW - 28)
+        c.text:SetText(T(d[3]))
+        h = max(h, 24 + 72 + 16 + c.head:GetStringHeight() + 8 + c.text:GetStringHeight() + 20)
+        c:ClearAllPoints()
+        c:SetPoint("TOPLEFT", SIDE + (i - 1) * (colW + GAP), -y)
+        c:SetWidth(colW)
     end
+    for _, c in ipairs(f.killer) do c:SetHeight(h) end
+    y = y + h + 24
 
-    local rows = p.rows or {}
-    local cols = max(1, min(#rows, MAX_TILES))
-    local colW = floor((WIDTH - SIDE * 2 - GAP * (cols - 1)) / cols)
-    local rowH = 0
-    for i, c in ipairs(f.tiles) do
-        local r = rows[i]
-        c:SetShown(r ~= nil)
-        if r then
-            c.num:SetText(tostring(i))
-            c.icon.icon:SetTexture(ICONS .. r[1])
-            c.head:SetWidth(colW - 20)
-            c.head:SetText(T(r[2]))
-            c.text:SetWidth(colW - 28)
-            c.text:SetText(T(r[3]))
-            rowH = max(rowH, 22 + 44 + 14 + c.head:GetStringHeight() + 8 + c.text:GetStringHeight() + 18)
-            c:ClearAllPoints()
-            c:SetPoint("TOPLEFT", SIDE + (i - 1) * (colW + GAP), -top)
-            c:SetWidth(colW)
-        end
+    -- подзаголовок с линиями по бокам
+    f.moreHead:SetText(T(MORE_HEAD))
+    f.moreHead:ClearAllPoints()
+    f.moreHead:SetPoint("TOP", f, "TOP", 0, -y)
+    local tw = f.moreHead:GetStringWidth() or 60
+    local lw = floor((WIDTH - SIDE * 2 - tw - 32) / 2)
+    f.moreL:SetWidth(lw)
+    f.moreR:SetWidth(lw)
+    f.moreL:ClearAllPoints()
+    f.moreL:SetPoint("RIGHT", f.moreHead, "LEFT", -16, 0)
+    f.moreR:ClearAllPoints()
+    f.moreR:SetPoint("LEFT", f.moreHead, "RIGHT", 16, 0)
+    y = y + f.moreHead:GetStringHeight() + 18
+
+    -- остальное: все значки в один ряд
+    local cellW = floor((WIDTH - SIDE * 2) / #MORE)
+    local mh = 0
+    for i, c in ipairs(f.more) do
+        local d = MORE[i]
+        c.icon.icon:SetTexture(ICONS .. d[1])
+        c.head:SetWidth(cellW - 8)
+        c.head:SetText(T(d[2]))
+        mh = max(mh, 4 + 40 + 10 + c.head:GetStringHeight())
+        c:ClearAllPoints()
+        c:SetPoint("TOPLEFT", SIDE + (i - 1) * cellW, -y)
+        c:SetWidth(cellW)
     end
-    if #rows > 0 then
-        for i, c in ipairs(f.tiles) do
-            if rows[i] then c:SetHeight(rowH) end
-        end
-        bottom = top + rowH
-    end
+    for _, c in ipairs(f.more) do c:SetHeight(mh) end
+    y = y + mh
 
-    -- высота окна - по содержимому
-    f:SetHeight(bottom + 26 + S.btnBig + 20)
-
-    local dotStep = 16
-    local dx = floor((WIDTH - (#PAGES - 1) * dotStep - 8) / 2)
-    for i, d in ipairs(f.dots) do
-        d:ClearAllPoints()
-        d:SetPoint("BOTTOMLEFT", dx + (i - 1) * dotStep, 29)
-        if i == n then d:SetColorTexture(1, 0.82, 0, 1) else d:SetColorTexture(0.45, 0.38, 0.26, 1) end
-    end
-
-    local last = n == #PAGES
-    f.next:SetText(last and T("Понятно") or T("Дальше"))
-    f.next:SetScript("OnClick", function()
-        if last then f:Hide() else show(f, n + 1) end
-    end)
-    f.back:SetText(T("Назад"))
-    f.back:SetShown(n > 1)
-    f.back:SetScript("OnClick", function() show(f, n - 1) end)
-    -- подробный рассказ с примерами - на вкладке «Зачем макросы»
-    f.more:SetText(T("Подробнее с примерами"))
-    f.more:SetShown(n == 1)
-    f.more:SetScript("OnClick", function()
-        f:Hide()
-        UI.Open("HELPER", 1)
-    end)
+    f.go:SetText(T(BUTTON))
+    f:SetHeight(y + 26 + 32 + 22)
 end
 
 -- after - что сделать, когда окно закроют (любым способом), один раз.
@@ -282,7 +226,7 @@ function ns.ShowIntro(after)
     win:SetPoint("CENTER", shown and main or UIParent, "CENTER", 0, shown and 0 or 40)
     UI.DB().onboarded = true
     win.after = after
-    local ok, err = pcall(show, win, 1)
+    local ok, err = pcall(show, win)
     if not ok then UI.Print(tostring(err)) end
     win:Show()
     win:Raise()
