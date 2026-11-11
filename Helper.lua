@@ -25,8 +25,8 @@ ns.Helper = H
 
 local GOLD, LIGHT, GREY = UI.GOLD, UI.LIGHT, UI.GREY
 local CODE = { 0.65, 1, 0.65 }
-local RED = "|cffff6060"
-local GREEN = "|cff4dff4d"
+local RED = "|cffff5555"
+local GREEN = "|cff33dd33"
 local YELLOW = "|cffffd100"
 local GREYC = "|cff9d9d9d"
 

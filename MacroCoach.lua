@@ -26,6 +26,20 @@ ns.MACROS.CUSTOM = ns.MACROS.CUSTOM or {}
 -- «Настройки» - не вкладка справа, а кнопка-шестерёнка у крестика окна.
 ns.MACROS.OPTIONS = ns.MACROS.OPTIONS or {}
 
+-------------------------------------------------------------------------------
+--  Общий стиль EasyCraft и MacroCoach: одни и те же значения в обоих аддонах.
+--  Отступы - с шагом 4. Кнопки - двух высот. Цвета состояний - по одному.
+-------------------------------------------------------------------------------
+ns.S = {
+    pad = 16,      -- поле карточки: от рамки до текста
+    gap = 12,      -- между карточками
+    edge = 10,     -- от края страницы до карточки
+    s1 = 4, s2 = 8, s3 = 12, s4 = 16, s5 = 24, -- шкала отступов
+    btn = 22,      -- высота обычной кнопки
+    btnBig = 26,   -- высота главной кнопки
+    btnMin = 110,  -- кнопка не уже этого; шире - по тексту (+30)
+    GREEN = "|cff33dd33", RED = "|cffff5555", YELLOW = "|cffffd100", GREY = "|cff9d9d9d",
+}
 local WIDTH, HEIGHT = 680, 670
 local PAGE_W = WIDTH - 16 -- ширина пергамента внутри рамки
 local ATTIC = 64 -- от верха окна до пергамента: заголовок и вкладки специализаций
@@ -1148,9 +1162,9 @@ local INK_TITLE, INK_TEXT = { 0.16, 0.08, 0 }, { 0.24, 0.14, 0.04 }
 local function PageHeader(page, width)
     local h = { buttons = {} }
     h.title = Text(page, "SystemFont_Huge1", "GameFontNormalHuge", INK_TITLE, true)
-    h.title:SetWidth(width - 40)
+    h.title:SetWidth(width - 52)
     h.text = Text(page, "SystemFont_Med2", "GameFontHighlight", INK_TEXT, true)
-    h.text:SetWidth(width - 40)
+    h.text:SetWidth(width - 52)
     function h:Set(title, text)
         self.title:SetText(title or "")
         self.text:SetText(text or "")
@@ -1159,19 +1173,19 @@ local function PageHeader(page, width)
     function h:Layout(top)
         local y = top or 16
         self.title:ClearAllPoints()
-        self.title:SetPoint("TOPLEFT", 20, -y)
+        self.title:SetPoint("TOPLEFT", 26, -y)
         y = y + self.title:GetStringHeight() + 8
         if self.text:IsShown() then
             self.text:ClearAllPoints()
-            self.text:SetPoint("TOPLEFT", 20, -y)
+            self.text:SetPoint("TOPLEFT", 26, -y)
             y = y + self.text:GetStringHeight() + 12
         end
         -- кнопки в ряд, не влезли - на следующую строку
-        local x, rowH = 20, 0
+        local x, rowH = 26, 0
         for _, b in ipairs(self.buttons) do
             if b:IsShown() then
-                if x > 20 and x + b:GetWidth() > width - 20 then
-                    x, y = 20, y + rowH + 8
+                if x > 26 and x + b:GetWidth() > width - 26 then
+                    x, y = 26, y + rowH + 8
                     rowH = 0
                 end
                 b:ClearAllPoints()
@@ -1557,7 +1571,7 @@ end
 --   [Добавить][Изменить]
 --   текст макроса и ID - по щелчку на «?»
 -- rec - вкладка «Рекомендации»: там ещё подсказка, как добавить.
-local RED_C, GOLD_C, GREEN_C, YELLOW_C, GREY_C = "|cffff6060", "|cffffd100", "|cff4dff4d", "|cffffd100", "|cff9d9d9d"
+local RED_C, GOLD_C, GREEN_C, YELLOW_C, GREY_C = "|cffff5555", "|cffffd100", "|cff33dd33", "|cffffd100", "|cff9d9d9d"
 
 -- Список невыученного: до трёх названий.
 local function MissingText(missing)
@@ -1644,7 +1658,7 @@ local function BuildRow(parent, class, m, width, rec)
     codeBg:SetColorTexture(0, 0, 0, 0.7)
     codeBg:SetPoint("TOPLEFT", code, "TOPLEFT", -6, 6)
     codeBg:SetPoint("BOTTOMRIGHT", code, "BOTTOMRIGHT", 22, -6)
-    local ids = Text(row, "SystemFont_Small", "GameFontHighlightSmall", GREY, true)
+    local ids = Text(row, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     ids:SetWidth(wideW)
     -- Режим «Учусь»: объяснение под каждым макросом.
     local explain = Text(row, "SystemFont_Med1", "GameFontHighlightSmall", LIGHT, true)
@@ -1772,12 +1786,37 @@ local function BuildRow(parent, class, m, width, rec)
         title:SetWidth(wideW - 30 - headW - (tags and tags:Width(class, m) or 0))
         title:SetText(em.edited and (em.title .. "  |cff66bbff(" .. T("изменён") .. ")|r") or em.title or em.name)
         local why = H and H.Why(class, m)
+        -- На карточке - одна мысль: что делает макрос. «Проблема» и «когда
+        -- жать» - в подсказке при наведении на этот текст.
         if why then
-            about:SetText(RED_C .. T("Проблема:") .. "|r " .. (why[1] or "") .. "\n" .. GOLD_C .. T("Что делает:") .. "|r "
-                .. (why[2] or "") .. "\n" .. GOLD_C .. T("Когда жать:") .. "|r " .. (why[3] or ""))
+            about:SetText(why[2] or em.desc or "")
+            self.whyTip = { why[1], why[2], why[3] }
         else
             about:SetText(em.desc or "")
+            self.whyTip = nil
         end
+        if not self.aboutZone then
+            local z = CreateFrame("Frame", nil, self)
+            z:EnableMouse(true)
+            z:SetScript("OnEnter", function(s)
+                local w = self.whyTip
+                if not w then return end
+                GameTooltip:SetOwner(s, "ANCHOR_CURSOR")
+                GameTooltip:SetText(T("Проблема:"), 1, 0.33, 0.33)
+                GameTooltip:AddLine(w[1] or "", 1, 1, 1, true)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine(T("Что делает:"), 1, 0.82, 0)
+                GameTooltip:AddLine(w[2] or "", 1, 1, 1, true)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine(T("Когда жать:"), 1, 0.82, 0)
+                GameTooltip:AddLine(w[3] or "", 1, 1, 1, true)
+                GameTooltip:Show()
+            end)
+            z:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            z:SetAllPoints(about)
+            self.aboutZone = z
+        end
+        self.aboutZone:SetShown(self.whyTip ~= nil)
         local key = class .. "/" .. m.name
         -- Текст макроса и ID - по щелчку на «?» (или всегда - в настройках).
         local mine = class == "CUSTOM"
@@ -1909,7 +1948,7 @@ local function BuildPage(class, list, key, rec, label)
                 row:Show()
                 row:ClearAllPoints()
                 row:SetPoint("TOPLEFT", 10, y)
-                y = y - row:Fill() - 10
+                y = y - row:Fill() - ns.S.gap
             end
         end
         self:SetHeight(-y)
@@ -2515,7 +2554,7 @@ local function LineCard(parent)
     c.up = Glyph(c, "up", T("Строку выше"))
     c.down = Glyph(c, "down", T("Строку ниже"))
     c.del = Glyph(c, "del", T("Удалить строку"))
-    c.desc = Text(c, "SystemFont_Small", "GameFontHighlightSmall", GREY, true)
+    c.desc = Text(c, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     c.rows = {}
     for i = 1, MAXV do
         local r = {}
@@ -2531,7 +2570,7 @@ local function LineCard(parent)
     c.resetLabel:SetText(T("Сброс:"))
     c.reset = ArgBox(c)
     c.reset:SetWidth(110)
-    c.resetHint = Text(c, "SystemFont_Small", "GameFontHighlightSmall", GREY, true)
+    c.resetHint = Text(c, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     c.resetHint:SetText(T("target: при смене цели, 10: через 10 секунд без нажатий, combat: после боя"))
     c.addVar = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
     c.addVar:SetSize(160, 22)
@@ -2667,7 +2706,7 @@ local function BuildBuilder()
     pvBg:SetScript("OnClick", function() body:SetFocus() end)
     e.body = body
     -- ID заклинаний - серой строкой под полем
-    e.ids = Text(e, "SystemFont_Small", "GameFontHighlightSmall", GREY, true)
+    e.ids = Text(e, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     e.ids:SetPoint("TOPLEFT", pvBg, "BOTTOMLEFT", 4, -4)
     e.ids:SetWidth(INNER - 8)
     e.ids:SetWordWrap(false)
@@ -3161,7 +3200,7 @@ local function BuildCustomPage(key)
         for _, row in ipairs(self.rows) do
             row:ClearAllPoints()
             row:SetPoint("TOPLEFT", 10, y)
-            y = y - row:Fill() - 10
+            y = y - row:Fill() - ns.S.gap
         end
         self:SetHeight(-y)
         return -y
@@ -3394,7 +3433,7 @@ local function BuildGuidePage(key)
     local bw = math.floor((width - 20 - 32 - 10) / 2)
     for i, t in ipairs(B.TEMPLATES) do
         local b = CreateFrame("Button", nil, tcard, "UIPanelButtonTemplate")
-        b:SetSize(bw, 24)
+        b:SetSize(bw, 22)
         local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
         b:SetPoint("TOPLEFT", 16 + col * (bw + 10), -70 - row * 30)
         b:SetText(T(t.label))
@@ -3432,7 +3471,7 @@ end
 -------------------------------------------------------------------------------
 local function SmallButton(parent, text, w, onClick)
     local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
-    b:SetSize(w, 24)
+    b:SetSize(w, 22)
     b:SetText(text)
     b:SetScript("OnClick", onClick)
     return b
@@ -3877,7 +3916,7 @@ local function BuildSearchPage()
             row:ClearAllPoints()
             row:SetPoint("TOPLEFT", 10, y)
             row:Show()
-            y = y - row:Fill() - 10
+            y = y - row:Fill() - ns.S.gap
         end
         self:SetHeight(-y)
         return -y
@@ -4304,7 +4343,7 @@ local function LanguageDropdown(parent)
     local note = box:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     note:SetJustifyH("LEFT")
     local reload = CreateFrame("Button", nil, box, "UIPanelButtonTemplate")
-    reload:SetSize(200, 24)
+    reload:SetSize(200, 22)
     reload:SetText(T("Перезагрузить интерфейс"))
     reload:SetScript("OnClick", function() ReloadUI() end)
     local function Changed()
