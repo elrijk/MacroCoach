@@ -1393,3 +1393,9 @@ for k, v in pairs({
     ["окно будет открываться рядом с окном макросов игры."] = "the window will open beside the game's macro window.",
     ["окно больше не открывается само рядом с окном макросов игры."] = "the window no longer opens by itself beside the game's macro window.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: кнопка «Предложить макрос»
+for k, v in pairs({
+    ["Предложить макрос"] = "Suggest a macro",
+    ["Есть свой полезный макрос? Отправь его автору - он появится в аддоне у всех."] = "Have a useful macro of your own? Send it to the author - it will appear in the addon for everyone.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

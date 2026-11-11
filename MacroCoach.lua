@@ -4129,6 +4129,22 @@ local function Build()
         GameTooltip:SetText(T("Как пользоваться MacroCoach"))
         GameTooltip:Show()
     end)
+
+    -- «Предложить макрос»: свой макрос - автору, чтобы он стал готовым для всех.
+    local suggest = SmallButton(frame, T("Предложить макрос"), 160, function()
+        Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+        if ns.UI and ns.UI.Open then ns.UI.Open("CUSTOM", 3) end
+    end)
+    suggest:SetPoint("RIGHT", help, "LEFT", -8, 0)
+    suggest:SetFrameLevel(frame:GetFrameLevel() + 10)
+    suggest:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText(T("Предложить макрос"))
+        GameTooltip:AddLine(T("Есть свой полезный макрос? Отправь его автору - он появится в аддоне у всех."), 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    suggest:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    frame.suggest = suggest
     help:SetScript("OnLeave", function() GameTooltip:Hide() end)
     frame.help = help
 
