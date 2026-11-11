@@ -2555,6 +2555,13 @@ local function BuildSuggestWindow()
       Refresh()
     end
   end, T("Выбрать другой из своих макросов."))
+  -- стрелка вниз у правого края: кнопка открывает список
+  local pickArrow = pick:CreateTexture(nil, "OVERLAY")
+  pickArrow:SetSize(16, 16)
+  pickArrow:SetPoint("RIGHT", -6, -1)
+  pickArrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+  pickArrow:SetRotation(-math.pi / 2)
+  pickArrow:SetVertexColor(1, 0.82, 0)
 
   local descTag = Body(f)
   descTag:SetWidth(inner)
