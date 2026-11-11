@@ -1458,3 +1458,8 @@ for k, v in pairs({
     ["Ссылка выделена: нажми Ctrl+C."] = "The link is selected: press Ctrl+C.",
     ["текст макроса «%s» скопирован."] = "text of the macro \"%s\" copied.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: режим «Учусь» в подсказке панели
+for k, v in pairs({
+    ["То же - в подсказке, когда наводишь на макрос на панели."] = "The same appears in the tooltip when you hover a macro on your action bar.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

@@ -1855,4 +1855,5 @@ ns.LOCALES.esES = function() return {
  ["Copy the link"] = "Copiar el enlace",
  ["The link is selected: press Ctrl+C."] = "El enlace está seleccionado: pulsa Ctrl+C.",
  ["text of the macro \"%s\" copied."] = "texto de la macro «%s» copiado.",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "Lo mismo aparece en la descripción al pasar el ratón por una macro de la barra.",
 } end

@@ -734,6 +734,34 @@ function H.ExplainText(body, class)
   return table.concat(out, "\n")
 end
 
+-- Режим «Учусь»: то же объяснение - в подсказке макроса на панели. Макрос
+-- на кнопке находим по подписи кнопки (она же название макроса). В бою
+-- подсказку не удлиняем.
+local function TipExplain(tip, slot)
+  if not H.Opt("learn") or InCombatLockdown() then return end
+  if GetActionInfo(slot) ~= "macro" then return end
+  local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
+  local name = getText and getText(slot)
+  if not name or name == "" then return end
+  local index = GetMacroIndexByName(name)
+  if not index or index == 0 then return end
+  local _, _, body = GetMacroInfo(index)
+  if type(body) ~= "string" or strtrim(body) == "" then return end
+  local list = H.ExplainList(body)
+  if #list == 0 then return end
+  tip:AddLine(" ")
+  tip:AddLine("|cff33ff99Macro|r|cffffd100Coach|r: " .. name)
+  for i, e in ipairs(list) do
+    local code = e.code:gsub("|", "||")
+    tip:AddLine(("|cff9de89d%d. %s|r"):format(i, code), 1, 1, 1, true)
+    tip:AddLine(e.text, 0.9, 0.9, 0.9, true)
+  end
+  tip:Show()
+end
+if GameTooltip and GameTooltip.SetAction then
+  hooksecurefunc(GameTooltip, "SetAction", function(tip, slot) pcall(TipExplain, tip, slot) end)
+end
+
 -------------------------------------------------------------------------------
 --  Заклинания персонажа: выученные, высший ранг по названию
 -------------------------------------------------------------------------------
@@ -2868,7 +2896,8 @@ local function BuildIntroPage(key)
   learn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
     GameTooltip:SetText(T("Режим «Учусь»"), 1, 0.82, 0)
-    GameTooltip:AddLine(T("Под каждым макросом - что делает каждая строка, простыми словами."), 1, 1, 1, true)
+    GameTooltip:AddLine(T("Под каждым макросом - что делает каждая строка, простыми словами.") .. " "
+      .. T("То же - в подсказке, когда наводишь на макрос на панели."), 1, 1, 1, true)
     GameTooltip:Show()
   end)
   learn:SetScript("OnLeave", function() GameTooltip:Hide() end)

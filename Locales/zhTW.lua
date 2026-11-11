@@ -1864,4 +1864,5 @@ ns.LOCALES.zhTW = function() return {
  ["Copy the link"] = "複製連結",
  ["The link is selected: press Ctrl+C."] = "連結已選取：按 Ctrl+C。",
  ["text of the macro \"%s\" copied."] = "已複製巨集「%s」的內容。",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "把滑鼠移到快捷列上的巨集時，提示裡也會顯示同樣的說明。",
 } end

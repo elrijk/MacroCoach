@@ -1786,4 +1786,5 @@ ns.LOCALES.itIT = function() return {
  ["Copy the link"] = "Copia il link",
  ["The link is selected: press Ctrl+C."] = "Il link è selezionato: premi Ctrl+C.",
  ["text of the macro \"%s\" copied."] = "testo della macro «%s» copiato.",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "Lo stesso compare nel tooltip quando passi il mouse su una macro nella barra.",
 } end

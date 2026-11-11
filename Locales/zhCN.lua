@@ -1864,4 +1864,5 @@ ns.LOCALES.zhCN = function() return {
  ["Copy the link"] = "复制链接",
  ["The link is selected: press Ctrl+C."] = "链接已选中：按 Ctrl+C。",
  ["text of the macro \"%s\" copied."] = "已复制宏“%s”的内容。",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "把鼠标移到动作条上的宏时，提示里也会显示同样的说明。",
 } end

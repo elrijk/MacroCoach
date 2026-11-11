@@ -495,7 +495,7 @@ function P.BuildOptionsPage(key)
     label:SetText(T(o.label))
     local note = Text(helpCard, "SystemFont_Med1", "GameFontHighlightSmall", GREY, true)
     note:SetWidth(inner - 30)
-    note:SetText(T(o.note))
+    note:SetText(T(o.note) .. (o.key == "learn" and (" " .. T("То же - в подсказке, когда наводишь на макрос на панели.")) or ""))
     cb:SetScript("OnClick", function(self)
       if not ns.Helper then return end
       ns.Helper.SetOpt(o.key, self:GetChecked() and true or false)

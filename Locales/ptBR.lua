@@ -1794,4 +1794,5 @@ ns.LOCALES.ptBR = function() return {
  ["Copy the link"] = "Copiar o link",
  ["The link is selected: press Ctrl+C."] = "O link está selecionado: pressione Ctrl+C.",
  ["text of the macro \"%s\" copied."] = "texto da macro \"%s\" copiado.",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "O mesmo aparece na dica ao passar o mouse sobre uma macro na barra.",
 } end

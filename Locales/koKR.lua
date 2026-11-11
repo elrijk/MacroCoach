@@ -1862,4 +1862,5 @@ ns.LOCALES.koKR = function() return {
  ["Copy the link"] = "링크 복사",
  ["The link is selected: press Ctrl+C."] = "링크가 선택되었습니다. Ctrl+C를 누르세요.",
  ["text of the macro \"%s\" copied."] = "\"%s\" 매크로 내용을 복사했습니다.",
+ ["The same appears in the tooltip when you hover a macro on your action bar."] = "행동 단축바의 매크로에 마우스를 올리면 툴팁에도 같은 설명이 나옵니다.",
 } end
