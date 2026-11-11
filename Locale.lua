@@ -1313,3 +1313,41 @@ for k, v in pairs({
 
 -- 1.2: смена языка игры - макросы аддона переводятся на новый язык
 ns.EN["язык сменился: макросов переведено на новый язык - %d. На панелях они остались на своих местах."] = "the language changed: %d macros were switched to the new language. They stay where they were on your bars."
+
+-- 1.2: знакомство отдельным окном
+for k, v in pairs({
+    ["Как пользоваться MacroCoach"] = "How to use MacroCoach",
+    ["Одна кнопка вместо трёх"] = "One button instead of three",
+    ["Макрос собирает несколько действий в одну кнопку. Здесь они готовые, и про каждый понятно, что он делает."] = "A macro packs several actions into one button. Here they are ready-made, and each one says what it does.",
+    ["Выбери"] = "Pick",
+    ["Добавь"] = "Add",
+    ["Жми"] = "Press",
+    ["Готовые макросы"] = "Ready-made macros",
+    ["Вкладки справа - классы, сверху - специализации."] = "Tabs on the right are classes, tabs on top are specializations.",
+    ["Начни с «Рекомендаций»"] = "Start with \"Recommended\"",
+    ["Самые полезные макросы твоего класса: что решает каждый и когда жать."] = "The most useful macros for your class: what each one solves and when to press it.",
+    ["Бери набором"] = "Take the whole set",
+    ["На вкладке специализации кнопка добавит все её макросы сразу."] = "On a specialization tab one button adds all its macros at once.",
+    ["Положи на панель"] = "Put it on a bar",
+    ["«Добавить» берёт макрос на курсор: щёлкни по ячейке панели."] = "\"Add\" puts the macro on your cursor: click a bar slot.",
+    ["Свои макросы"] = "Your own macros",
+    ["Собираются из готовых строк - код писать не нужно."] = "Built from ready-made lines - no code to write.",
+    ["Конструктор"] = "Builder",
+    ["Команда, условие, заклинание - из списков. Аддон сам проверит текст."] = "Command, condition, spell - from lists. The addon checks the text for you.",
+    ["Поделись"] = "Share",
+    ["Кнопка «В чат» даёт ссылку: друг с MacroCoach откроет макрос щелчком."] = "The \"To chat\" button gives a link: a friend with MacroCoach opens the macro with a click.",
+    ["Сохрани кодом"] = "Save as a code",
+    ["Все свои макросы - одним кодом: на случай переустановки игры."] = "All your macros as one code, in case you reinstall the game.",
+    ["Проверка"] = "Check",
+    ["Аддон сам находит, что сломалось."] = "The addon finds what is broken.",
+    ["Старые ранги"] = "Old ranks",
+    ["Заклинания низкого ранга на панелях заменит высшими одной кнопкой."] = "Replaces low-rank spells on your bars with the top ranks in one click.",
+    ["Ошибки в макросах"] = "Macro mistakes",
+    ["Опечатки, неизвестные заклинания и то, чего нет в WoW Forever."] = "Typos, unknown spells and things that don't exist in WoW Forever.",
+    ["Смена языка игры"] = "Game language change",
+    ["Свои готовые макросы аддон переведёт на новый язык сам."] = "The addon switches its ready-made macros to the new language by itself.",
+    ["Понятно"] = "Got it",
+    ["Дальше"] = "Next",
+    ["Назад"] = "Back",
+    ["Подробнее с примерами"] = "More, with examples",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

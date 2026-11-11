@@ -37,3 +37,4 @@ MacroCoach.lua
 Helper.lua
 Backup.lua
 Share.lua
+Intro.lua

@@ -4083,6 +4083,22 @@ local function Build()
     gear:SetScript("OnLeave", function() GameTooltip:Hide() end)
     frame.gear = gear
 
+    -- «?» рядом с шестерёнкой: знакомство с аддоном (Intro.lua).
+    local help = Badge(frame, 20, "Interface\\Icons\\INV_Misc_QuestionMark")
+    help:SetPoint("RIGHT", gear, "LEFT", -4, 0)
+    help:SetFrameLevel(frame:GetFrameLevel() + 10)
+    help:SetScript("OnClick", function()
+        Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+        if ns.ShowIntro then ns.ShowIntro() end
+    end)
+    help:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText(T("Как пользоваться MacroCoach"))
+        GameTooltip:Show()
+    end)
+    help:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    frame.help = help
+
     -- Поиск по всем макросам - в самом низу окна, во всю ширину.
     frame.search = SearchBox(frame)
     frame.search:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 20, 7)
@@ -4220,19 +4236,13 @@ local function Toggle()
         return
     end
     frame:Show()
-    -- Первое открытие - «Зачем макросы», дальше - где были или свой класс.
-    -- Только при новой установке: своих макросов и правок ещё нет.
-    local db = DB()
-    if not db.helperSeen and not current then
-        db.helperSeen = true
-        local general, char = GetNumMacros()
-        if #CustomList() == 0 and not next(db.edits) and (general or 0) + (char or 0) == 0 then
-            ShowClass("HELPER", 1)
-            return
-        end
-    end
+    -- Открываемся там, где были, или на своём классе. Знакомство с аддоном -
+    -- отдельным окном поверх, один раз (Intro.lua); подробный рассказ остался
+    -- на вкладке «Зачем макросы».
+    DB().helperSeen = true
     local _, class = UnitClass("player")
     ShowClass(current or (ns.MACROS[class] and class) or "GENERAL", current and currentSpec or nil)
+    if ns.IntroOnce then ns.IntroOnce() end
 end
 ns.Toggle = Toggle
 
@@ -4561,6 +4571,10 @@ SlashCmdList.MACROCOACH = function(msg)
     elseif msg == "translate" or msg == "перевод" then
         Open("CUSTOM", 1)
         OpenCustomText(nil, B.New())
+    elseif msg == "intro" or msg == "знакомство" then
+        local _, class = UnitClass("player")
+        Open(current or (ns.MACROS[class] and class) or "GENERAL")
+        if ns.ShowIntro then ns.ShowIntro() end
     elseif msg == "lang" or msg == "язык" then
         -- перевести готовые макросы в игре на нынешний язык и сказать, что не тронуто
         if ns.Helper and ns.Helper.ResyncLanguage then ns.Helper.ResyncLanguage(0, true) end
