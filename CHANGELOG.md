@@ -2,12 +2,16 @@
 
 ## 1.2.0
 
-- "To chat" button on every macro: a chat link that other MacroCoach users open with a click. Your own macros can be shared this way and are added only after a confirmation.
-- Changed the game language? Ready-made macros already on your bars switch to the new language by themselves, both ways. `/coach lang` does it on demand.
-- The same now covers your own macros and ready-made ones you edited. The Check tab has a "Macro language" card: it lists MacroCoach macros still in another language, says why, and translates them with one button.
-- Smart consumables: potion, bandage and food macros show the item you actually have in your bags.
-- The window opens beside the game's macro window by itself and closes with it. `/coach beside` turns this off.
-- "Send to the author" on the My macros tab and "Suggest a macro" in the window header: pick a macro, describe it, and the addon builds a link to a pre-filled GitHub issue.
+- **Language change**: switch the game language and MacroCoach macros already on your bars switch to it by themselves, both ways - ready-made ones, the ones you edited, and your own.
+- **"Macro language" check** on the Check tab: lists macros still in another language, macros with spell numbers instead of names, and macros with a split line; fixes them with one button and can undo the fix.
+- **Smart consumables**: potion, bandage and food macros show the item you actually have in your bags.
+- **Chat link**: an icon on every macro puts a link in chat; other MacroCoach users open it with a click.
+- **Send a macro to the author**: pick any macro - from the addon or from the game's /macro window - describe it, and the addon builds a link to a pre-filled GitHub issue.
+- **Copy icon** on every macro card: the macro text as it is written in the game.
+- **Learning mode** can be switched on the Helper page and now also explains a macro in its tooltip on the action bar.
+- The window opens on the Helper page and appears beside the game's macro window by itself (`/mc beside` turns this off).
+- Settings and import/export moved to the addon's page in the game options, grouped into sections.
+- The command is now `/mc`; `/coach` still works. Russian command aliases are removed.
 - One-screen introduction on first open; "?" in the header shows it again.
 - On an English client, macro names on the bars are English.
 - All new strings are translated into the 8 other languages (machine translation).
