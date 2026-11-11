@@ -25,8 +25,11 @@ off).
 
 ## Suggest a macro
 
-Have a macro others would use? The "Suggest a macro" button in the window
-header gives a code: paste it into an issue.
+Have a macro others would use? Press "Send to the author" on the My macros tab
+(or "Suggest a macro" in the window header), pick the macro and describe what
+it does. The addon builds a link to a pre-filled GitHub issue: open it in your
+browser and press Submit. The link holds the macro, your description, class
+and game language only.
 
 ## License
 

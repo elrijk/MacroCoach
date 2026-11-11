@@ -1399,3 +1399,22 @@ for k, v in pairs({
     ["Предложить макрос"] = "Suggest a macro",
     ["Есть свой полезный макрос? Отправь его автору - он появится в аддоне у всех."] = "Have a useful macro of your own? Send it to the author - it will appear in the addon for everyone.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: окно «Отправить макрос автору»
+for k, v in pairs({
+    ["Отправить макрос автору"] = "Send a macro to the author",
+    ["Хороший макрос попадёт в готовые - для всех игроков."] = "A good macro will be added to the ready-made ones for all players.",
+    ["Сначала создай свой макрос: отправлять пока нечего."] = "Create a macro of your own first: there is nothing to send yet.",
+    ["Макрос:"] = "Macro:",
+    ["Выбрать другой из своих макросов."] = "Pick another of your macros.",
+    ["Что делает макрос и когда его нажимать:"] = "What the macro does and when to press it:",
+    ["Ссылка для отправки:"] = "Link to send:",
+    ["Выделить ссылку"] = "Select the link",
+    ["Игра не выходит в интернет, поэтому аддон готовит ссылку. Нажми Ctrl+C, вставь её в адресную строку браузера и нажми Submit на странице - автор получит письмо."] = "The game cannot go online, so the addon prepares a link. Press Ctrl+C, paste it into your browser's address bar and press Submit on the page - the author gets an email.",
+    ["Нужна учётная запись GitHub. В ссылке только макрос, описание, класс и язык игры; страница видна всем."] = "A GitHub account is needed. The link holds only the macro, the description, your class and game language; the page is public.",
+    ["Сначала напиши пару слов, что делает макрос."] = "First write a few words about what the macro does.",
+    ["Скопировано. Вставь ссылку в адресную строку браузера и нажми Submit."] = "Copied. Paste the link into your browser's address bar and press Submit.",
+    ["Отправить автору"] = "Send to the author",
+    ["в аддон для всех"] = "into the addon for everyone",
+    ["Твой макрос с описанием уйдёт автору MacroCoach. Полезный появится в готовых у всех игроков."] = "Your macro with a description goes to the MacroCoach author. A useful one will appear among the ready-made macros for all players.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

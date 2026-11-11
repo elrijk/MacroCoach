@@ -48,9 +48,12 @@ local function BuildCustomPage(key)
     { icon = "Interface\\Icons\\INV_Misc_Note_01", title = T("Текстом"), sub = T("вставить из гайда"),
      tip = T("Вставь текст макроса, например из английского гайда: названия заклинаний переведутся сами."),
      run = function() P.OpenCustomText(nil, B.New()) end },
+    { icon = "Interface\\Icons\\INV_Letter_15", title = T("Отправить автору"), sub = T("в аддон для всех"),
+     tip = T("Твой макрос с описанием уйдёт автору MacroCoach. Полезный появится в готовых у всех игроков."),
+     run = function() ns.Helper.SuggestDialog() end },
   }
   local tiles = {}
-  local tileW = math.floor((width - 20 - 2 * 10) / 3)
+  local tileW = math.floor((width - 20 - (#TILES - 1) * 10) / #TILES)
   for i, d in ipairs(TILES) do
     local t = CreateFrame("Button", nil, page, "BackdropTemplate")
     Card(t)

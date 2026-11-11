@@ -438,7 +438,7 @@ local function Build()
   -- «Предложить макрос»: свой макрос - автору, чтобы он стал готовым для всех.
   local suggest = SmallButton(P.frame, T("Предложить макрос"), 160, function()
     Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
-    if ns.UI and ns.UI.Open then ns.UI.Open("CUSTOM", 3) end
+    ns.Helper.SuggestDialog()
   end)
   suggest:SetPoint("RIGHT", help, "LEFT", -8, 0)
   suggest:SetFrameLevel(P.frame:GetFrameLevel() + 10)

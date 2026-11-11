@@ -1628,10 +1628,9 @@ function H.ExportOne(entry)
   return HEADER .. "\n" .. H.RecordCustom(entry)
 end
 
--- «Предложить»: открыть «Импорт/экспорт» с кодом этого макроса.
+-- «Предложить»: окно отправки этого макроса автору (H.SuggestDialog ниже).
 function H.Suggest(entry)
-  H.shareDraft = entry
-  UI.Open("CUSTOM", 3)
+  H.SuggestDialog(entry)
 end
 
 -- Свободное имя для своего макроса (до 16 символов).
@@ -2289,6 +2288,188 @@ end
 -------------------------------------------------------------------------------
 --  Страница «Зачем макросы»
 -------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--  «Отправить макрос автору». Игра в интернет не выходит, поэтому окно
+--  готовит ссылку на новое обращение в GitHub с уже заполненным текстом:
+--  игрок открывает её в браузере и нажимает Submit, автору приходит письмо.
+--  В ссылке: макрос, описание, класс и язык игры. Имени персонажа нет.
+-------------------------------------------------------------------------------
+local SUGGEST_URL = "https://github.com/elrijk/MacroCoach/issues/new"
+local SUGGEST_W = 540
+local suggestWin
+
+local function UrlEncode(s)
+  return (s:gsub("[^%w%-_%.~]", function(c) return ("%%%02X"):format(c:byte()) end))
+end
+
+local function SuggestLink(entry, desc)
+  local _, class = UnitClass("player")
+  local body = table.concat({
+    "**Macro:** " .. entry.name,
+    "**Class:** " .. (class or "?") .. ", client " .. GetLocale(),
+    "",
+    "**What it does:**",
+    desc,
+    "",
+    "```",
+    (UI.Render(B.Build(entry))),
+    "```",
+    "",
+    "Import code:",
+    "```",
+    H.ExportOne(entry),
+    "```",
+  }, "\n")
+  return SUGGEST_URL .. "?title=" .. UrlEncode("Macro: " .. entry.name) .. "&body=" .. UrlEncode(body)
+end
+
+local function BuildSuggestWindow()
+  local f = CreateFrame("Frame", "MacroCoachSuggestFrame", UIParent, "BackdropTemplate")
+  UI.Card(f)
+  f:SetBackdropColor(0.06, 0.045, 0.03, 1)
+  f:SetWidth(SUGGEST_W)
+  f:SetFrameStrata("DIALOG")
+  f:SetToplevel(true)
+  f:SetClampedToScreen(true)
+  f:EnableMouse(true)
+  f:SetMovable(true)
+  f:RegisterForDrag("LeftButton")
+  f:SetScript("OnDragStart", f.StartMoving)
+  f:SetScript("OnDragStop", f.StopMovingOrSizing)
+  tinsert(UISpecialFrames, "MacroCoachSuggestFrame")
+  local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+  close:SetPoint("TOPRIGHT", 0, 0)
+  local inner = SUGGEST_W - 40
+
+  local title = Title(f)
+  title:SetPoint("TOPLEFT", 20, -18)
+  title:SetText(T("Отправить макрос автору"))
+  local note = Small(f, LIGHT)
+  note:SetWidth(inner)
+  note:SetText(T("Хороший макрос попадёт в готовые - для всех игроков."))
+  local none = Body(f)
+  none:SetWidth(inner)
+  none:SetText(YELLOW .. T("Сначала создай свой макрос: отправлять пока нечего.") .. "|r")
+
+  local pickTag = Body(f)
+  pickTag:SetText(T("Макрос:"))
+  local pick
+  local function Refresh() f:Fill() end
+  pick = Button(f, "", 260, function(self)
+    local list = UI.CustomList()
+    if MenuUtil and MenuUtil.CreateContextMenu then
+      MenuUtil.CreateContextMenu(self, function(_, root)
+        for _, e in ipairs(list) do
+          root:CreateButton(e.name, function() f.entry = e; Refresh() end)
+        end
+      end)
+    else
+      -- нет меню - следующий по кругу
+      for i, e in ipairs(list) do
+        if e == f.entry then f.entry = list[i % #list + 1]; break end
+      end
+      Refresh()
+    end
+  end, T("Выбрать другой из своих макросов."))
+
+  local descTag = Body(f)
+  descTag:SetWidth(inner)
+  descTag:SetText(T("Что делает макрос и когда его нажимать:"))
+  local desc = TextBox(f, inner, 64)
+  desc.edit:SetMaxLetters(300)
+  local linkTag = Body(f)
+  linkTag:SetWidth(inner)
+  linkTag:SetText(T("Ссылка для отправки:"))
+  local link = TextBox(f, inner, 64)
+  local selBtn = Button(f, T("Выделить ссылку"), 170, function()
+    link.edit:SetFocus()
+    link.edit:HighlightText()
+  end)
+  local info = Small(f, LIGHT)
+  info:SetWidth(inner)
+  local how = Small(f)
+  how:SetWidth(inner)
+  how:SetText(T("Игра не выходит в интернет, поэтому аддон готовит ссылку. Нажми Ctrl+C, вставь её в адресную строку браузера и нажми Submit на странице - автор получит письмо.")
+    .. "\n\n" .. T("Нужна учётная запись GitHub. В ссылке только макрос, описание, класс и язык игры; страница видна всем."))
+
+  -- ссылку правит только аддон: набранное игроком возвращается обратно
+  local url = ""
+  local function MakeLink()
+    local text = strtrim(desc.edit:GetText() or "")
+    url = (f.entry and text ~= "") and SuggestLink(f.entry, text) or ""
+    link.edit:SetText(url)
+    f.copied = nil
+    info:SetText(url == "" and (YELLOW .. T("Сначала напиши пару слов, что делает макрос.") .. "|r") or "")
+  end
+  desc.onChange = function(_, user) if user then MakeLink() end end
+  link.onChange = function(text, user) if user and text ~= url then link.edit:SetText(url) end end
+  link.onCopy = function()
+    if url == "" then return end
+    info:SetText(GREEN .. T("Скопировано. Вставь ссылку в адресную строку браузера и нажми Submit.") .. "|r")
+  end
+
+  function f:Fill()
+    local has = self.entry ~= nil
+    for _, w in ipairs({ pickTag, pick, descTag, desc, linkTag, link, selBtn, info, how }) do w:SetShown(has) end
+    none:SetShown(not has)
+    local y = 18 + title:GetStringHeight() + 6
+    note:ClearAllPoints()
+    note:SetPoint("TOPLEFT", 20, -y)
+    y = y + note:GetStringHeight() + 14
+    if not has then
+      none:ClearAllPoints()
+      none:SetPoint("TOPLEFT", 20, -y)
+      self:SetHeight(y + none:GetStringHeight() + 22)
+      return
+    end
+    pick:SetText(self.entry.name)
+    pickTag:ClearAllPoints()
+    pickTag:SetPoint("TOPLEFT", 20, -(y + 4))
+    pick:ClearAllPoints()
+    pick:SetPoint("TOPLEFT", 20 + pickTag:GetStringWidth() + 10, -y)
+    y = y + 22 + 14
+    descTag:ClearAllPoints()
+    descTag:SetPoint("TOPLEFT", 20, -y)
+    y = y + descTag:GetStringHeight() + 6
+    desc:ClearAllPoints()
+    desc:SetPoint("TOPLEFT", 20, -y)
+    y = y + 64 + 14
+    linkTag:ClearAllPoints()
+    linkTag:SetPoint("TOPLEFT", 20, -y)
+    y = y + linkTag:GetStringHeight() + 6
+    link:ClearAllPoints()
+    link:SetPoint("TOPLEFT", 20, -y)
+    y = y + 64 + 10
+    MakeLink()
+    selBtn:ClearAllPoints()
+    selBtn:SetPoint("TOPLEFT", 20, -y)
+    info:SetWidth(inner - 170 - 12)
+    info:ClearAllPoints()
+    info:SetPoint("TOPLEFT", selBtn, "TOPRIGHT", 12, -4)
+    y = y + 22 + 14
+    how:ClearAllPoints()
+    how:SetPoint("TOPLEFT", 20, -y)
+    self:SetHeight(y + how:GetStringHeight() + 20)
+  end
+  f.desc = desc
+  f:Hide()
+  return f
+end
+
+-- entry - какой макрос отправить; nil - первый из своих (выбор - в окне).
+function H.SuggestDialog(entry)
+  suggestWin = suggestWin or BuildSuggestWindow()
+  local f = suggestWin
+  if f.entry ~= entry or not entry then f.desc.edit:SetText("") end
+  f.entry = entry or UI.CustomList()[1]
+  f:ClearAllPoints()
+  f:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
+  f:Fill()
+  f:Show()
+  f:Raise()
+  if f.entry then f.desc.edit:SetFocus() end
+end
+
 local ILL_W = 206 -- ширина картинки «было -> стало»
 
 local function OpenTarget(open)
