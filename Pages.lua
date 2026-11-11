@@ -53,7 +53,9 @@ local function BuildCustomPage(key)
      run = function() ns.Helper.SuggestDialog() end },
   }
   local tiles = {}
-  local tileW = math.floor((width - 20 - (#TILES - 1) * 10) / #TILES)
+  -- плитки по две в ряд: названию и пояснению хватает места
+  local TILE_COLS = 2
+  local tileW = math.floor((width - 20 - (TILE_COLS - 1) * 10) / TILE_COLS)
   for i, d in ipairs(TILES) do
     local t = CreateFrame("Button", nil, page, "BackdropTemplate")
     Card(t)
@@ -111,9 +113,11 @@ local function BuildCustomPage(key)
     local y = -header:Layout(16)
     for i, t in ipairs(tiles) do
       t:ClearAllPoints()
-      t:SetPoint("TOPLEFT", 10 + (i - 1) * (tileW + 10), y)
+      local col, row = (i - 1) % TILE_COLS, math.floor((i - 1) / TILE_COLS)
+      t:SetPoint("TOPLEFT", 10 + col * (tileW + 10), y - row * (52 + 10))
     end
-    y = y - 52 - 18
+    local rows = math.ceil(#tiles / TILE_COLS)
+    y = y - rows * 52 - (rows - 1) * 10 - 18
     listHead:ClearAllPoints()
     listHead:SetPoint("TOPLEFT", 20, y)
     y = y - listHead:GetStringHeight() - 10
