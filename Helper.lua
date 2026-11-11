@@ -2537,31 +2537,20 @@ local function BuildSuggestWindow()
 
   local pickTag = Body(f)
   pickTag:SetText(T("Макрос:"))
-  local pick
+  -- выпадающий список, как в конструкторе: выбранный макрос виден на
+  -- кнопке, щелчок открывает список своих макросов и макросов игры
   local function Refresh() f:Fill() end
-  pick = Button(f, "", 260, function(self)
-    local list = SuggestList()
-    if MenuUtil and MenuUtil.CreateContextMenu then
-      MenuUtil.CreateContextMenu(self, function(_, root)
-        for _, e in ipairs(list) do
-          root:CreateButton(e.name, function() f.entry = e; Refresh() end)
-        end
-      end)
-    else
-      -- нет меню - следующий по кругу (по названию: список строится заново)
-      for i, e in ipairs(list) do
-        if e.name == f.entry.name then f.entry = list[i % #list + 1]; break end
-      end
-      Refresh()
+  local pick = CreateFrame("DropdownButton", nil, f, "WowStyle1DropdownTemplate")
+  pick:SetWidth(260)
+  pick:SetupMenu(function(_, root)
+    for _, e in ipairs(SuggestList()) do
+      root:CreateRadio(e.name, function() return f.entry ~= nil and f.entry.name == e.name end,
+        function()
+          f.entry = e
+          Refresh()
+        end)
     end
-  end, T("Выбрать другой из своих макросов."))
-  -- стрелка вниз у правого края: кнопка открывает список
-  local pickArrow = pick:CreateTexture(nil, "OVERLAY")
-  pickArrow:SetSize(16, 16)
-  pickArrow:SetPoint("RIGHT", -6, -1)
-  pickArrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-  pickArrow:SetRotation(-math.pi / 2)
-  pickArrow:SetVertexColor(1, 0.82, 0)
+  end)
 
   local descTag = Body(f)
   descTag:SetWidth(inner)
@@ -2613,7 +2602,8 @@ local function BuildSuggestWindow()
       self:SetHeight(y + none:GetStringHeight() + 22)
       return
     end
-    pick:SetText(self.entry.name)
+    -- список мог измениться, выбранное - тоже: собрать меню заново
+    if pick.GenerateMenu then pick:GenerateMenu() end
     pickTag:ClearAllPoints()
     pickTag:SetPoint("TOPLEFT", 20, -(y + 4))
     pick:ClearAllPoints()
