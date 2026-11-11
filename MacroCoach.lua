@@ -1687,16 +1687,22 @@ local function BuildRow(parent, class, m, width, rec)
     edit:SetScript("OnClick", function()
         if class == "CUSTOM" then OpenBuilder(m) else OpenEditor(class, m) end
     end)
+    -- Ссылка на макрос в строку чата (Share.lua): круглый значок «скопировать»
+    -- рядом со стрелкой текста макроса, без подписи.
+    local linkSize = help and math.floor(help:GetWidth() + 0.5) or 22
+    if linkSize < 16 then linkSize = 22 end
+    local link = Badge(row, linkSize, "Interface\\Icons\\INV_Misc_Note_01")
     if help then
-        edit:SetPoint("RIGHT", help, "LEFT", -8, 0)
+        link:SetPoint("RIGHT", help, "LEFT", -6, 0)
     else
-        edit:SetPoint("TOPRIGHT", -10, -10)
+        link:SetPoint("TOPRIGHT", -10, -10)
     end
+    edit:SetPoint("RIGHT", link, "LEFT", -8, 0)
     add:SetPoint("RIGHT", edit, "LEFT", -6, 0)
-    -- «В чат»: ссылка на макрос в строку чата (Share.lua)
-    local link = HeadButton(T("В чат"))
-    link:SetPoint("RIGHT", add, "LEFT", -6, 0)
-    link:SetScript("OnClick", function() if ns.LinkToChat then ns.LinkToChat(class, m) end end)
+    link:SetScript("OnClick", function()
+        Sound("IG_MAINMENU_OPTION_CHECKBOX_ON")
+        if ns.LinkToChat then ns.LinkToChat(class, m) end
+    end)
     link:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(T("Ссылка в чат"))
@@ -1704,7 +1710,7 @@ local function BuildRow(parent, class, m, width, rec)
         GameTooltip:Show()
     end)
     link:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    local headW = link:GetWidth() + 6 + add:GetWidth() + 6 + edit:GetWidth() + 8
+    local headW = linkSize + 8 + add:GetWidth() + 6 + edit:GetWidth() + 8
     local buttons = {}
     if class == "CUSTOM" then
         local del = NewButton(T("Удалить"))
