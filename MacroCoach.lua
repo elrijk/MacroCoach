@@ -3876,10 +3876,19 @@ local function BuildSearchPage()
         local hd = heads[i]
         if hd then return hd end
         hd = CreateFrame("Frame", nil, page)
-        hd:SetSize(width - 40, 24)
+        hd:SetSize(width - 40, 26)
+        -- плашка, как заголовки разделов в окнах игры: тёмная, с золотой чертой снизу
+        hd.bg = hd:CreateTexture(nil, "BACKGROUND")
+        hd.bg:SetAllPoints()
+        hd.bg:SetColorTexture(0.1, 0.075, 0.05, 0.95)
+        hd.line = hd:CreateTexture(nil, "BORDER")
+        hd.line:SetPoint("BOTTOMLEFT")
+        hd.line:SetPoint("BOTTOMRIGHT")
+        hd.line:SetHeight(1)
+        hd.line:SetColorTexture(0.75, 0.6, 0.3, 0.55)
         hd.icon = hd:CreateTexture(nil, "ARTWORK")
-        hd.icon:SetSize(22, 22)
-        hd.icon:SetPoint("LEFT", 0, 0)
+        hd.icon:SetSize(20, 20)
+        hd.icon:SetPoint("LEFT", 6, 0)
         hd.text = Text(hd, "SystemFont_Large", "GameFontNormalLarge", INK_TITLE)
         hd.text:SetPoint("LEFT", hd.icon, "RIGHT", 8, 0)
         heads[i] = hd
