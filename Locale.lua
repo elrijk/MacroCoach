@@ -1382,3 +1382,8 @@ for k, v in pairs({
     ["«?» на карточке: что делает каждая строка макроса."] = "\"?\" on a card: what each macro line does.",
     ["Поехали"] = "Let's go",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2: автосмена макросов при смене языка игры
+if ns.EN["Сменил язык игры - макросы на панелях переведутся сами."] == nil then
+    ns.EN["Сменил язык игры - макросы на панелях переведутся сами."] = "Changed the game language? Macros on your bars translate themselves."
+end
