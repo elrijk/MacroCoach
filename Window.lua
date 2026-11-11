@@ -529,7 +529,8 @@ local function Build()
   P.frame.classTabs = {}
   for i, class in ipairs(ns.CLASS_ORDER) do
     local t = SideTab(P.frame, ClassName(class))
-    t:SetPoint("TOPLEFT", P.frame, "TOPRIGHT", 0, -40 - (i - 1) * 46)
+    -- «Помощник» стоит первым и отдельно: остальные вкладки ниже с зазором
+    t:SetPoint("TOPLEFT", P.frame, "TOPRIGHT", 0, -40 - (i - 1) * 46 - (class ~= "HELPER" and 16 or 0))
     if class == "CUSTOM" then
       -- Плюс прозрачный: под него тёмная ячейка, как у плитки.
       local back = t:CreateTexture(nil, "BORDER")
@@ -596,10 +597,10 @@ local function Toggle()
     if not P.frame:IsShown() then Toggle() end
   end) then return end
   P.frame:Show()
-  -- Открываемся там, где были, или на своём классе.
+  -- Открываемся там, где были; в первый раз за вход - на «Помощнике»:
+  -- дальше игрок сам переключает, куда ему нужно.
   DB().helperSeen = true
-  local _, class = UnitClass("player")
-  P.ShowClass(P.current or (ns.MACROS[class] and class) or "GENERAL", P.current and P.currentSpec or nil)
+  P.ShowClass(P.current or "HELPER", P.current and P.currentSpec or nil)
 end
 ns.Toggle = Toggle
 
@@ -923,8 +924,7 @@ SlashCmdList.MACROCOACH = function(msg)
     Open("CUSTOM", 1)
     P.OpenCustomText(nil, B.New())
   elseif msg == "intro" or msg == "знакомство" then
-    local _, class = UnitClass("player")
-    Open(P.current or (ns.MACROS[class] and class) or "GENERAL")
+    Open(P.current or "HELPER")
     if ns.ShowIntro then ns.ShowIntro() end
   elseif msg == "lang" or msg == "язык" then
     -- перевести готовые макросы в игре на нынешний язык и сказать, что не тронуто
