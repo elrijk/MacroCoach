@@ -2443,8 +2443,51 @@ local function UrlEncode(s)
   return (s:gsub("[^%w%-_%.~]", function(c) return ("%%%02X"):format(c:byte()) end))
 end
 
+-- Что можно отправить: свои макросы аддона и макросы из окна /macro игры
+-- (у тех запись { game = true, name, body }); одно название - один раз.
+local function SuggestList()
+  local list, seen = {}, {}
+  for _, e in ipairs(UI.CustomList()) do
+    list[#list + 1] = e
+    seen[e.name or ""] = true
+  end
+  local general, char = GetNumMacros()
+  local base = MAX_ACCOUNT_MACROS or 120
+  local function add(i)
+    local name, _, body = GetMacroInfo(i)
+    if name and not seen[name] and strtrim(body or "") ~= "" then
+      seen[name] = true
+      list[#list + 1] = { game = true, name = name, body = body }
+    end
+  end
+  for i = 1, general or 0 do add(i) end
+  for i = base + 1, base + (char or 0) do add(i) end
+  return list
+end
+
 local function SuggestLink(entry, desc)
   local _, class = UnitClass("player")
+  if entry.game then
+    -- макрос из игры: текст как есть и он же с номерами заклинаний вместо
+    -- названий - автору не важно, на каком языке он написан
+    local body = table.concat({
+      "**Macro:** " .. entry.name,
+      "**Class:** " .. (class or "?") .. ", client " .. GetLocale(),
+      "",
+      "**What it does:**",
+      desc,
+      "",
+      "```",
+      entry.body,
+      "```",
+      "",
+      "With spell IDs:",
+      "```",
+      H.Translate(entry.body).text,
+      "```",
+    }, "\n")
+    return SUGGEST_URL .. "?title=" .. UrlEncode("Macro: " .. entry.name) .. "&body=" .. UrlEncode(body)
+  end
   local body = table.concat({
     "**Macro:** " .. entry.name,
     "**Class:** " .. (class or "?") .. ", client " .. GetLocale(),
@@ -2497,7 +2540,7 @@ local function BuildSuggestWindow()
   local pick
   local function Refresh() f:Fill() end
   pick = Button(f, "", 260, function(self)
-    local list = UI.CustomList()
+    local list = SuggestList()
     if MenuUtil and MenuUtil.CreateContextMenu then
       MenuUtil.CreateContextMenu(self, function(_, root)
         for _, e in ipairs(list) do
@@ -2505,9 +2548,9 @@ local function BuildSuggestWindow()
         end
       end)
     else
-      -- нет меню - следующий по кругу
+      -- нет меню - следующий по кругу (по названию: список строится заново)
       for i, e in ipairs(list) do
-        if e == f.entry then f.entry = list[i % #list + 1]; break end
+        if e.name == f.entry.name then f.entry = list[i % #list + 1]; break end
       end
       Refresh()
     end
@@ -2602,7 +2645,7 @@ function H.SuggestDialog(entry)
   suggestWin = suggestWin or BuildSuggestWindow()
   local f = suggestWin
   if f.entry ~= entry or not entry then f.desc.edit:SetText("") end
-  f.entry = entry or UI.CustomList()[1]
+  f.entry = entry or SuggestList()[1]
   f:ClearAllPoints()
   f:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
   f:Fill()
