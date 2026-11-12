@@ -36,7 +36,7 @@ local function Print(msg) UI.Print(msg) end
 --  Настройки помощника (MacroCoachDB.helper)
 -------------------------------------------------------------------------------
 -- showCode: текст макроса на карточках открыт сразу (иначе - по щелчку на «?»).
-local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false, readyOnly = false }
+local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false, readyOnly = false, offer = true }
 
 function H.Opt(key)
   local v = UI.DB().helper[key]
@@ -1109,6 +1109,26 @@ function H.CheckBody(body)
   return issues, english
 end
 
+-- One fixable problem of a game macro, in the shape the fix list, the fix
+-- window and the Check page share: what the macro is now and what it becomes.
+local function MacroItem(e, kind)
+  return { key = kind .. ":" .. tostring(e.name) .. ":" .. #(e.body or ""), kind = kind, icon = e.icon, name = e.name,
+    newName = e.newName or e.name, index = e.index, body = e.body, want = e.want, own = e.own }
+end
+
+-- English spell names in a game macro -> the text in the client's language;
+-- nil when there is nothing the addon can change by itself.
+local function EnglishFix(body)
+  local res = H.Translate(body)
+  if (res.count or 0) == 0 then return nil end
+  local text, missing = UI.Render(res.text)
+  if missing then
+    UI.RequestSpells(res.text)
+    return nil
+  end
+  if text == body or UI.CharCount(text) > UI.MAX_CHARS then return nil end
+  return text
+end
 function H.CheckGameMacros()
   ScanBook()
   local list = {}
@@ -1122,7 +1142,10 @@ function H.CheckGameMacros()
     if name then
       local issues, english = H.CheckBody(body or "")
       if #issues > 0 then
-        list[#list + 1] = { index = index, name = name, icon = icon, body = body or "", issues = issues, english = english }
+        local e = { index = index, name = name, icon = icon, body = body or "", issues = issues, english = english }
+        e.want = english and EnglishFix(e.body) or nil
+        if e.want then e.fix = MacroItem(e, "english") end
+        list[#list + 1] = e
       end
     end
   end
@@ -1788,6 +1811,7 @@ local function OnSpellsChanged(initial)
       fresh[#fresh + 1] = e
     end
   end
+  if learned and not initial then H.OfferFixes() end
   if initial or first or not H.Opt("tips") or not learned then return end
   -- Одна строка в чат: новые советы и старые ранги.
   local parts = {}
@@ -1802,7 +1826,7 @@ local function OnSpellsChanged(initial)
     if #fresh > 3 then names[#names + 1] = (T("и ещё %d")):format(#fresh - 3) end
     parts[#parts + 1] = (T("новые полезные макросы: %s (/mc советы)")):format(table.concat(names, ", "))
   end
-  local old = InCombatLockdown() and 0 or #H.OldRanks()
+  local old = (InCombatLockdown() or H.Opt("offer")) and 0 or #H.OldRanks()
   if old > 0 then
     parts[#parts + 1] = (T("старых рангов на панелях: %d (/mc ранги)")):format(old)
   end
@@ -1950,7 +1974,7 @@ local function ResyncOne(db, class, m, dry)
       if old == em.name and (want == now or want == body) then return nil, nil, index, old end -- уже на нужном языке
       if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name, index, old end
       if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, old end
-      if dry then return "todo", nil, index, old end
+      if dry then return "todo", nil, index, old, em.name, want, now end
       LogUndo(em.name, old, icon, now)
       EditMacro(index, em.name, icon, want)
       db.own[old] = nil
@@ -1982,7 +2006,7 @@ local function ResyncCustom(db, entry, dry)
   end
   if want == now or want == body then return nil, nil, index, name end
   if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, name end
-  if dry then return "todo", nil, index, name end
+  if dry then return "todo", nil, index, name, name, want, now end
   LogUndo(name, name, icon, now)
   EditMacro(index, name, icon, want)
   if db.own[name] then db.own[name] = want end
@@ -2128,7 +2152,7 @@ function H.LanguageScan()
   local db = UI.DB()
   db.own = db.own or {}
   local byIndex = {}
-  LangEach(db, true, function(_, ok, res, why, index, name)
+  LangEach(db, true, function(label, ok, res, why, index, name, newName, want, body)
     if not ok or not index then return end
     local state
     if res == "todo" or res == "wait" then state = res
@@ -2139,7 +2163,9 @@ function H.LanguageScan()
     -- одно название бывает у макросов разных классов: верим тому, чей текст совпал
     local cur = byIndex[index]
     if not cur or LANG_RANK[state] > LANG_RANK[cur.state] then
-      byIndex[index] = { index = index, name = name, state = state, why = why }
+      -- a ready-made macro is written down in db.own after the fix, a custom one only if it was there
+      byIndex[index] = { index = index, name = name, state = state, why = why, newName = newName, want = want, body = body,
+        own = label:sub(1, 7) ~= "CUSTOM/" }
     end
   end)
   -- номера вместо названий - в любых макросах игры, не только наших
@@ -2152,7 +2178,7 @@ function H.LanguageScan()
         local state, why = kind, nil
         if missing then state = "wait"
         elseif UI.CharCount(want) > UI.MAX_CHARS then state, why = "blocked", "too long" end
-        byIndex[index] = { index = index, name = name, state = state, why = why }
+        byIndex[index] = { index = index, name = name, state = state, why = why, want = want, body = body }
       end
     end
   end
@@ -2161,6 +2187,7 @@ function H.LanguageScan()
     if e.state ~= "ok" then
       local _, icon = GetMacroInfo(e.index)
       e.icon = icon
+      if e.want and (e.state == "todo" or e.state == "ids" or e.state == "broken") then e.fix = MacroItem(e, e.state) end
       list[#list + 1] = e
     end
   end
@@ -2211,6 +2238,183 @@ function H.ResyncLanguage(retry, force, after)
   if not waiting then h.langSig = sig end
 end
 
+-------------------------------------------------------------------------------
+--  Fix list: everything the addon can fix by itself, with "before -> after"
+-------------------------------------------------------------------------------
+local WAS = "|cffff8080"
+local DIFF_MAX = 4 -- changed lines shown per macro
+
+function H.FixKind(kind)
+  if kind == "rank" then return T("Старый ранг") end
+  if kind == "ids" then return T("Номера вместо названий") end
+  if kind == "broken" then return T("Разорванная строка") end
+  if kind == "english" then return T("Английские названия") end
+  return T("Другой язык")
+end
+
+local function Lines(s)
+  local t = {}
+  s = (tostring(s or ""):gsub("\r", ""))
+  s = (s:gsub("%s+$", ""))
+  for l in (s .. "\n"):gmatch("(.-)\n") do t[#t + 1] = l end
+  return t
+end
+
+-- Lines that differ. Same number of lines: pairs line by line (third value
+-- true). Otherwise the differing middle of each text as a block.
+local function DiffLines(a, b)
+  local la, lb = Lines(a), Lines(b)
+  local from, to = {}, {}
+  if #la == #lb then
+    for i = 1, #la do
+      if la[i] ~= lb[i] then
+        from[#from + 1] = la[i]
+        to[#to + 1] = lb[i]
+      end
+    end
+    return from, to, true
+  end
+  local s = 1
+  while s <= #la and s <= #lb and la[s] == lb[s] do s = s + 1 end
+  local ea, eb = #la, #lb
+  while ea >= s and eb >= s and la[ea] == lb[eb] do ea, eb = ea - 1, eb - 1 end
+  for i = s, ea do from[#from + 1] = la[i] end
+  for i = s, eb do to[#to + 1] = lb[i] end
+  return from, to, false
+end
+
+-- The game reads "|" in a text as the start of a colour code.
+local function Bar(s) return (tostring(s or ""):gsub("|", "||")) end
+
+-- What a fix changes, as coloured text: the old value and the new one.
+function H.FixDiff(it)
+  local was, will = GREYC .. T("Было") .. ":|r " .. WAS, GREYC .. T("Станет") .. ":|r " .. GREEN
+  local out = {}
+  local function pair(a, b)
+    out[#out + 1] = was .. Bar(a) .. "|r"
+    out[#out + 1] = will .. Bar(b) .. "|r"
+  end
+  if it.kind == "rank" then
+    pair((T("Ранг %d")):format(it.rank.rank), (T("Ранг %d")):format(it.rank.bestRank))
+    return table.concat(out, "\n")
+  end
+  if it.newName ~= it.name then pair(it.name, it.newName) end
+  local from, to, paired = DiffLines(it.body, it.want)
+  if paired then
+    for i = 1, #from do
+      if i > DIFF_MAX then
+        out[#out + 1] = GREYC .. (T("и ещё %d")):format(#from - DIFF_MAX) .. "|r"
+        break
+      end
+      pair(from[i], to[i])
+    end
+  elseif #from > 0 or #to > 0 then
+    pair(table.concat(from, "\n"), table.concat(to, "\n"))
+  end
+  return table.concat(out, "\n")
+end
+
+-- Everything fixable right now and the number of remarks the addon cannot
+-- fix by itself (those stay on the Check page).
+function H.FixPlan()
+  local list, rest, taken = {}, 0, {}
+  for _, e in ipairs(H.OldRanks()) do
+    list[#list + 1] = { key = "rank:" .. e.slot .. ":" .. e.id, kind = "rank", icon = UI.SpellIcon(e.best), name = e.name, rank = e }
+  end
+  for _, e in ipairs(H.LanguageScan()) do
+    taken[e.index] = true
+    if e.fix then
+      list[#list + 1] = e.fix
+    elseif e.state ~= "wait" then
+      rest = rest + 1
+    end
+  end
+  for _, m in ipairs((H.CheckGameMacros())) do
+    if not taken[m.index] then
+      if m.fix then list[#list + 1] = m.fix else rest = rest + 1 end
+    end
+  end
+  return list, rest
+end
+
+-- Macros are sorted by name in the game, so a rename moves them: look the
+-- macro up again and touch it only if it is still what the player was shown.
+local function ApplyMacroFix(db, it)
+  local index = MacroIndex(it.index, it.name)
+  if not index then return false end
+  local name, icon, now = GetMacroInfo(index)
+  if name ~= it.name or now ~= it.body then return false end
+  if it.newName ~= name and (GetMacroIndexByName(it.newName) or 0) > 0 then return false end
+  LogUndo(it.newName, name, icon, now)
+  EditMacro(index, it.newName, icon, it.want)
+  if it.own or db.own[name] ~= nil then
+    db.own[name] = nil
+    db.own[it.newName] = it.want
+  end
+  return true
+end
+
+-- Apply the chosen fixes (items from H.FixPlan). after(count) when done.
+function H.ApplyFixes(items, after)
+  if #items == 0 then return end
+  if InCombatLockdown() then
+    UI.AfterCombat("fixes", function() H.ApplyFixes(items, after) end)
+    Print(T("в бою макросы менять нельзя: макрос будет исправлен сразу после боя."))
+    return
+  end
+  local db = UI.DB()
+  db.own = db.own or {}
+  local ranks, done = {}, 0
+  H.BeginLangUndo()
+  for _, it in ipairs(items) do
+    if it.kind == "rank" then
+      ranks[#ranks + 1] = it.rank
+    else
+      local ok, hit = pcall(ApplyMacroFix, db, it)
+      if ok and hit then done = done + 1 end
+    end
+  end
+  H.EndLangUndo()
+  if done > 0 then Print((T("исправлено макросов: %d.")):format(done)) end
+  if #ranks > 0 then H.FixRanks(ranks) end
+  if after then after(done + #ranks) end
+end
+
+-- Fixes the player has already seen in the window and left alone: the
+-- window does not come back for them (the Check page still lists them).
+local function Skipped()
+  local hd = UI.DB().helper
+  hd.fixSkip = hd.fixSkip or {}
+  local key = CharKey()
+  hd.fixSkip[key] = hd.fixSkip[key] or {}
+  return hd.fixSkip[key]
+end
+function H.SkipFixes(items)
+  local skip = Skipped()
+  for _, it in ipairs(items) do skip[it.key] = true end
+end
+
+-- The automatic check: show the fix window if there is something new to
+-- fix. manual - show everything fixable, seen before or not.
+function H.OfferFixes(manual)
+  if not manual and not H.Opt("offer") then return 0 end
+  if InCombatLockdown() then
+    UI.AfterCombat("offerFixes", function() H.OfferFixes(manual) end)
+    return 0
+  end
+  local plan, rest = H.FixPlan()
+  local skip, keep, list = Skipped(), {}, {}
+  for _, it in ipairs(plan) do
+    if skip[it.key] then keep[it.key] = true end
+    if manual or not skip[it.key] then list[#list + 1] = it end
+  end
+  -- forget the skipped ones that are gone
+  wipe(skip)
+  for k in pairs(keep) do skip[k] = true end
+  if #list == 0 then return 0 end
+  H.FixDialog(list, rest)
+  return #list
+end
 local spellWatch = CreateFrame("Frame")
 spellWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
 spellWatch:RegisterEvent("SPELLS_CHANGED")
@@ -2233,6 +2437,7 @@ spellWatch:SetScript("OnEvent", function(_, event)
         pcall(OnSpellsChanged, true)
         pcall(ResyncOnce)
         pcall(H.ResyncLanguage)
+        C_Timer.After(4, function() pcall(H.OfferFixes) end)
       end)
     end
     return
@@ -2831,6 +3036,168 @@ function H.SuggestDialog(entry)
   if f.entry then f.desc.edit:SetFocus() end
 end
 
+-------------------------------------------------------------------------------
+--  Fix window: centre of the screen, a tick per fix, "before -> after"
+-------------------------------------------------------------------------------
+local FIX_W, FIX_MAX, FIX_BAR = 560, 380, 30
+local fixWin
+
+-- A button is never narrower than its text (German is 1.5 times longer).
+local function FitButton(b, w)
+  local fs = b:GetFontString()
+  b:SetWidth(math.max(w, math.ceil(fs and fs:GetStringWidth() or 0) + 30))
+end
+
+local function BuildFixWindow()
+  local f = CreateFrame("Frame", "MacroCoachFixFrame", UIParent, "BackdropTemplate")
+  UI.Card(f)
+  f:SetBackdropColor(0.06, 0.045, 0.03, 1)
+  f:SetWidth(FIX_W)
+  f:SetFrameStrata("DIALOG")
+  f:SetToplevel(true)
+  f:SetClampedToScreen(true)
+  f:EnableMouse(true)
+  f:SetMovable(true)
+  f:RegisterForDrag("LeftButton")
+  f:SetScript("OnDragStart", f.StartMoving)
+  f:SetScript("OnDragStop", f.StopMovingOrSizing)
+  tinsert(UISpecialFrames, "MacroCoachFixFrame")
+  local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+  close:SetPoint("TOPRIGHT", 0, 0)
+  local inner = FIX_W - 32
+  local rowW = inner - FIX_BAR -- room for the scroll bar
+  f.off = {} -- unticked: off[key of the fix] = true
+
+  local title = Title(f)
+  title:SetPoint("TOPLEFT", 16, -16)
+  title:SetText(T("Проверка: есть что исправить"))
+  local note = Small(f, LIGHT)
+  note:SetWidth(inner)
+  note:SetText(T("Отметь, что исправить. Под каждой строкой видно, что было и что станет."))
+  local scroll = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
+  scroll:SetWidth(rowW)
+  local body = CreateFrame("Frame", nil, scroll)
+  body:SetSize(rowW, 10)
+  scroll:SetScrollChild(body)
+  local foot = Small(f)
+  foot:SetWidth(inner)
+
+  local fix = Button(f, "", 230, function()
+    local list = {}
+    for _, it in ipairs(f.items or {}) do
+      if not f.off[it.key] then list[#list + 1] = it end
+    end
+    f:Hide()
+    H.ApplyFixes(list, function() pcall(UI.Relayout) end)
+  end)
+  local later = Button(f, T("Не сейчас"), 120, function() f:Hide() end)
+  FitButton(later, 120)
+  -- Closed by any means: the same list is not offered again. When the whole
+  -- interface is hidden the window itself stays "shown" - that is not a close.
+  f:SetScript("OnHide", function()
+    if not f:IsShown() then H.SkipFixes(f.items or {}) end
+  end)
+
+  local rows = {}
+  local TX = 12 + 26 + 6 + 22 + 10 -- text starts after the tick and the icon
+  local function Row(i)
+    if rows[i] then return rows[i] end
+    local r = CreateFrame("Frame", nil, body)
+    r:SetWidth(rowW)
+    local bg = r:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0, 0, 0, 0.55)
+    r.check = CreateFrame("CheckButton", nil, r, "UICheckButtonTemplate")
+    r.check:SetSize(26, 26)
+    r.check:SetPoint("TOPLEFT", 12, -10)
+    r.check:SetScript("OnClick", function(self)
+      if r.item then
+        f.off[r.item.key] = (not self:GetChecked()) or nil
+        f:Count()
+      end
+    end)
+    r.icon = IconSlot(r, 22)
+    r.icon:SetPoint("TOPLEFT", 12 + 26 + 6, -12)
+    r.name = UI.Text(r, "SystemFont_Med2", "GameFontHighlight", GOLD)
+    r.name:SetPoint("TOPLEFT", TX, -12)
+    r.name:SetWidth(rowW - TX - 12)
+    r.name:SetWordWrap(false)
+    r.diff = Small(r, LIGHT)
+    r.diff:SetWidth(rowW - TX - 12)
+    r.diff:SetPoint("TOPLEFT", TX, -34)
+    rows[i] = r
+    return r
+  end
+
+  function f:Count()
+    local n = 0
+    for _, it in ipairs(self.items or {}) do
+      if not self.off[it.key] then n = n + 1 end
+    end
+    fix:SetText((T("Исправить выбранное (%d)")):format(n))
+    FitButton(fix, 230)
+    fix:SetEnabled(n > 0)
+  end
+
+  function f:Fill(items, rest)
+    self.items = items
+    wipe(self.off)
+    local y = 16 + title:GetStringHeight() + 8
+    note:ClearAllPoints()
+    note:SetPoint("TOPLEFT", 16, -y)
+    y = y + note:GetStringHeight() + 12
+    for _, r in ipairs(rows) do r:Hide() end
+    local by = 0
+    for i, it in ipairs(items) do
+      local r = Row(i)
+      r.item = it
+      r.check:SetChecked(true)
+      r.icon.tex:SetTexture(it.icon or 134400)
+      r.name:SetText(Bar(it.name) .. "  " .. GREYC .. H.FixKind(it.kind) .. "|r")
+      r.diff:SetText(H.FixDiff(it))
+      local rh = 34 + r.diff:GetStringHeight() + 12
+      r:SetHeight(rh)
+      r:ClearAllPoints()
+      r:SetPoint("TOPLEFT", 0, -by)
+      r:Show()
+      by = by + rh + 8
+    end
+    by = math.max(by - 8, 1)
+    body:SetHeight(by)
+    local sh = math.min(by, FIX_MAX)
+    scroll:ClearAllPoints()
+    scroll:SetPoint("TOPLEFT", 16, -y)
+    scroll:SetHeight(sh)
+    if scroll.ScrollBar then scroll.ScrollBar:SetShown(by > FIX_MAX) end
+    y = y + sh + 12
+    local text = T("Вернуть как было можно на странице «Проверка».")
+    if (rest or 0) > 0 then
+      text = (T("Ещё замечаний, которые аддон сам не исправит: %d. Они на странице «Проверка».")):format(rest) .. "\n" .. text
+    end
+    foot:SetText(text)
+    foot:ClearAllPoints()
+    foot:SetPoint("TOPLEFT", 16, -y)
+    y = y + foot:GetStringHeight() + 12
+    self:Count()
+    fix:ClearAllPoints()
+    fix:SetPoint("TOPLEFT", 16, -y)
+    later:ClearAllPoints()
+    later:SetPoint("TOPRIGHT", -16, -y)
+    self:SetHeight(y + 22 + 16)
+  end
+  f:Hide()
+  return f
+end
+
+function H.FixDialog(items, rest)
+  fixWin = fixWin or BuildFixWindow()
+  local f = fixWin
+  f:Fill(items, rest)
+  f:ClearAllPoints()
+  f:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
+  f:Show()
+  f:Raise()
+end
 local ILL_W = 206 -- ширина картинки «было -> стало»
 
 local function OpenTarget(open)
@@ -3219,6 +3586,8 @@ local function BuildCheckPage(key)
     r.issues = Small(r, LIGHT)
     r.issues:SetWidth(inner - tx - 220)
     r.issues:SetPoint("TOPLEFT", tx, -18)
+    r.diff = Small(r, LIGHT)
+    r.diff:SetWidth(inner - tx - 220)
     r.del = ArmedButton(r, T("Удалить"), 100, function()
       if r.data then H.DeleteGameMacro(r.data.index, Refresh, r.data.name) end
     end, T("Удалит этот макрос из окна /macro. Щёлкни ещё раз, чтобы подтвердить."))
@@ -3237,14 +3606,15 @@ local function BuildCheckPage(key)
       .. " " .. T("Здесь же - макросы, где вместо названия заклинания стоит его номер."),
     { T("Другой язык"), T("Язык игры") })
   local lRows = {}
+  -- unticked rows stay as they are: page.langOff[key of the fix] = true
+  page.langOff = {}
   local lFix = Button(lang, "", 220, function()
-    H.BeginLangUndo()
-    H.FixSpellIDs()
-    H.ResyncLanguage(nil, "ui", function()
-      H.EndLangUndo()
-      Refresh()
-    end)
-  end, T("Переведёт название и текст на язык игры. На панелях макросы останутся на своих местах."))
+    local list = {}
+    for _, e in ipairs(page.lang or {}) do
+      if e.fix and not page.langOff[e.fix.key] then list[#list + 1] = e.fix end
+    end
+    H.ApplyFixes(list, Refresh)
+  end, T("Исправит отмеченные макросы. На панелях они останутся на своих местах."))
   local lUndo = Button(lang, T("Вернуть как было"), 170, function() H.UndoLangFix(Refresh) end,
     T("Вернёт макросам текст и названия, какими они были до последнего исправления."))
   local FIXABLE = { todo = true, ids = true, broken = true } -- исправляется кнопкой
@@ -3257,13 +3627,23 @@ local function BuildCheckPage(key)
     long = T("Не переведён: на языке игры текст длиннее 255 знаков."),
     taken = T("Не переведён: название «%s» уже занято другим макросом."),
   }
+  local CHECK_W = 30 -- the tick in front of the icon
   local function LangRow(i)
     if lRows[i] then return lRows[i] end
     local r = CreateFrame("Frame", nil, lang)
     r:SetWidth(inner)
+    r.check = CreateFrame("CheckButton", nil, r, "UICheckButtonTemplate")
+    r.check:SetSize(26, 26)
+    r.check:SetPoint("TOPLEFT", -2, 1)
+    r.check:SetScript("OnClick", function(self)
+      if r.fix then
+        page.langOff[r.fix.key] = (not self:GetChecked()) or nil
+        Refresh()
+      end
+    end)
     r.icon = IconSlot(r, ROW_ICON)
-    r.icon:SetPoint("TOPLEFT", rowPad, -rowPad + 2)
-    local tx = ROW_ICON + rowPad * 2 + 8
+    r.icon:SetPoint("TOPLEFT", CHECK_W + rowPad, -rowPad + 2)
+    local tx = CHECK_W + ROW_ICON + rowPad * 2 + 8
     r.name = UI.Text(r, "SystemFont_Med2", "GameFontHighlight", GOLD)
     r.name:SetPoint("TOPLEFT", tx, 0)
     r.name:SetWidth(inner - tx)
@@ -3271,10 +3651,11 @@ local function BuildCheckPage(key)
     r.why = Small(r, LIGHT)
     r.why:SetWidth(inner - tx)
     r.why:SetPoint("TOPLEFT", tx, -18)
+    r.diff = Small(r, LIGHT)
+    r.diff:SetWidth(inner - tx)
     lRows[i] = r
     return r
   end
-
   function page:Layout()
     local y = -header:Layout(16)
     -- Ранги
@@ -3321,7 +3702,7 @@ local function BuildCheckPage(key)
     lang:ClearAllPoints()
     lang:SetPoint("TOPLEFT", 10, y)
     local todo = 0
-    for _, e in ipairs(page.lang) do if FIXABLE[e.state] then todo = todo + 1 end end
+    for _, e in ipairs(page.lang) do if e.fix and not page.langOff[e.fix.key] then todo = todo + 1 end end
     if #page.lang == 0 then
       lang.status:SetText(StatusText(true, T("Все макросы MacroCoach - на языке игры.")))
     else
@@ -3341,14 +3722,25 @@ local function BuildCheckPage(key)
         why = taken and LANG_WHY.taken:format(taken) or LANG_WHY.long
       end
       r.why:SetText((FIXABLE[e.state] and YELLOW or RED) .. "- " .. (why or "") .. "|r")
-      local h = math.max(18 + r.why:GetStringHeight() + 4, ROW_ICON + rowPad * 2)
+      r.fix = e.fix
+      r.check:SetShown(e.fix ~= nil)
+      r.check:SetChecked(e.fix ~= nil and not page.langOff[e.fix.key])
+      local h = 18 + r.why:GetStringHeight() + 4
+      r.diff:SetShown(e.fix ~= nil)
+      if e.fix then
+        r.diff:SetText(H.FixDiff(e.fix))
+        r.diff:ClearAllPoints()
+        r.diff:SetPoint("TOPLEFT", r.why, "BOTTOMLEFT", 0, -4)
+        h = h + r.diff:GetStringHeight() + 4
+      end
+      h = math.max(h, ROW_ICON + rowPad * 2)
       r:SetHeight(h)
       r:ClearAllPoints()
       r:SetPoint("TOPLEFT", 16, -ly)
       r:Show()
       ly = ly + h + 10
     end
-    lFix:SetText((T("Перевести все (%d)")):format(todo))
+    lFix:SetText((T("Исправить выбранное (%d)")):format(todo))
     lFix:SetShown(todo > 0)
     lUndo:SetShown(H.lastLangUndo ~= nil)
     ly = ButtonRow(lang, { lFix, lUndo }, ly)
@@ -3386,7 +3778,15 @@ local function BuildCheckPage(key)
       for _, is in ipairs(m.issues) do lines[#lines + 1] = (ISSUE_COLOR[is.kind] or "") .. "- " .. is.text .. "|r" end
       r.issues:SetText(table.concat(lines, "\n"))
       r.btn:SetShown(m.english)
-      local h = math.max(18 + r.issues:GetStringHeight() + 4, ROW_ICON + rowPad * 2)
+      local h = 18 + r.issues:GetStringHeight() + 4
+      r.diff:SetShown(m.fix ~= nil)
+      if m.fix then
+        r.diff:SetText(H.FixDiff(m.fix))
+        r.diff:ClearAllPoints()
+        r.diff:SetPoint("TOPLEFT", r.issues, "BOTTOMLEFT", 0, -4)
+        h = h + r.diff:GetStringHeight() + 4
+      end
+      h = math.max(h, ROW_ICON + rowPad * 2)
       r:SetHeight(h)
       r:ClearAllPoints()
       r:SetPoint("TOPLEFT", 16, -my)

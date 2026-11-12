@@ -10,7 +10,7 @@ read in plain words what it does, press Add, and drop it on your action bar.
 - **Recommended**: 6-8 starter macros for your class, each with the problem it solves and when to press it.
 - **Explain**: any macro broken down line by line in plain words.
 - **Builder**: make your own macro from drop-down lists instead of an empty text box. Text mode can translate English spell names to your client's language.
-- **Check**: finds old spell ranks on your bars and replaces them, flags typos, unknown spells and things removed in WoW Forever.
+- **Check**: finds old spell ranks on your bars and replaces them, flags typos, unknown spells and things removed in WoW Forever. Offers the fixes in one window with a tick per fix and shows what changes to what.
 - **Share**: a chat link other MacroCoach users open with a click; export your macros as a text code and import someone else's.
 - **Language change**: switch the game language and the ready-made macros on your bars translate themselves.
 - **Smart consumables**: potion, bandage and food buttons show the item you actually carry.

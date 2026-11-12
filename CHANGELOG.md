@@ -2,6 +2,8 @@
 
 ## 1.2.1
 
+- **Fix window**: when the automatic check (on login and after the trainer) finds something it can fix - old ranks on the bars, macros in another language, spell numbers instead of names, a split line, English spell names - a window in the centre of the screen lists it. Each fix has a tick and shows what it is now and what it will become. A fix you left alone is not offered again; the "Offer fixes" setting turns the window off.
+- The Check tab shows the same "before and after" and lets you tick which macros to fix.
 - Macro name settings (hide, font size) apply to the game's own action bars.
 - One wording everywhere: "Ready-made macros".
 - Lighter: about 150 unused translation strings are removed.

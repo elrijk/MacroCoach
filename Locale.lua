@@ -1269,7 +1269,6 @@ for k, v in pairs({
     ["Макросы MacroCoach в игре должны быть на языке игры: иначе на кнопке квадратики, а макрос не работает. После смены языка аддон переводит их сам; здесь видно, что осталось."] = "MacroCoach macros in the game must be in the game's language: otherwise the button shows squares and the macro does not work. After a language change the addon translates them itself; here you see what is left.",
     ["Другой язык"] = "Other language",
     ["Язык игры"] = "Game language",
-    ["Переведёт название и текст на язык игры. На панелях макросы останутся на своих местах."] = "Translates the name and text into the game's language. The macros stay where they are on your bars.",
     ["На другом языке: переведётся кнопкой ниже."] = "In another language: the button below translates it.",
     ["Названия заклинаний ещё загружаются: нажми «Проверить снова»."] = "Spell names are still loading: press \"Check again\".",
     ["Название готового макроса на другом языке, а текст меняли руками: аддон его не трогает."] = "The name is a ready-made macro's in another language, but the text was edited by hand: the addon leaves it alone.",
@@ -1277,7 +1276,6 @@ for k, v in pairs({
     ["Не переведён: название «%s» уже занято другим макросом."] = "Not translated: the name \"%s\" is already taken by another macro.",
     ["Все макросы MacroCoach - на языке игры."] = "All MacroCoach macros are in the game's language.",
     ["Макрос на другом языке: игра не узнаёт названия заклинаний."] = "A macro in another language: the game does not recognise the spell names.",
-    ["Перевести все (%d)"] = "Translate all (%d)",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
 
 -- 1.2: значок «скопировать текст макроса»
@@ -1321,4 +1319,23 @@ for k, v in pairs({
 -- 1.2: разделы настроек
 for k, v in pairs({
     ["Общее"] = "General",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2.1: fix window with ticks and "before -> after"
+for k, v in pairs({
+    ["Станет"] = "After",
+    ["Ранг %d"] = "Rank %d",
+    ["Старый ранг"] = "Old rank",
+    ["Номера вместо названий"] = "Numbers instead of names",
+    ["Разорванная строка"] = "Split line",
+    ["Английские названия"] = "English names",
+    ["Проверка: есть что исправить"] = "Check: things to fix",
+    ["Отметь, что исправить. Под каждой строкой видно, что было и что станет."] = "Tick what to fix. Each row shows what it is now and what it will become.",
+    ["Исправить выбранное (%d)"] = "Fix selected (%d)",
+    ["Не сейчас"] = "Not now",
+    ["Вернуть как было можно на странице «Проверка»."] = "You can put it back on the Check page.",
+    ["Ещё замечаний, которые аддон сам не исправит: %d. Они на странице «Проверка»."] = "Remarks the addon cannot fix by itself: %d. They are on the Check page.",
+    ["Предлагать исправления"] = "Offer fixes",
+    ["При входе в игру и после тренера аддон показывает окно с тем, что он может исправить: старые ранги на панелях и ошибки в макросах."] = "On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros.",
+    ["Исправит отмеченные макросы. На панелях они останутся на своих местах."] = "Fixes the ticked macros. They stay in their places on the bars.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
