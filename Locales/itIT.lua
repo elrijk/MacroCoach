@@ -1661,4 +1661,7 @@ ns.LOCALES.itIT = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Corregge le macro spuntate. Sulle barre restano al loro posto.",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s è scritto in un'altra lingua, il gioco non lo capirà. Nella lingua del gioco: %s.",
  ["Fix by hand"] = "Correggi a mano",
+ ["Two copies of one macro"] = "Due copie di una macro",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "I pulsanti sulle barre vengono sostituiti, la macro in più viene eliminata.",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "La stessa macro esiste già con il nome «%s». Il pulsante sotto ne tiene una sola.",
 } end

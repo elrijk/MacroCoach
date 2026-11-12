@@ -1907,8 +1907,9 @@ end
 -- макроса до того, как аддон его переписал. Пишется, только пока журнал
 -- открыт (H.BeginLangUndo).
 local undoLog
-local function LogUndo(newName, oldName, icon, body)
-  if undoLog then undoLog[#undoLog + 1] = { new = newName, old = oldName, icon = icon, body = body } end
+-- newName nil: the macro was deleted as a duplicate (char - it was a character macro)
+local function LogUndo(newName, oldName, icon, body, char)
+  if undoLog then undoLog[#undoLog + 1] = { new = newName, old = oldName, icon = icon, body = body, deleted = newName == nil, char = char } end
 end
 function H.BeginLangUndo() undoLog = {} end
 function H.EndLangUndo()
@@ -1923,8 +1924,16 @@ function H.UndoLangFix(after)
   local done = 0
   for i = #log, 1, -1 do
     local e = log[i]
-    local index = GetMacroIndexByName(e.new)
-    if index and index > 0 then
+    local index = not e.deleted and GetMacroIndexByName(e.new) or 0
+    if e.deleted then
+      -- a copy removed as a duplicate comes back; the bar buttons keep the macro they were given
+      if (GetMacroIndexByName(e.old) or 0) == 0 then
+        CreateMacro(e.old, e.icon, e.body, e.char and true or nil)
+        db.own = db.own or {}
+        db.own[e.old] = e.body
+        done = done + 1
+      end
+    elseif index and index > 0 then
       EditMacro(index, e.old, e.icon, e.body)
       if db.own and db.own[e.new] then
         db.own[e.new] = nil
@@ -1980,8 +1989,30 @@ local function ResyncOne(db, class, m, dry)
         end
         return "wait", "spell " .. table.concat(ids, ", "), index, old
       end
-      if old == em.name and (want == now or want == body) then return nil, nil, index, old end -- уже на нужном языке
-      if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then return nil, "name taken: " .. em.name, index, old end
+      if old == em.name and (want == now or want == body) then
+        -- Already in the game's language. A second copy under one of the old
+        -- names is a spare left from another language: report that one.
+        for _, other in ipairs(OldNames(class, m, em)) do
+          local oi = other ~= em.name and GetMacroIndexByName(other) or 0
+          if oi and oi > 0 then
+            local on, _, ob = GetMacroInfo(oi)
+            if on == other and type(ob) == "string" then
+              local trimmed = ob:gsub("%s+$", "")
+              if best or db.own[other] == ob or SameTemplate(trimmed, m) then
+                return nil, "twin: " .. em.name, oi, other, em.name, ob, ob
+              end
+            end
+          end
+        end
+        return nil, nil, index, old
+      end
+      if old ~= em.name and (GetMacroIndexByName(em.name) or 0) > 0 then
+        -- "twin": the macro under the new name is this same ready-made macro, so the old copy is a spare
+        local _, _, twin = GetMacroInfo(GetMacroIndexByName(em.name))
+        twin = type(twin) == "string" and (twin:gsub("%s+$", "")) or nil
+        local same = best or (twin ~= nil and (twin == want or SameTemplate(twin, m)))
+        return nil, (same and "twin: " or "name taken: ") .. em.name, index, old, em.name, want, now
+      end
       if UI.CharCount(want) > UI.MAX_CHARS then return nil, "too long", index, old end
       if dry then return "todo", nil, index, old, em.name, want, now end
       LogUndo(em.name, old, icon, now)
@@ -2219,7 +2250,7 @@ end
 -- Для вкладки «Проверка»: какие макросы аддона в игре не на языке игры и в
 -- каких макросах игры вместо названий стоят номера заклинаний.
 -- { { index, name, icon, state = "todo" | "ids" | "broken" | "wait" | "blocked" | "changed", why } }
-local LANG_RANK = { ok = 5, todo = 4, wait = 3, blocked = 2, changed = 1 }
+local LANG_RANK = { ok = 5, todo = 4, dup = 3.5, wait = 3, blocked = 2, changed = 1 }
 function H.LanguageScan()
   local db = UI.DB()
   db.own = db.own or {}
@@ -2230,6 +2261,7 @@ function H.LanguageScan()
     if res == "todo" or res == "wait" then state = res
     elseif why == "other" then return
     elseif why == "changed" then state = "changed"
+    elseif why and tostring(why):find("^twin: ") then state = "dup"
     elseif why then state = "blocked"
     else state = "ok" end
     -- одно название бывает у макросов разных классов: верим тому, чей текст совпал
@@ -2263,13 +2295,16 @@ function H.LanguageScan()
       -- the template no longer fits, but the spell names can still be translated.
       if e.state == "changed" then
         local _, _, body = GetMacroInfo(e.index)
-        local want = type(body) == "string" and EnglishFix(body) or nil
-        if want then
-          local free = e.newName and (GetMacroIndexByName(e.newName) or 0) == 0
-          e.state, e.want, e.body, e.newName, e.own = "todo", want, body, free and e.newName or e.name, false
+        if type(body) == "string" then
+          local want = EnglishFix(body)
+          local free = e.newName and e.newName ~= e.name and (GetMacroIndexByName(e.newName) or 0) == 0
+          -- nothing to translate inside: the name alone is still worth fixing
+          if want or free then
+            e.state, e.want, e.body, e.newName, e.own = "todo", want or body, body, free and e.newName or e.name, false
+          end
         end
       end
-      if e.want and (e.state == "todo" or e.state == "ids" or e.state == "broken") then e.fix = MacroItem(e, e.state) end
+      if e.want and (e.state == "todo" or e.state == "ids" or e.state == "broken" or e.state == "dup") then e.fix = MacroItem(e, e.state) end
       list[#list + 1] = e
     end
   end
@@ -2331,6 +2366,7 @@ function H.FixKind(kind)
   if kind == "ids" then return T("Номера вместо названий") end
   if kind == "broken" then return T("Разорванная строка") end
   if kind == "english" then return T("Английские названия") end
+  if kind == "dup" then return T("Два одинаковых макроса") end
   return T("Другой язык") -- "todo" and "foreign"
 end
 
@@ -2378,6 +2414,11 @@ function H.FixDiff(it)
   end
   if it.kind == "rank" then
     pair((T("Ранг %d")):format(it.rank.rank), (T("Ранг %d")):format(it.rank.bestRank))
+    return table.concat(out, "\n")
+  end
+  if it.kind == "dup" then
+    pair(it.name .. " + " .. it.newName, it.newName)
+    out[#out + 1] = GREYC .. T("Кнопки на панелях заменятся, лишний макрос удалится.") .. "|r"
     return table.concat(out, "\n")
   end
   if it.newName ~= it.name then pair(it.name, it.newName) end
@@ -2440,6 +2481,30 @@ local function ApplyMacroFix(db, it)
   return true
 end
 
+-- Two copies of one ready-made macro, the old one under a name in another
+-- language: the bar buttons of the old copy get the current one, then the
+-- old copy is deleted.
+local function MergeTwin(db, it)
+  local old = MacroIndex(it.index, it.name)
+  local new = GetMacroIndexByName(it.newName)
+  if not old or not new or new == 0 or old == new then return false end
+  local name, icon, body = GetMacroInfo(old)
+  if name ~= it.name then return false end
+  local getText = (C_ActionBar and C_ActionBar.GetActionText) or GetActionText
+  for slot = 1, MAX_ACTION_SLOT do
+    local kind, id = GetActionInfo(slot)
+    if kind == "macro" and ((getText and getText(slot) == name) or (not getText and id == old)) then
+      ClearCursor()
+      PickupMacro(new)
+      if GetCursorInfo() then pcall(PlaceAction, slot) end
+      ClearCursor() -- the old button is on the cursor now
+    end
+  end
+  LogUndo(nil, name, icon, body, old > (MAX_ACCOUNT_MACROS or 120))
+  DeleteMacro(old)
+  db.own[name] = nil
+  return true
+end
 -- Apply the chosen fixes (items from H.FixPlan). after(count) when done.
 function H.ApplyFixes(items, after)
   if #items == 0 then return end
@@ -2455,6 +2520,9 @@ function H.ApplyFixes(items, after)
   for _, it in ipairs(items) do
     if it.kind == "rank" then
       ranks[#ranks + 1] = it.rank
+    elseif it.kind == "dup" then
+      local ok, hit = pcall(MergeTwin, db, it)
+      if ok and hit then done = done + 1 end
     else
       local ok, hit = pcall(ApplyMacroFix, db, it)
       if ok and hit then done = done + 1 end
@@ -3727,7 +3795,7 @@ local function BuildCheckPage(key)
   end, T("Исправит отмеченные макросы. На панелях они останутся на своих местах."))
   local lUndo = Button(lang, T("Вернуть как было"), 170, function() H.UndoLangFix(Refresh) end,
     T("Вернёт макросам текст и названия, какими они были до последнего исправления."))
-  local FIXABLE = { todo = true, ids = true, broken = true } -- исправляется кнопкой
+  local FIXABLE = { todo = true, ids = true, broken = true, dup = true } -- исправляется кнопкой
   local LANG_WHY = {
     todo = T("На другом языке: переведётся кнопкой ниже."),
     ids = T("В тексте номера заклинаний вместо названий: игра их не понимает. Кнопка ниже заменит их названиями."),
@@ -3736,6 +3804,7 @@ local function BuildCheckPage(key)
     changed = T("Название готового макроса на другом языке, а текст меняли руками: аддон его не трогает."),
     long = T("Не переведён: на языке игры текст длиннее 255 знаков."),
     taken = T("Не переведён: название «%s» уже занято другим макросом."),
+    dup = T("Этот же макрос уже есть под названием «%s». Кнопка ниже оставит один."),
   }
   local CHECK_W = 30 -- the tick in front of the icon
   local function LangRow(i)
@@ -3827,6 +3896,7 @@ local function BuildCheckPage(key)
       r.icon.tex:SetTexture(e.icon or 134400)
       r.name:SetText(e.name or "")
       local why = LANG_WHY[e.state]
+      if e.state == "dup" then why = LANG_WHY.dup:format(tostring(e.newName)) end
       if e.state == "blocked" then
         local taken = tostring(e.why or ""):match("^name taken: (.+)$")
         why = taken and LANG_WHY.taken:format(taken) or LANG_WHY.long

@@ -1731,4 +1731,7 @@ ns.LOCALES.esES = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Corrige las macros marcadas. En las barras se quedan en su sitio.",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s está escrito en otro idioma, el juego no lo entenderá. En el idioma del juego: %s.",
  ["Fix by hand"] = "Corrígelo a mano",
+ ["Two copies of one macro"] = "Dos copias de una macro",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "Los botones de las barras se sustituyen y la macro sobrante se borra.",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "La misma macro ya existe con el nombre «%s». El botón de abajo deja una sola.",
 } end

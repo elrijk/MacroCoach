@@ -1707,4 +1707,7 @@ ns.LOCALES.frFR = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Corrige les macros cochées. Elles restent à leur place sur les barres.",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s est écrit dans une autre langue, le jeu ne le comprendra pas. Dans la langue du jeu : %s.",
  ["Fix by hand"] = "À corriger à la main",
+ ["Two copies of one macro"] = "Deux copies d'une macro",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "Les boutons des barres sont remplacés, la macro en trop est supprimée.",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "La même macro existe déjà sous le nom « %s ». Le bouton ci-dessous n'en garde qu'une.",
 } end

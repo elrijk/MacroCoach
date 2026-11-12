@@ -1737,4 +1737,7 @@ ns.LOCALES.koKR = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "체크한 매크로를 고칩니다. 단축바에서는 제자리에 남습니다.",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s: 다른 언어로 적혀 있어 게임이 이해하지 못합니다. 게임 언어로는 %s.",
  ["Fix by hand"] = "직접 고치기",
+ ["Two copies of one macro"] = "같은 매크로 두 개",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "단축바의 버튼이 교체되고 남는 매크로는 삭제됩니다.",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "같은 매크로가 이미 '%s' 이름으로 있습니다. 아래 버튼을 누르면 하나만 남습니다.",
 } end

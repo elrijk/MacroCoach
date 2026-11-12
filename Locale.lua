@@ -1344,3 +1344,10 @@ for k, v in pairs({
     ["%s записано на другом языке, игра такое не поймёт. На языке игры: %s."] = "%s is written in another language, the game won't understand it. In the game's language: %s.",
     ["Исправь вручную"] = "Fix by hand",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2.1: macro names left in another language
+for k, v in pairs({
+    ["Два одинаковых макроса"] = "Two copies of one macro",
+    ["Кнопки на панелях заменятся, лишний макрос удалится."] = "Buttons on the bars are replaced, the extra macro is deleted.",
+    ["Этот же макрос уже есть под названием «%s». Кнопка ниже оставит один."] = "The same macro already exists as \"%s\". The button below keeps one.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

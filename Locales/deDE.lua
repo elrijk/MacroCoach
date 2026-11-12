@@ -1723,4 +1723,7 @@ ns.LOCALES.deDE = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Behebt die angehakten Makros. Auf den Leisten bleiben sie an ihrem Platz.",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s ist in einer anderen Sprache geschrieben, das Spiel versteht das nicht. In der Sprache des Spiels: %s.",
  ["Fix by hand"] = "Von Hand beheben",
+ ["Two copies of one macro"] = "Zwei Kopien eines Makros",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "Die Tasten auf den Leisten werden ersetzt, das überzählige Makro wird gelöscht.",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "Dasselbe Makro gibt es schon unter dem Namen „%s“. Die Taste unten behält eines.",
 } end

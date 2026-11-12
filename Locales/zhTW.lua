@@ -1739,4 +1739,7 @@ ns.LOCALES.zhTW = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "修復勾選的巨集。它們在快捷列上的位置不變。",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s 是用另一種語言寫的，遊戲無法辨識。遊戲語言中是：%s。",
  ["Fix by hand"] = "需手動修復",
+ ["Two copies of one macro"] = "同一個巨集有兩份",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "快捷列上的按鈕會被替換，多餘的巨集會被刪除。",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "同一個巨集已經以「%s」為名存在。下面的按鈕會只保留一個。",
 } end

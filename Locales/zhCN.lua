@@ -1739,4 +1739,7 @@ ns.LOCALES.zhCN = function() return {
  ["Fixes the ticked macros. They stay in their places on the bars."] = "修复勾选的宏。它们在动作条上的位置不变。",
  ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s 是用另一种语言写的，游戏无法识别。游戏语言中是：%s。",
  ["Fix by hand"] = "需手动修复",
+ ["Two copies of one macro"] = "同一个宏有两份",
+ ["Buttons on the bars are replaced, the extra macro is deleted."] = "动作条上的按钮会被替换，多余的宏会被删除。",
+ ["The same macro already exists as \"%s\". The button below keeps one."] = "同一个宏已经以“%s”为名存在。下面的按钮会只保留一个。",
 } end
