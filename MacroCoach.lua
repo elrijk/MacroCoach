@@ -68,6 +68,11 @@ local function DB()
   db.minimap = db.minimap or { hide = false, angle = 200 }
   db.edits = db.edits or {}
   db.barNames = db.barNames or {}
+  -- 1.2.2: "Hide macro names" starts unticked for everyone, once
+  if not db.namesReset122 then
+    db.barNames.hide = nil
+    db.namesReset122 = true
+  end
   db.helper = db.helper or {}
   return db
 end

@@ -12,7 +12,7 @@
 ## Notes-zhCN: 适合所有职业的 WoW Forever 现成宏和自制宏构建器：简单易懂的说明、一键添加、等级和宏检查、新手提示。/mc
 ## Notes-zhTW: 適合所有職業的 WoW Forever 現成巨集和自製巨集建構器：簡單易懂的說明、一鍵新增、等級和巨集檢查、新手提示。/mc
 ## Author: DesignerGod
-## Version: 1.2.1
+## Version: 1.2.2
 ## Category: Action Bars
 ## Category-ruRU: Панели команд
 ## AddonCompartmentFunc: MacroCoach_OnAddonCompartmentClick

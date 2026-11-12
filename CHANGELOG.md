@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- "Hide macro names" is off by default. After this update it is unticked once for everyone; tick it again in the settings if you want macro names hidden.
+
 ## 1.2.1
 
 - **Fix window**: when the automatic check (on login and after the trainer) finds something it can fix - old ranks on the bars, macros in another language, spell numbers instead of names, a split line, English spell names - a window in the centre of the screen lists it. Each fix has a tick and shows what it is now and what it will become. A fix you left alone is not offered again; the "Offer fixes" setting turns the window off.
