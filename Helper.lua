@@ -1947,6 +1947,21 @@ function H.UndoLangFix(after)
   if after then after() end
 end
 
+-- Consumable macros show the item that is in the bags: the first line is
+-- rewritten to "#showtooltip item:ID". For comparing with the data, undo that.
+local function Plain(body) return (body:gsub("^#showtooltip item:%d+", "#showtooltip")) end
+
+-- A consumable macro of the addon: "#showtooltip" and nothing but "/use item:ID"
+-- lines. The item list differs by character and bags, so the shape is what counts.
+local function OursBest(body)
+  local rest = Plain(body):match("^#showtooltip\n(.+)$")
+  if not rest then return false end
+  for line in (rest .. "\n"):gmatch("(.-)\n") do
+    if not line:match("^/use item:%d+$") then return false end
+  end
+  return true
+end
+
 -- Один готовый макрос: найти его в игре под любым из названий и перевести.
 -- Изменённый игроком готовый макрос сверяется со своим изменённым текстом.
 -- dry - ничего не менять, только сказать, что будет.
@@ -1970,9 +1985,10 @@ local function ResyncOne(db, class, m, dry)
           local ok, hit = pcall(SameShape, body, em.body)
           ours = ok and hit
         else
-          ours = SameTemplate(body, m)
+          ours = SameTemplate(body, m) or SameTemplate(Plain(body), m)
         end
       end
+      if not ours and best then ours = OursBest(body) end
       if not ours then
         -- макрос другого класса с тем же названием или текст меняли руками;
         -- "changed" - название наше, но на другом языке
@@ -1989,7 +2005,7 @@ local function ResyncOne(db, class, m, dry)
         end
         return "wait", "spell " .. table.concat(ids, ", "), index, old
       end
-      if old == em.name and (want == now or want == body) then
+      if old == em.name and (want == now or want == body or want == Plain(body)) then
         -- Already in the game's language. A second copy under one of the old
         -- names is a spare left from another language: report that one.
         for _, other in ipairs(OldNames(class, m, em)) do
@@ -1998,7 +2014,7 @@ local function ResyncOne(db, class, m, dry)
             local on, _, ob = GetMacroInfo(oi)
             if on == other and type(ob) == "string" then
               local trimmed = ob:gsub("%s+$", "")
-              if best or db.own[other] == ob or SameTemplate(trimmed, m) then
+              if db.own[other] == ob or (best and OursBest(trimmed)) or SameTemplate(trimmed, m) or SameTemplate(Plain(trimmed), m) then
                 return nil, "twin: " .. em.name, oi, other, em.name, ob, ob
               end
             end
