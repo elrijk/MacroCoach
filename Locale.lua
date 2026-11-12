@@ -1351,3 +1351,10 @@ for k, v in pairs({
     ["Кнопки на панелях заменятся, лишний макрос удалится."] = "Buttons on the bars are replaced, the extra macro is deleted.",
     ["Этот же макрос уже есть под названием «%s». Кнопка ниже оставит один."] = "The same macro already exists as \"%s\". The button below keeps one.",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2.1: spell ID in tooltips
+for k, v in pairs({
+    ["ID заклинания в подсказке"] = "Spell ID in tooltips",
+    ["При наведении на заклинание внизу подсказки показывается его номер (ID)."] = "When you hover a spell, its number (ID) is shown at the bottom of the tooltip.",
+    ["ID заклинания: %d"] = "Spell ID: %d",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end

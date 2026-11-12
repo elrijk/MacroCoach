@@ -1742,4 +1742,7 @@ ns.LOCALES.zhTW = function() return {
  ["Two copies of one macro"] = "同一個巨集有兩份",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "快捷列上的按鈕會被替換，多餘的巨集會被刪除。",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "同一個巨集已經以「%s」為名存在。下面的按鈕會只保留一個。",
+ ["Spell ID in tooltips"] = "在提示中顯示法術 ID",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "把滑鼠移到法術上時，提示底部會顯示它的編號（ID）。",
+ ["Spell ID: %d"] = "法術 ID：%d",
 } end

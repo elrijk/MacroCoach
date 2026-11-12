@@ -4,6 +4,10 @@
 
 - **Fix window**: when the automatic check (on login and after the trainer) finds something it can fix - old ranks on the bars, macros in another language, spell numbers instead of names, a split line, English spell names - a window in the centre of the screen lists it. Each fix has a tick and shows what it is now and what it will become. A fix you left alone is not offered again; the "Offer fixes" setting turns the window off.
 - The Check tab shows the same "before and after" and lets you tick which macros to fix.
+- Names left from another game language: the check now finds spell names and macro names in the old language, offers the translation, and merges a spare copy of a ready-made macro into the current one (its bar buttons are moved, the copy is removed, undo brings it back).
+- The fix window also lists remarks the addon cannot fix by itself. `/mc fix` opens the window by hand.
+- "Hide macro names" and the font size reach every action bar again, however the bar is built.
+- New setting "Spell ID in tooltips" (off by default): the spell's ID at the bottom of its tooltip.
 - Macro name settings (hide, font size) apply to the game's own action bars.
 - One wording everywhere: "Ready-made macros".
 - Lighter: about 150 unused translation strings are removed.

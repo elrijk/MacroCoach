@@ -1734,4 +1734,7 @@ ns.LOCALES.esES = function() return {
  ["Two copies of one macro"] = "Dos copias de una macro",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "Los botones de las barras se sustituyen y la macro sobrante se borra.",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "La misma macro ya existe con el nombre «%s». El botón de abajo deja una sola.",
+ ["Spell ID in tooltips"] = "ID del hechizo en la descripción",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "Al pasar el cursor por un hechizo, su número (ID) aparece al final de la descripción.",
+ ["Spell ID: %d"] = "ID del hechizo: %d",
 } end

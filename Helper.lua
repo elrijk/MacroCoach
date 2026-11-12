@@ -36,7 +36,7 @@ local function Print(msg) UI.Print(msg) end
 --  Настройки помощника (MacroCoachDB.helper)
 -------------------------------------------------------------------------------
 -- showCode: текст макроса на карточках открыт сразу (иначе - по щелчку на «?»).
-local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false, readyOnly = false, offer = true }
+local DEFAULTS = { safeHeal = true, altSelf = false, learn = false, tips = true, showCode = false, readyOnly = false, offer = true, spellID = false }
 
 function H.Opt(key)
   local v = UI.DB().helper[key]
@@ -737,6 +737,17 @@ end
 -- Режим «Учусь»: то же объяснение - в подсказке макроса на панели. Макрос
 -- на кнопке находим по подписи кнопки (она же название макроса). В бою
 -- подсказку не удлиняем.
+-- The spell ID at the bottom of every spell tooltip (a setting, off by default).
+if TooltipDataProcessor and Enum and Enum.TooltipDataType then
+  TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(tip, data)
+    pcall(function()
+      if not H.Opt("spellID") or (tip.IsForbidden and tip:IsForbidden()) then return end
+      local id = data and data.id
+      if type(id) ~= "number" then return end
+      tip:AddLine((T("ID заклинания: %d")):format(id), 0.62, 0.62, 0.62)
+    end)
+  end)
+end
 local function TipExplain(tip, slot)
   if not H.Opt("learn") or InCombatLockdown() then return end
   if GetActionInfo(slot) ~= "macro" then return end

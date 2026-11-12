@@ -1664,4 +1664,7 @@ ns.LOCALES.itIT = function() return {
  ["Two copies of one macro"] = "Due copie di una macro",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "I pulsanti sulle barre vengono sostituiti, la macro in più viene eliminata.",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "La stessa macro esiste già con il nome «%s». Il pulsante sotto ne tiene una sola.",
+ ["Spell ID in tooltips"] = "ID dell'incantesimo nel tooltip",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "Passando il cursore su un incantesimo, il suo numero (ID) compare in fondo al tooltip.",
+ ["Spell ID: %d"] = "ID incantesimo: %d",
 } end

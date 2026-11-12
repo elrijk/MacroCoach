@@ -1742,4 +1742,7 @@ ns.LOCALES.zhCN = function() return {
  ["Two copies of one macro"] = "同一个宏有两份",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "动作条上的按钮会被替换，多余的宏会被删除。",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "同一个宏已经以“%s”为名存在。下面的按钮会只保留一个。",
+ ["Spell ID in tooltips"] = "在提示中显示法术 ID",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "把鼠标移到法术上时，提示底部会显示它的编号（ID）。",
+ ["Spell ID: %d"] = "法术 ID：%d",
 } end

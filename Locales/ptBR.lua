@@ -1673,4 +1673,7 @@ ns.LOCALES.ptBR = function() return {
  ["Two copies of one macro"] = "Duas cópias de uma macro",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "Os botões nas barras são trocados e a macro sobrando é apagada.",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "A mesma macro já existe com o nome \"%s\". O botão abaixo deixa só uma.",
+ ["Spell ID in tooltips"] = "ID do feitiço na dica",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "Ao passar o cursor sobre um feitiço, o número (ID) aparece no fim da dica.",
+ ["Spell ID: %d"] = "ID do feitiço: %d",
 } end

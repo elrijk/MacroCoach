@@ -931,9 +931,27 @@ local function OnBars(m)
   return name ~= nil and BarMacroNames()[name] == true
 end
 
--- Action bar buttons that show a macro name: the game's own bars.
+-- Action bar buttons that show a macro name. The game's own bars are known
+-- by name; bars built in any other way are found by the shape of a button:
+-- a CheckButton with the Name, HotKey and Count labels of an action button.
 local BAR_PREFIXES = { "ActionButton", "MultiBarBottomLeftButton", "MultiBarBottomRightButton", "MultiBarRightButton",
   "MultiBarLeftButton", "MultiBar5Button", "MultiBar6Button", "MultiBar7Button" }
+local shaped, shapedAt -- buttons found by shape and when (the search walks every frame)
+local function ShapedButtons()
+  local now = GetTime()
+  if shaped and now - shapedAt < 10 then return shaped end
+  shaped, shapedAt = {}, now
+  local f = EnumerateFrames()
+  while f do
+    local ok, hit = pcall(function()
+      return not (f.IsForbidden and f:IsForbidden()) and f:IsObjectType("CheckButton")
+        and type(f.Name) == "table" and type(f.HotKey) == "table" and type(f.Count) == "table"
+    end)
+    if ok and hit then shaped[#shaped + 1] = f end
+    f = EnumerateFrames(f)
+  end
+  return shaped
+end
 local function ForEachBarButton(fn)
   local seen = {}
   local function visit(b)
@@ -949,8 +967,8 @@ local function ForEachBarButton(fn)
   for _, prefix in ipairs(BAR_PREFIXES) do
     for i = 1, 12 do visit(_G[prefix .. i]) end
   end
+  for _, b in ipairs(ShapedButtons()) do visit(b) end
 end
-
 -- Обычный размер названий на кнопках (как было до аддона).
 function ns.DefaultNameSize()
   local size
@@ -1124,6 +1142,7 @@ barWatch:SetScript("OnEvent", function(_, event)
     -- Панели других аддонов создают кнопки чуть позже: второй проход.
     C_Timer.After(1, ns.ApplyBarNames)
     C_Timer.After(5, ns.ApplyBarNames)
+    C_Timer.After(15, ns.ApplyBarNames) -- bars that are built late
   elseif event == "PLAYER_REGEN_ENABLED" then
     if namesPending then ns.ApplyBarNames() end
     return

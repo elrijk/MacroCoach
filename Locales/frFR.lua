@@ -1710,4 +1710,7 @@ ns.LOCALES.frFR = function() return {
  ["Two copies of one macro"] = "Deux copies d'une macro",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "Les boutons des barres sont remplacés, la macro en trop est supprimée.",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "La même macro existe déjà sous le nom « %s ». Le bouton ci-dessous n'en garde qu'une.",
+ ["Spell ID in tooltips"] = "ID du sort dans l'infobulle",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "Au survol d'un sort, son numéro (ID) s'affiche en bas de l'infobulle.",
+ ["Spell ID: %d"] = "ID du sort : %d",
 } end

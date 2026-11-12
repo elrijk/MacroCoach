@@ -1726,4 +1726,7 @@ ns.LOCALES.deDE = function() return {
  ["Two copies of one macro"] = "Zwei Kopien eines Makros",
  ["Buttons on the bars are replaced, the extra macro is deleted."] = "Die Tasten auf den Leisten werden ersetzt, das überzählige Makro wird gelöscht.",
  ["The same macro already exists as \"%s\". The button below keeps one."] = "Dasselbe Makro gibt es schon unter dem Namen „%s“. Die Taste unten behält eines.",
+ ["Spell ID in tooltips"] = "Zauber-ID im Tooltip",
+ ["When you hover a spell, its number (ID) is shown at the bottom of the tooltip."] = "Wenn du über einen Zauber fährst, steht seine Nummer (ID) unten im Tooltip.",
+ ["Spell ID: %d"] = "Zauber-ID: %d",
 } end
