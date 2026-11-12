@@ -1734,8 +1734,9 @@ ns.LOCALES.zhTW = function() return {
  ["Fix selected (%d)"] = "修復所選 (%d)",
  ["Not now"] = "以後再說",
  ["You can put it back on the Check page."] = "可以在「檢查」頁面放回原樣。",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "插件無法自行修復的提示：%d 條。它們在「檢查」頁面。",
  ["Offer fixes"] = "提示可修復的問題",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "登入遊戲時和拜訪訓練師之後，插件會彈出視窗列出它能修復的內容：快捷列上的舊等級和巨集裡的錯誤。",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "修復勾選的巨集。它們在快捷列上的位置不變。",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s 是用另一種語言寫的，遊戲無法辨識。遊戲語言中是：%s。",
+ ["Fix by hand"] = "需手動修復",
 } end

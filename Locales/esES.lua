@@ -1726,8 +1726,9 @@ ns.LOCALES.esES = function() return {
  ["Fix selected (%d)"] = "Corregir lo marcado (%d)",
  ["Not now"] = "Ahora no",
  ["You can put it back on the Check page."] = "Puedes devolverlo en la página «Revisar».",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "Avisos que el addon no puede corregir solo: %d. Están en la página «Revisar».",
  ["Offer fixes"] = "Ofrecer correcciones",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "Al entrar en el juego y tras visitar al instructor, el addon muestra una ventana con lo que puede corregir: rangos antiguos en las barras y errores en las macros.",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Corrige las macros marcadas. En las barras se quedan en su sitio.",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s está escrito en otro idioma, el juego no lo entenderá. En el idioma del juego: %s.",
+ ["Fix by hand"] = "Corrígelo a mano",
 } end

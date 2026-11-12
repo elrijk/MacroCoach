@@ -1734,8 +1734,9 @@ ns.LOCALES.zhCN = function() return {
  ["Fix selected (%d)"] = "修复所选 (%d)",
  ["Not now"] = "以后再说",
  ["You can put it back on the Check page."] = "可以在“检查”页面放回原样。",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "插件无法自行修复的提示：%d 条。它们在“检查”页面。",
  ["Offer fixes"] = "提示可修复的问题",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "登录游戏时和拜访训练师之后，插件会弹出窗口列出它能修复的内容：动作条上的旧等级和宏里的错误。",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "修复勾选的宏。它们在动作条上的位置不变。",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s 是用另一种语言写的，游戏无法识别。游戏语言中是：%s。",
+ ["Fix by hand"] = "需手动修复",
 } end

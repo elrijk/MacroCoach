@@ -1718,8 +1718,9 @@ ns.LOCALES.deDE = function() return {
  ["Fix selected (%d)"] = "Ausgewählte beheben (%d)",
  ["Not now"] = "Nicht jetzt",
  ["You can put it back on the Check page."] = "Rückgängig machen kannst du es auf der Seite „Prüfen“.",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "Anmerkungen, die das Addon nicht selbst beheben kann: %d. Sie stehen auf der Seite „Prüfen“.",
  ["Offer fixes"] = "Korrekturen anbieten",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "Beim Einloggen und nach dem Besuch beim Lehrer zeigt das Addon ein Fenster mit dem, was es beheben kann: alte Ränge auf den Leisten und Fehler in Makros.",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Behebt die angehakten Makros. Auf den Leisten bleiben sie an ihrem Platz.",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s ist in einer anderen Sprache geschrieben, das Spiel versteht das nicht. In der Sprache des Spiels: %s.",
+ ["Fix by hand"] = "Von Hand beheben",
 } end

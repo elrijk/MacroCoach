@@ -1334,8 +1334,13 @@ for k, v in pairs({
     ["Исправить выбранное (%d)"] = "Fix selected (%d)",
     ["Не сейчас"] = "Not now",
     ["Вернуть как было можно на странице «Проверка»."] = "You can put it back on the Check page.",
-    ["Ещё замечаний, которые аддон сам не исправит: %d. Они на странице «Проверка»."] = "Remarks the addon cannot fix by itself: %d. They are on the Check page.",
     ["Предлагать исправления"] = "Offer fixes",
     ["При входе в игру и после тренера аддон показывает окно с тем, что он может исправить: старые ранги на панелях и ошибки в макросах."] = "On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros.",
     ["Исправит отмеченные макросы. На панелях они останутся на своих местах."] = "Fixes the ticked macros. They stay in their places on the bars.",
+}) do if ns.EN[k] == nil then ns.EN[k] = v end end
+
+-- 1.2.1: names left in another language, remarks without a fix
+for k, v in pairs({
+    ["%s записано на другом языке, игра такое не поймёт. На языке игры: %s."] = "%s is written in another language, the game won't understand it. In the game's language: %s.",
+    ["Исправь вручную"] = "Fix by hand",
 }) do if ns.EN[k] == nil then ns.EN[k] = v end end

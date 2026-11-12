@@ -1732,8 +1732,9 @@ ns.LOCALES.koKR = function() return {
  ["Fix selected (%d)"] = "선택 항목 고치기 (%d)",
  ["Not now"] = "나중에",
  ["You can put it back on the Check page."] = "되돌리기는 '검사' 페이지에서 할 수 있습니다.",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "애드온이 스스로 고칠 수 없는 항목: %d개. '검사' 페이지에 있습니다.",
  ["Offer fixes"] = "수정 제안하기",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "접속할 때와 상급자를 다녀온 뒤, 애드온이 고칠 수 있는 것을 창으로 보여줍니다: 단축바의 낮은 레벨 주문과 매크로 오류.",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "체크한 매크로를 고칩니다. 단축바에서는 제자리에 남습니다.",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s: 다른 언어로 적혀 있어 게임이 이해하지 못합니다. 게임 언어로는 %s.",
+ ["Fix by hand"] = "직접 고치기",
 } end

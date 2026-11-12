@@ -1665,8 +1665,9 @@ ns.LOCALES.ptBR = function() return {
  ["Fix selected (%d)"] = "Corrigir os marcados (%d)",
  ["Not now"] = "Agora não",
  ["You can put it back on the Check page."] = "Você pode devolver na página \"Verificar\".",
- ["Remarks the addon cannot fix by itself: %d. They are on the Check page."] = "Avisos que o addon não consegue corrigir sozinho: %d. Estão na página \"Verificar\".",
  ["Offer fixes"] = "Oferecer correções",
  ["On login and after a visit to the trainer the addon shows a window with what it can fix: old ranks on the bars and mistakes in macros."] = "Ao entrar no jogo e depois de visitar o instrutor, o addon mostra uma janela com o que pode corrigir: graus antigos nas barras e erros nas macros.",
  ["Fixes the ticked macros. They stay in their places on the bars."] = "Corrige as macros marcadas. Nas barras elas ficam no lugar.",
+ ["%s is written in another language, the game won't understand it. In the game's language: %s."] = "%s está escrito em outro idioma, o jogo não vai entender. No idioma do jogo: %s.",
+ ["Fix by hand"] = "Corrija à mão",
 } end

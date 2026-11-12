@@ -1136,6 +1136,9 @@ SlashCmdList.MACROCOACH = function(msg)
     local _, class = UnitClass("player")
     class = ns.MACROS[class] and class or "GENERAL"
     Open(class, ns.UI.TabIndex(class, "Рекомендации") or 1)
+  elseif msg == "fix" then
+    -- the fix window by hand; nothing to show - the Check page
+    if not (ns.Helper and ns.Helper.OfferFixes) or ns.Helper.OfferFixes(true) == 0 then Open("HELPER", 2) end
   elseif msg == "check" or msg == "ranks" then
     Open("HELPER", 2)
   elseif msg == "update" then
