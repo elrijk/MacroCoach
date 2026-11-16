@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+
+- New ready-made macro for priests, mages and warlocks: **Wand, no break**. It shoots your wand, does nothing while a channel is going (so Mind Flay, Arcane Missiles or Drain Life is not broken), and pressing again does not turn shooting off.
+
 ## 1.2.2
 
 - "Hide macro names" is off by default. After this update it is unticked once for everyone; tick it again in the settings if you want macro names hidden.

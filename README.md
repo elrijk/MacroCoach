@@ -5,7 +5,7 @@ read in plain words what it does, press Add, and drop it on your action bar.
 
 ## What it does
 
-- **294 macros** for all 9 classes plus general ones. Spells are stored by ID, so every macro works in any client language.
+- **297 macros** for all 9 classes plus general ones. Spells are stored by ID, so every macro works in any client language.
 - **Why macros?** A short intro with before/after pictures made from your own class spells.
 - **Recommended**: 6-8 starter macros for your class, each with the problem it solves and when to press it.
 - **Explain**: any macro broken down line by line in plain words.

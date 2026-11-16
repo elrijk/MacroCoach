@@ -19,6 +19,17 @@ ns.TAB_ORDER = {
   DRUID = { "Общие", "Баланс", "Сила зверя", "Исцеление" },
 }
 
+-- The wand macros are the same for priests, mages and warlocks: written once,
+-- each call gives the class its own copy.
+local function Wand()
+  return { name = "Жезл", desc = "Стрельба из жезла. Повторное нажатие её не выключает.",
+    body = "#showtooltip\n/cast !{s:5019}" }
+end
+local function WandNoBreak()
+  return { name = "Жезл, не сбивая", title = "Жезл, не сбивая канал", desc = "Стрельба из жезла. Пока идёт канал, ничего не делает, чтобы его не сбить. Повторное нажатие стрельбу не выключает.",
+    body = "#showtooltip\n/stopmacro [channeling]\n/castsequence reset=2 !{s:5019}, !{s:5019}" }
+end
+
 ns.MACROS = {
   GENERAL = {
     { group = "Бой", list = {
@@ -469,8 +480,7 @@ ns.MACROS = {
        body = "#showtooltip\n/cast [@mouseover,harm,nodead][] {s:15286}" },
     } },
     { group = "Общие", list = {
-      { name = "Жезл", desc = "Стрельба из жезла. Повторное нажатие её не выключает.",
-       body = "#showtooltip\n/cast !{s:5019}" },
+      Wand(), WandNoBreak(),
       { name = "Стойкость", title = "Слово силы: Стойкость", desc = "Слово силы: Стойкость по союзнику под курсором, иначе по цели, иначе по себе.",
        body = "#showtooltip\n/cast [@mouseover,help,nodead][help,nodead][@player] {s:1243}" },
       { name = "Контроль разума", title = "Контроль над разумом", desc = "Контроль над разумом по врагу под курсором, иначе по цели.",
@@ -635,8 +645,7 @@ ns.MACROS = {
        body = "#showtooltip {s:11426}\n/stopcasting\n/cast {s:11426}" },
     } },
     { group = "Общие", list = {
-      { name = "Жезл", desc = "Стрельба из жезла. Повторное нажатие её не выключает.",
-       body = "#showtooltip\n/cast !{s:5019}" },
+      Wand(), WandNoBreak(),
       { name = "Еда и вода", title = "Сотворить еду и воду", desc = "Левый клик: Сотворение воды. Правый: Сотворение пищи (высший ранг).",
        body = "#showtooltip\n/cast [btn:2] {s:587}; {s:5504}" },
       { name = "Баффы мага", desc = "Левый клик: Чародейский интеллект. Правый: Морозный доспех.",
@@ -720,8 +729,7 @@ ns.MACROS = {
        body = "#showtooltip\n/cast [@mouseover,harm,nodead][] {s:5676}" },
     } },
     { group = "Общие", list = {
-      { name = "Жезл", desc = "Стрельба из жезла. Повторное нажатие её не выключает.",
-       body = "#showtooltip\n/cast !{s:5019}" },
+      Wand(), WandNoBreak(),
     } },
     { group = "Колдовство", list = {
       { name = "Проклятия", desc = "Проклятие безрассудства. С Shift Проклятие стихий, с Ctrl Проклятие косноязычия.",
